@@ -1,0 +1,19 @@
+Cocos2d-x - Many library parts and concepts, like Actions and Nodes, were originally inspired by the very first (V1) cocos2d-x implementation
+https://github.com/cocos2d/cocos2d-x
+
+Tom Dalling - Program and Shader classes
+https://github.com/tomdalling/opengl-series
+
+Sean Barret - image stb library
+https://github.com/nothings/stb
+
+Toni Ronkko - Dirent interface for Microsoft Visual Studio
+https://github.com/tronkko/dirent
+
+René Nyffenegger - Base64 encode/decode functions
+https://github.com/ReneNyffenegger/cpp-base64
+
+Gianluca Sclano - BmkExtras macros, Utilities & Randomizer classes and many suggestions
+
+SimpleIni
+https://github.com/brofield/simpleini
