@@ -34,8 +34,9 @@
 #include "jam/Timer.h"
 
 #include <fstream>
+#include <sstream>
 
-#ifdef JAM_EXCLUDED_BLOCK
+//#ifdef JAM_EXCLUDED_BLOCK
 
 namespace jam
 {
@@ -76,10 +77,9 @@ namespace jam
 	// ***
 	const jam::time AchievementManager::DefaultCheckinterval = 2.0f ;
 
-	AchievementManager::AchievementManager() : BaseManager<Achievement>(), m_checkTimer(0), m_checkInterval(DefaultCheckinterval)
+	AchievementManager::AchievementManager() : NamedTaggedObjectManager<Achievement>(), m_checkTimer(0), m_checkInterval(DefaultCheckinterval)
 	{
-		m_checkTimer.reset( Timer::create() ) ;
-//		m_checkTimer ->setReserved() ;
+		m_checkTimer = Timer::create() ;
 		m_checkTimer ->start();
 	}
 
@@ -90,96 +90,90 @@ namespace jam
 
 	void AchievementManager::check( bool force /*= false */ )
 	{
-		Achievement* pAch = 0 ;
-
 		m_checkTimer->update() ;
 		if( !force && m_checkTimer->getTotalElapsed() < m_checkInterval ) {
 			return ;
 		}
 
 		// itera sugli achievements
-		for( auto& pAchPair : getManagerMap() )
-			Ref<Achievement> pAch = pAchPair.second ;
+		Achievement* pAch = nullptr ;
+		for( auto& pAchPair : getManagerMap() ) {
+			pAch = pAchPair.second ;
 			if( pAch->isActive() ) {
 				if( !pAch->isCompleted() && pAch->check() ) {
 					pAch->complete();
 					pAch->sidefx();
-					Ref<AchievementCompletedEventArgs> evtArgs( AchievementCompletedEventArgs::create() ) ;
-					evtArgs->setAchievementId( pAch->getId() ) ;
-					pAch->getEvent().enqueue(
-						dynamic_ref_cast<EventArgs,AchievementCompletedEventArgs>(evtArgs),
-						dynamic_ref_cast<IEventSource,AchievementManager>(Ref<AchievementManager>(this))
-					) ;
-
+					AchievementCompletedEventArgs* evtArgs = AchievementCompletedEventArgs::create() ;
+					evtArgs->setAchievementName( pAch->getName() ) ;
+					pAch->getEvent().enqueue( evtArgs, this ) ;
 				}
 			}
 		}
 
-		m_checkTimer.reset() ;
+		m_checkTimer->reset() ;
 	}
 
 	void AchievementManager::setActiveByTag( bool activeStatus, const TagType& tag )
 	{
-		BankItemList& list = getBankItemsByTag(tag) ;
-		for( size_t i = 0; i<list.size(); i++ ) {
-			((Achievement*)list[i])->setActive(activeStatus) ;
+		AchievementManager::RangeTags range = findObjectsByTag(tag) ;
+		for( auto it = range.first; it!=range.second; it++ ) {
+			Achievement* pAch = (*it).second ;
+			pAch->setActive(activeStatus) ;
 		}
 	}
 
 	bool AchievementManager::setActiveByName( bool activeStatus, const String& name )
 	{
-		Achievement* ach = getPtrByName(name) ;
+		Achievement* ach = getObject(name) ;
 		if( ach ) {
 			ach->setActive(activeStatus) ;
 		}
 
-		return ach != 0 ;
+		return ach != nullptr ;
 	}
 
 	void AchievementManager::load( std::ifstream& ifs )
 	{
-		Achievement* pAch = 0 ;
+		Achievement* pAch = nullptr ;
 
-		int n = 0, id = 0 ;
+		int n = 0 ;
+		String name = 0 ;
 		bool completeFlag = false ;
 
 		// load data from stream
-		ifs.read( (char*)&n, sizeof(n) ); ;
+		ifs >> n ;
 
 		// iterate on achievements
 		for( size_t i=0; i<(size_t)n; i++ ) {
-			ifs.read( (char*)&id, sizeof(id) ) ;
-			ifs.read( (char*)&completeFlag, sizeof(completeFlag)) ;
-			pAch = (Achievement*)getPtrById(id) ;
+			ifs >> name ;
+			ifs >> completeFlag ;
+			pAch = (Achievement*)getObject(name) ;
 			pAch->setComplete( completeFlag ) ;
 		}
 	}
 
 	void AchievementManager::save( std::ofstream& ofs )
 	{
-		Achievement* pAch = 0 ;
-
-		std::map<int,bool> tempList ;
+		std::map<String,bool> tempList ;
 
 		// itera sugli achievements
-		for( size_t i=0; i<m_objectsArray.size(); i++ ) {
-			if( m_objectsArray[i] != 0 ) {
-				pAch = (Achievement*)m_objectsArray[i] ;
-				bool b = pAch->isCompleted() ;
-				tempList[pAch->getId()] = b ;
-			}
+		Achievement* pAch = nullptr ;
+		for( auto& pAchPair : getManagerMap() ) {
+			pAch = pAchPair.second ;
+			bool b = pAch->isCompleted() ;
+			tempList[pAch->getName()] = b ;
 		}
 
 		// write achievements count
 		int n = (int)tempList.size() ;
-		ofs.write( (char*)&n, sizeof(n) ) ;
+		ofs << n << std::endl ;
 
 		// write achievements complete-flag into the stream
-		for( std::map<int,bool>::iterator it = tempList.begin(); it!=tempList.end(); it++ ) {
-			int achId = it->first ;
+		for( std::map<String,bool>::iterator it = tempList.begin(); it!=tempList.end(); it++ ) {
+			String achName = it->first ;
 			bool completeFlag = it->second ;
-			ofs.write((char*)&achId, sizeof(achId)) ;
-			ofs.write((char*)&completeFlag, sizeof(completeFlag)) ;
+			ofs << achName << std::endl ;
+			ofs << completeFlag << std::endl ;
 		}
 
 		ofs.flush() ;
@@ -193,16 +187,12 @@ namespace jam
 
 	void AchievementManager::reset()
 	{
-		Achievement* pAch = 0 ;		
+		Achievement* pAch = nullptr ;		
 		// iterate on achievements
-		for( size_t i=0; i<m_objectsArray.size(); i++ ) 
-		{
-			if( m_objectsArray[i] != 0 ) {
-				//pAch = (Achievement*)getPtrById(i) ;
-				pAch = (Achievement*)m_objectsArray[i] ;
-				pAch->setComplete( false) ;
-				pAch->setActive( false) ;
-			}
+		for( auto& pAchPair : getManagerMap() ) {
+			pAch = pAchPair.second ;
+			pAch->setComplete( false) ;
+			pAch->setActive( false) ;
 		}
 	}
 
@@ -218,11 +208,9 @@ namespace jam
 
 	AchievementCompletedEventArgs* AchievementCompletedEventArgs::create()
 	{
-		AchievementCompletedEventArgs* archEvtArgs = JAM_ALLOC(AchievementCompletedEventArgs) ;
-		archEvtArgs->autorelease() ;
-		return archEvtArgs ;
+		return new (GC) AchievementCompletedEventArgs() ;
 	}
 
 }
 
-#endif // JAM_EXCLUDED_BLOCK 
+//#endif // JAM_EXCLUDED_BLOCK 

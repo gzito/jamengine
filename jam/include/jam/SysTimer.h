@@ -44,22 +44,15 @@ class JAM_API SysTimer : public jam::Singleton<SysTimer>
 public:
 	SysTimer() ;
 
-	uint64_t				getTime() { return (this->*fpGetTime)(); }
+	uint64_t				getTime() { return this->getTimeMs(); }
 	uint64_t				getUnitsPerSecond() { return m_unitsPerSecond; }
 
 private:
 	// get the time in milliseconds
 	uint64_t				getTimeMs() ;
-/*
-	// get the time in microseconds
-	uint64_t getTimeUSecs() ;
 
-	// get the time in nanoseconds
-	uint64_t getTimeNanoSecs() ;
-*/
 private:
 	uint64_t				m_unitsPerSecond ;
-	uint64_t				(SysTimer::*fpGetTime)(void) ;
 };
 
 /** Returns the singleton instance */

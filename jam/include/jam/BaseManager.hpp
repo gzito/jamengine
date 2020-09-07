@@ -40,7 +40,7 @@ namespace jam
 {
 
 template <typename T>
-class NamedObjectManager
+class NamedObjectManager : public Collectible
 {
 public:
 	using ObjectsMap = std::unordered_map<String,T*> ;

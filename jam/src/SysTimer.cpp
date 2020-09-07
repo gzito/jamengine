@@ -39,50 +39,13 @@ namespace jam
 
 	SysTimer::SysTimer()
 	{
-		// GZ TODO:
-		// Here the engine should determine the appropriate timescale (ms, usec or nanosecs) for the platform
-		// For now default to milliseconds
-
-		// get timer resolution, see: http://www.cs.rutgers.edu/~pxk/416/notes/c-tutorials/gettime.html
-//		timespec ts = {0} ;
-//		clock_getres(CLOCK_MONOTONIC, &ts);
-
-		// sets the timescale as nanoseconds 
-//		fpGetTime = &SysTimer::getTimeNanoSecs ;
-//		m_timerResolution = 1000000000UL ;
-
-		// sets the timescale as microseconds 
-//		fpGetTime = &SysTimer::getTimeUSecs ;
-//		m_timerResolution = 1000000UL ;
-
 		// sets the timescale as milliseconds
-		fpGetTime = &SysTimer::getTimeMs ;
 		m_unitsPerSecond = 1000UL ;
 	}
 
 	uint64_t SysTimer::getTimeMs()
 	{
-		// CLOCKS_PER_SEC EQU 1000 on Windows
-		return clock() ;
+		return SDL_GetTicks() ;
 	}
 
-/*
-	uint64_t SysTimer::getTimeUSecs()
-	{
-		timeval tv = {0} ;
-		gettimeofday(&tv,0) ;
-		return ((uint64_t)tv.tv_sec)*1000000UL + tv.tv_usec ;
-	}
-
-	//
-	// C Tutorial: Use Linux's high resolution clock
-	// See: http://www.cs.rutgers.edu/~pxk/416/notes/c-tutorials/gettime.html
-	//
-	uint64_t SysTimer::getTimeNanoSecs()
-	{
-		timespec ts = { 0 } ;
-		clock_gettime(CLOCK_MONOTONIC,&ts) ;
-		return ((uint64_t)ts.tv_sec)*1000000000UL + ts.tv_nsec ;
-	}
-*/
 }

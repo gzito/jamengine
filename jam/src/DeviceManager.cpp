@@ -38,14 +38,14 @@ namespace jam
 int32_t DeviceManager::getNativeDisplayWidth() const
 {
 	int width, height;
-	SDL_GL_GetDrawableSize(Application::getWindowPtr(), &width, &height);
+	SDL_GL_GetDrawableSize(GetAppMgr().getWindowPtr(), &width, &height);
 	return width ;
 }
 
 int32_t DeviceManager::getNativeDisplayHeight() const
 {
 	int width, height;
-	SDL_GL_GetDrawableSize(Application::getWindowPtr(), &width, &height);
+	SDL_GL_GetDrawableSize(GetAppMgr().getWindowPtr(), &width, &height);
 	return height ;
 }
 

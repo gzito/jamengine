@@ -58,13 +58,14 @@ public:
 	};
 
 public:
-	static uint64_t			DefaultDoubleTapMaxDelayMs ;
-	static KeyStatus		m_keyMap[SDL_NUM_SCANCODES+1] ;
-	static KeyStatus		m_mouseButtonsMap[SDL_BUTTON_X2+1] ;
-	static double			m_pointerX ;
-	static double			m_pointerY ;
-	static double			m_pointerScrollX ;
-	static double			m_pointerScrollY ;
+	static const uint64_t	DefaultDoubleTapMaxDelayMs ;
+
+	KeyStatus				m_keyMap[SDL_NUM_SCANCODES+1] ;
+	KeyStatus				m_mouseButtonsMap[SDL_BUTTON_X2+1] ;
+	double					m_pointerX ;
+	double					m_pointerY ;
+	double					m_pointerScrollX ;
+	double					m_pointerScrollY ;
 	
 public:
 	/** Returns true if the given key is currently down. */
@@ -162,10 +163,10 @@ protected:
 	void					pointerUpdate();
 
 private:
-	static void				keyboardCallback( SDL_Window* pWin, SDL_KeyboardEvent& e ) ;
-	static void				mouseButtonCallback( SDL_Window* pWin, SDL_MouseButtonEvent& e ) ;
-	static void				mouseMoveCallback( SDL_Window* pWin, SDL_MouseMotionEvent& e ) ;
-	static void				mouseScrollCallback( SDL_Window* pWin, SDL_MouseWheelEvent& e );
+	void					keyboardCallback( SDL_KeyboardEvent& e ) ;
+	void					mouseButtonCallback( SDL_MouseButtonEvent& e ) ;
+	void					mouseMoveCallback( SDL_MouseMotionEvent& e ) ;
+	void					mouseScrollCallback( SDL_MouseWheelEvent& e );
 
 private:
 	int32_t					m_maxNumberOfTouches ;
@@ -188,15 +189,15 @@ private:
 JAM_INLINE InputManager& GetInputMgr() { return InputManager::getSingleton(); }
 
 // inline methods
-JAM_INLINE uint32_t				InputManager::getMaxNumberOfTouches() const { return m_maxNumberOfTouches; }
-JAM_INLINE void					InputManager::setMaxNumberOfTouches(uint32_t val) { m_maxNumberOfTouches = val; }
-JAM_INLINE float				InputManager::getTouchX(uint32_t touchId) const { return m_touchX[touchId]; }
-JAM_INLINE float				InputManager::getTouchY(uint32_t touchId) const { return m_touchY[touchId]; }
-JAM_INLINE void					InputManager::setDoubleTapMaxDelay(uint64_t maxDelay) { m_doubleTapDelay = maxDelay; }
-JAM_INLINE uint64_t				InputManager::getDoubleTapMaxDelay() const { return m_doubleTapDelay; }
-JAM_INLINE bool					InputManager::isTouchDoublePressed(int32_t touchId) { return m_doubleTap[touchId] ; }
-JAM_INLINE Timer&				InputManager::getUpdateTimer() { return *m_pUpdateTimer; }
-JAM_INLINE const Timer&			InputManager::getUpdateTimer() const { return *m_pUpdateTimer; }
+JAM_INLINE uint32_t			InputManager::getMaxNumberOfTouches() const { return m_maxNumberOfTouches; }
+JAM_INLINE void				InputManager::setMaxNumberOfTouches(uint32_t val) { m_maxNumberOfTouches = val; }
+JAM_INLINE float			InputManager::getTouchX(uint32_t touchId) const { return m_touchX[touchId]; }
+JAM_INLINE float			InputManager::getTouchY(uint32_t touchId) const { return m_touchY[touchId]; }
+JAM_INLINE void				InputManager::setDoubleTapMaxDelay(uint64_t maxDelay) { m_doubleTapDelay = maxDelay; }
+JAM_INLINE uint64_t			InputManager::getDoubleTapMaxDelay() const { return m_doubleTapDelay; }
+JAM_INLINE bool				InputManager::isTouchDoublePressed(int32_t touchId) { return m_doubleTap[touchId] ; }
+JAM_INLINE Timer&			InputManager::getUpdateTimer() { return *m_pUpdateTimer; }
+JAM_INLINE const Timer&		InputManager::getUpdateTimer() const { return *m_pUpdateTimer; }
 
 }
 

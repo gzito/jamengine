@@ -35,6 +35,23 @@
 
 namespace jam
 {
+	// ********************************************************************************************
+	//
+	// TimeExpiredEventArgs
+	//
+	// ********************************************************************************************
+
+	TimeExpiredEventArgs* TimeExpiredEventArgs::create()
+	{
+		return new (GC) TimeExpiredEventArgs() ;
+	}
+
+
+	// ********************************************************************************************
+	//
+	// Timer
+	//
+	// ********************************************************************************************
 
 	int Timer::m_timersCount = 0 ;
 	const float	Timer::m_timeScale = 0.001f ;
@@ -56,7 +73,6 @@ namespace jam
 		m_pausing(false),
 		m_remain(0)
 	{
-		//JAM_TRACE( ("Timer created") ) ;
 		m_timersCount++ ;
 		reset() ;
 	}
@@ -64,7 +80,6 @@ namespace jam
 	Timer::~Timer()
 	{
 		m_timersCount-- ;
-		//JAM_TRACE( ("Timer destroyed") ) ;
 	}
 
 	void Timer::start()
@@ -196,6 +211,13 @@ namespace jam
 		return new (GC) Timer() ;
 	}
 
+
+	// ********************************************************************************************
+	//
+	// TimerManager
+	//
+	// ********************************************************************************************
+
 	void TimerManager::update()
 	{
 		Timer* pTimer ;
@@ -245,8 +267,4 @@ namespace jam
 		}
 	}
 
-	TimeExpiredEventArgs* TimeExpiredEventArgs::create()
-	{
-		return new (GC) TimeExpiredEventArgs() ;
-	}
 }

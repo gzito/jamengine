@@ -69,15 +69,9 @@
 
 namespace jam
 {
-bool						Application::m_engineInited = false ;
-SDL_Window*					Application::m_pWindow = 0 ;
-SDL_GLContext				Application::m_GLContext = 0 ;
-
-#ifdef JAM_PHYSIC_ENABLED
-	b2World* Application::m_pPhysWorld = 0 ;
-#endif
 
 Application::Application() :
+	m_engineInited(false),
 	m_elapsedMs(0),
 	m_totalElapsedMs(0),
 	m_secsElapsed(0.0f),
@@ -91,6 +85,7 @@ Application::Application() :
 	m_msPerFrame(0),
 	m_avgMsPerFrameIdx(0),
 #ifdef JAM_PHYSIC_ENABLED
+	m_pPhysWorld(nullptr)
 	m_physicsEnabled(false),
 	m_ptmRatio(0),
 #endif		
@@ -101,12 +96,15 @@ Application::Application() :
 	m_bClearColorChanged(true),
 	m_paused(false),
 #ifdef JAM_TRACE_ACTIVE_NODES
-	m_traceActiveNodesTimer(0),
+	m_traceActiveNodesTimer(nullptr),
 #endif
 	m_collisionCheckFactor(1.0f),
 	m_audioCheckFactor(1.0f),
 	m_inputCheckFactor(1.0f),
-	m_resourceManager()
+	m_sysTimerManager(nullptr),
+	m_resourceManager(nullptr),
+	m_pWindow(nullptr),
+	m_GLContext(nullptr)
 {
 	setup() ;
 }
@@ -176,7 +174,7 @@ void Application::start()
 	m_sceneNode->init() ;
 	m_sceneNode->onEnter() ;
 
-	// TODO da spostare nel gioco. Dare un modo per inizializzare questi timer con dei valori di default
+	m_sysTimerManager = new (GC) TimerManager() ;
 
 #ifndef JAM_COLLISIONS_DISABLED
 	GetCollMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_collisionCheckFactor)) ;
@@ -184,19 +182,19 @@ void Application::start()
 	GetCollMgr().getUpdateTimer().setName("CollMgr.updateTimer") ;
 	GetCollMgr().getUpdateTimer().start() ;
 
-	GetTimerMgr().addObject(&GetCollMgr().getUpdateTimer()) ;
+	getSysTimerManager().addObject(&GetCollMgr().getUpdateTimer()) ;
 #endif
 	GetAudioMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_audioCheckFactor)) ;
 	GetAudioMgr().getUpdateTimer().setRepeatSweep(-1) ;
 	GetAudioMgr().getUpdateTimer().setName("AudioMgr.updateTimer") ;
 	GetAudioMgr().getUpdateTimer().start() ;
-	GetTimerMgr().addObject(&GetAudioMgr().getUpdateTimer()) ;
+	getSysTimerManager().addObject(&GetAudioMgr().getUpdateTimer()) ;
 
 	GetInputMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_inputCheckFactor)) ;
 	GetInputMgr().getUpdateTimer().setRepeatSweep(-1) ;
 	GetInputMgr().getUpdateTimer().setName("InputMgr.updateTimer") ;
 	GetInputMgr().getUpdateTimer().start() ;
-	GetTimerMgr().addObject(&GetInputMgr().getUpdateTimer()) ;
+	getSysTimerManager().addObject(&GetInputMgr().getUpdateTimer()) ;
 
 #ifdef JAM_TRACE_ACTIVE_NODES
 	m_traceActiveNodesTimer = Timer::create() ;
@@ -253,7 +251,7 @@ void Application::start()
 
 void Application::gameLoop()
 {
-	int64_t yield = 0 ;
+	int64_t yieldMs = 0 ;
 		
 	SDL_Event e;
 	while( !m_exitFromMainLoop )
@@ -267,21 +265,21 @@ void Application::gameLoop()
 				m_exitFromMainLoop = true;
 			}
 			else if( e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP ) {
-				InputManager::mouseButtonCallback(m_pWindow,(SDL_MouseButtonEvent&)e) ;
+				GetInputMgr().mouseButtonCallback( (SDL_MouseButtonEvent&)e ) ;
 			}
 			else if( e.type == SDL_MOUSEMOTION ) {
-				InputManager::mouseMoveCallback(m_pWindow,(SDL_MouseMotionEvent&)e) ;
+				GetInputMgr().mouseMoveCallback( (SDL_MouseMotionEvent&)e ) ;
 			}
 			else if( e.type == SDL_MOUSEWHEEL ) {
-				InputManager::mouseScrollCallback(m_pWindow,(SDL_MouseWheelEvent&)e) ;
+				GetInputMgr().mouseScrollCallback( (SDL_MouseWheelEvent&)e ) ;
 			}
 			else if( e.type == SDL_KEYDOWN || e.type == SDL_KEYUP ) {
-				InputManager::keyboardCallback(m_pWindow,(SDL_KeyboardEvent&)e) ;
+				GetInputMgr().keyboardCallback( (SDL_KeyboardEvent&)e ) ;
 			}
 			else if( e.type == SDL_WINDOWEVENT ) {
 				switch (e.window.event) {
 				case SDL_WINDOWEVENT_SIZE_CHANGED:
-					framebufferSizeCallback( m_pWindow, e.window.data1, e.window.data2 ) ;
+					framebufferSizeCallback( e.window.data1, e.window.data2 ) ;
 					break;
 				case SDL_WINDOWEVENT_CLOSE:
 					break;
@@ -302,9 +300,9 @@ void Application::gameLoop()
 		}
 
 		while( true ) {
- 			yield = (int64_t)getRemainingFrameMs() ;
-			if (yield<=0) break ;
-			Sleep((DWORD)yield) ;
+ 			yieldMs = (int64_t)getRemainingFrameMs() ;
+			if (yieldMs<=0) break ;
+			SDL_Delay((DWORD)yieldMs) ;
 		}
 
 		if( getTotalElapsed() > 1.0f ) {
@@ -323,6 +321,11 @@ uint64_t Application::getRemainingFrameMs() const
 Scene* Application::getScene()
 {
 	return m_sceneNode;
+}
+
+TimerManager& Application::getSysTimerManager()
+{
+	return *m_sysTimerManager ;
 }
 
 void Application::setup()
@@ -407,7 +410,7 @@ void Application::doFrame()
 
 	// update registered timers
 	if( !isPaused() ) {
-		GetTimerMgr().update() ;
+		getSysTimerManager().update() ;
 	}
 
 	// update actions
@@ -662,7 +665,7 @@ void Application::updateMsPerFrame()
 	}
 }
 
-void Application::framebufferSizeCallback(SDL_Window* window,int width,int height)
+void Application::framebufferSizeCallback(int width,int height)
 {
 	glViewport( 0,0, width,height ) ;
 	float aspect = width / (float)height ;
@@ -672,20 +675,20 @@ void Application::framebufferSizeCallback(SDL_Window* window,int width,int heigh
 void Application::pause()
 {
 	m_paused = true;
-	GetTimerMgr().pauseAll();
+	getSysTimerManager().pauseAll();
 }
 
 void Application::resume()
 {
 	m_paused = false;
-	GetTimerMgr().resumeAll();
+	getSysTimerManager().resumeAll();
 }
 
 void Application::togglePause()
 {
 	m_paused = !m_paused ;
-	if (m_paused) GetTimerMgr().pauseAll();
-	else GetTimerMgr().resumeAll();
+	if (m_paused) getSysTimerManager().pauseAll();
+	else getSysTimerManager().resumeAll();
 }
 
 #ifdef JAM_DEBUG
@@ -739,18 +742,16 @@ void APIENTRY glDebugOutput(GLenum source,
 
 void Application::engineInitialize()
 {
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
+	if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 ) {
 		JAM_ERROR( "Failed to initialize SDL" );
 	}		
 
-	SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 4) ;
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 ) ;
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 ) ;
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, 0 ) ;	// ANY_PROFILE
-	// depth buffer is 24-bit by default
-	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 ) ;
-	// enable double buffer
-	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, 0 ) ;	// leaves the choice of profile up to SDL
+	SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 4) ;
+	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 ) ;	// depth buffer is 24-bit by default
+	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 ) ;	// enable double buffer
 
 #ifdef JAM_DEBUG
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG ) ;
@@ -792,7 +793,7 @@ void Application::engineInitialize()
 		JAM_ERROR("Failed to initialize GLEW") ;
 	}
 
-	//Use Vsync
+	// Use Vsync
 	if( SDL_GL_SetSwapInterval( 1 ) < 0 ) {
 		SDL_GL_DeleteContext(m_GLContext);
 		SDL_DestroyWindow( m_pWindow );
@@ -820,6 +821,9 @@ void Application::engineTerminate()
 	GetAnim2DMgr().removeAllBankItems(true) ;
 	GetDrawItemMgr().removeAllBankItems(true) ;
 	GetAudioMgr().removeAllBankItems(true) ;
+*/
+	getSysTimerManager().clearAll() ;
+/*
 	GetTimerMgr().removeAllBankItems(true) ;
 	GetAchievementMgr().removeAllBankItems(true) ;
 	GetMaterialMgr().removeAllBankItems(true) ;
@@ -841,7 +845,6 @@ void Application::engineTerminate()
 	TextNodeManager::destroySingleton() ;
 	ActionManager::destroySingleton() ;
 	Draw3DManager::destroySingleton() ;
-	TimerManager::destroySingleton() ;
 	EventDispatcher::destroySingleton() ;	
 //	AchievementManager::destroySingleton() ;
 	SysTimer::destroySingleton() ;

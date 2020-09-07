@@ -52,6 +52,8 @@ private:
 	jam::Timer*					m_pTimer ;
 	bool						m_gameStarted ;
 
+	jam::Timer*					m_pFpsTimer ;
+
 	// text
 	jam::Texture2D*				m_pFontTex ;
 };

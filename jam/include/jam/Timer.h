@@ -161,28 +161,18 @@ private:
 	static int				m_timersCount ;
 };
 
-class JAM_API TimerManager : public NamedObjectManager<Timer> , public jam::Singleton<TimerManager>
+class JAM_API TimerManager : public NamedObjectManager<Timer>
 {
 
-	friend class jam::Singleton<TimerManager> ;
-
 public:
+							TimerManager() = default ;
+
 	void					update() ;
 	void					pauseAll();
 	void					resumeAll();
 	void					stopAll();
 	void					startAll();
-
-
-protected:
-	TimerManager() = default ;
-
-private:
 };
-
-
-JAM_INLINE  TimerManager& GetTimerMgr() { return (TimerManager&) TimerManager::getSingleton(); }
-
 
 }
 

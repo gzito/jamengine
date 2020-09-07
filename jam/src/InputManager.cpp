@@ -40,15 +40,11 @@
 namespace jam
 {
 
-uint64_t InputManager::DefaultDoubleTapMaxDelayMs = 300 ;
-InputManager::KeyStatus InputManager::m_keyMap[SDL_NUM_SCANCODES+1] ;
-InputManager::KeyStatus	InputManager::m_mouseButtonsMap[SDL_BUTTON_X2+1] ;
-double InputManager::m_pointerY = 0.f ;
-double InputManager::m_pointerX = 0.f ;
-double InputManager::m_pointerScrollX = 0.f ;
-double InputManager::m_pointerScrollY = 0.f ;
+// static initialization
+const uint64_t InputManager::DefaultDoubleTapMaxDelayMs = 300 ;
 
-void InputManager::keyboardCallback( SDL_Window* pWin, SDL_KeyboardEvent& e )
+
+void InputManager::keyboardCallback( SDL_KeyboardEvent& e )
 {
 	SDL_Scancode key = e.keysym.scancode;
 	Uint8 action = e.state;
@@ -72,7 +68,7 @@ void InputManager::keyboardCallback( SDL_Window* pWin, SDL_KeyboardEvent& e )
 	}
 }
 
-void InputManager::mouseButtonCallback( SDL_Window* pWin, SDL_MouseButtonEvent& e )
+void InputManager::mouseButtonCallback( SDL_MouseButtonEvent& e )
 {
 	Uint8 action = e.state;
 	Uint8 button = e.button ;
@@ -84,20 +80,21 @@ void InputManager::mouseButtonCallback( SDL_Window* pWin, SDL_MouseButtonEvent& 
 	}
 }
 
-void InputManager::mouseMoveCallback( SDL_Window* pWin, SDL_MouseMotionEvent& e )
+void InputManager::mouseMoveCallback( SDL_MouseMotionEvent& e )
 {
 	m_pointerX = e.x ;
 	m_pointerY = e.y ;
 }
 
-void InputManager::mouseScrollCallback( SDL_Window* pWin, SDL_MouseWheelEvent& e )
+void InputManager::mouseScrollCallback( SDL_MouseWheelEvent& e )
 {
 	m_pointerScrollX = e.x ;
 	m_pointerScrollY = e.y ;
 }
 
 InputManager::InputManager():
-	m_maxNumberOfTouches(JAM_MAX_TOUCHES), m_doubleTapDelay(DefaultDoubleTapMaxDelayMs)
+	m_maxNumberOfTouches(JAM_MAX_TOUCHES), m_doubleTapDelay(DefaultDoubleTapMaxDelayMs),
+	m_pointerY(0.f), m_pointerX(0.f), m_pointerScrollX(0.f), m_pointerScrollY(0.f)
 {
 	m_pUpdateTimer = Timer::create() ;
 	if( !isMultiTouchAvailable() ) {

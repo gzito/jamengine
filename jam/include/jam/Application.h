@@ -55,6 +55,7 @@ namespace jam
 class Scene ;
 class Node ;
 class Timer ;
+class TimerManager ;
 
 #ifdef JAM_PHYSIC_ENABLED
 class b2World ;
@@ -72,6 +73,7 @@ typedef RefCountedObject IEventSource ;
 */
 class JAM_API Application : public jam::Singleton<Application>
 {
+	template <class T> friend void runEngine() ;
 	friend class Singleton<Application> ;
 	friend class Scene ;
 
@@ -94,10 +96,12 @@ public:
 	/// Gets the pointer to the scene node
 	Scene*					getScene();
 
+	TimerManager&			getSysTimerManager() ;
+
 	ResourceManager&		getResourceManager() ;
 
 #ifdef JAM_PHYSIC_ENABLED
-	static b2World*			getB2World() ;
+	b2World*				getB2World() ;
 	void					enablePhysics(bool enable = true) ;
 
 	float					getPtmRatio() const { return m_ptmRatio; }
@@ -138,19 +142,13 @@ public:
 	void					enableClearingColorBuffer(bool val) { m_clearColorBuffer = val; }
 	void					setClearColor( const Color& val );
 
-	// Starts the application and enters the main loop
-	// called from main, so it must be public
-	void					start() ;
-
 	void					pause();
 	void					resume();
 	void					togglePause() ;
 	bool					isPaused() const { return m_paused; }
+	bool					isEngineInited() const { return m_engineInited; }
 
-	static SDL_Window*		getWindowPtr() ;
-
-	static void				engineInitialize() ;
-	static void				engineTerminate() ;
+	SDL_Window*				getWindowPtr() ;
 
 #ifdef JAM_TRACE_ACTIVE_NODES
 	void					traceActiveNodes(TimeExpiredEventArgs& args, IEventSource& source) ;
@@ -202,6 +200,11 @@ protected:
 	void					setInputCheckFactor(float val);
 
 private:
+	// Starts the application and enters the main loop. It's called from main, so it must be public
+	void					start() ;
+	void					engineInitialize() ;
+	void					engineTerminate() ;
+
 	void					setup() ;
 	void					cleanup() ;
 	void					doFrame();
@@ -210,10 +213,10 @@ private:
 	void					updateSounds() ;
 	void					updateMsPerFrame();
 
-	static void				framebufferSizeCallback(SDL_Window* window, int width, int height) ;
+	void					framebufferSizeCallback(int width, int height) ;
 
 private:
-	static bool				m_engineInited ;
+	bool					m_engineInited ;
 
 	// note: time is stored in milliseconds
 	uint64_t				m_totalElapsedMs ;
@@ -247,7 +250,7 @@ private:
 
 #ifdef JAM_PHYSIC_ENABLED
 	// physix
-	static b2World*			m_pPhysWorld ;
+	b2World*				m_pPhysWorld ;
 	bool					m_physicsEnabled ;
 	float					m_ptmRatio ;		// pixel to meter ratio for Box2D
 #endif
@@ -260,8 +263,10 @@ private:
 	Timer*					m_traceActiveNodesTimer ;
 #endif
 
-	static SDL_Window*		m_pWindow;
-	static SDL_GLContext	m_GLContext ;
+	TimerManager*			m_sysTimerManager ;
+
+	SDL_Window*				m_pWindow;
+	SDL_GLContext			m_GLContext ;
 			
 	ResourceManager*		m_resourceManager ;
 };	// class Application
@@ -275,15 +280,12 @@ JAM_INLINE SDL_Window* Application::getWindowPtr() { return m_pWindow ; }
 
 template <class T> void runEngine()
 {
+	T* app = new T() ;
+
 	try
 	{
-		Application::engineInitialize() ;
-
-		T* app = new T();
+		app->engineInitialize() ;
 		app->start();
-		JAM_DELETE( app ) ;
-
-		Application::engineTerminate() ;
 	}
 	catch( std::exception& ex )
 	{
@@ -295,6 +297,24 @@ template <class T> void runEngine()
 		JAM_TRACE( "Unknown exception thrown!\n" ) ;
 		printf( "Unknown exception thrown!\n" ) ; 
 	}
+
+	try {
+		if( app->isEngineInited() ) {
+			app->engineTerminate() ;
+		}
+	}
+	catch( std::exception& ex )
+	{
+		JAM_TRACE( "Exception thrown:\n%s\n", ex.what() ) ;
+		printf( "Exception thrown:\n%s\n", ex.what() ) ; 
+	}
+	catch(...)
+	{
+		JAM_TRACE( "Unknown exception thrown!\n" ) ;
+		printf( "Unknown exception thrown!\n" ) ; 
+	}
+	
+	JAM_DELETE(app) ;
 };
 
 }	// namespace jam

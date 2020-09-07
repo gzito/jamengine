@@ -59,6 +59,8 @@ bool FallingBoxes::init()
 	Draw3DManager::Origin3D(960,540) ;
 	setClearColor( Color::MIDNIGHTBLUE ) ;
 
+	setAnimationIntervalMs(13) ;
+
 	//	front face is clockwise
  	glFrontFace(GL_CW) ;
  	glCullFace(GL_BACK) ;
@@ -117,14 +119,20 @@ bool FallingBoxes::init()
 	// Create shape definition and add to body
 	b2FixtureDef boxShapeDef;
 	boxShapeDef.shape = &boxShape;
-	boxShapeDef.density = 0.0f;
+	boxShapeDef.density = 1.0f;
 	boxShapeDef.friction = 0.3f;
+	boxShapeDef.restitution = 0.4f ;
 	b2Fixture* boxFixture = m_pBoxBody->CreateFixture(&boxShapeDef); 
 
 	m_pTimer = Timer::create() ;
-	m_pTimer->setSweep(1000) ;
+	m_pTimer->setSweep(250) ;
 	m_pTimer->setRepeatSweep(-1) ;
 	m_pTimer->start();
+
+	m_pFpsTimer= Timer::create() ;
+	m_pFpsTimer->setSweep(500) ;
+	m_pFpsTimer->setRepeatSweep(-1) ;
+	m_pFpsTimer->start();
 
 	// set camera
 	Camera* pCamera = new (GC) Camera() ;
@@ -151,6 +159,8 @@ void FallingBoxes::beforeSceneUpdate()
 		return ;
 
 	m_pTimer->update() ;
+	m_pFpsTimer->update() ;
+
 	if( m_pTimer->isSweep() ) {
 		// Create box and add it to the layer
 		Sprite* box = new (GC) Sprite( GetDrawItemMgr().getObject("Box") );
@@ -178,8 +188,9 @@ void FallingBoxes::beforeSceneUpdate()
 		// Create shape definition and add to body
 		b2FixtureDef boxShapeDef;
 		boxShapeDef.shape = &boxShape;
-		boxShapeDef.density = 1.0f;
-		boxShapeDef.friction = 0.3f;
+		boxShapeDef.density = 500.0f;
+		boxShapeDef.friction = 0.1f;
+		boxShapeDef.restitution = 0.8f ;
 		b2Fixture* boxFixture = m_pBoxBody->CreateFixture(&boxShapeDef); 
 	}
 
@@ -202,6 +213,7 @@ void FallingBoxes::beforeSceneUpdate()
 void FallingBoxes::render()
 {
 	static char fps_str[32] = {0};
+	static float myFps ;
 
 	Matrix4 modelMat(1.0f) ;
 	Shader* pShader = GetShaderMgr().getDefaultUnlit() ;
@@ -213,7 +225,10 @@ void FallingBoxes::render()
 	size_t n = GetAppMgr().getScene()->getChildren().size() ;
 	GetDraw3DMgr().Text3D( m_pFontTex, -470, 250, std::to_string(n), Draw3DManager::DrawAlign::DRAW_ALIGN_LEFT, 0, 0.0f, 0.0f, 1.0f ) ;
 
-	sprintf(fps_str,"%.2f",GetAppMgr().getFpsAvg()) ;
+	if( m_pFpsTimer->isSweep() ) {
+		myFps = GetAppMgr().getFps() ;
+	}
+	sprintf(fps_str,"%.2f",myFps) ;
 	GetDraw3DMgr().Text3D( m_pFontTex, 470, 250, fps_str, Draw3DManager::DrawAlign::DRAW_ALIGN_RIGHT, 0, 0.0f, 0.0f, 1.0f ) ;
 }
 

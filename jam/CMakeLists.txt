@@ -38,7 +38,6 @@ set(JAM_main_SRCS
 	src/Animation2dManager.cpp
 	src/Application.cpp
 	src/AudioManager.cpp
-	src/AutoReleasePool.cpp
 	src/B2Sprite.cpp
 	src/Base64.cpp
 	src/Camera.cpp
@@ -120,7 +119,6 @@ set(JAM_main_HDRS
 	include/jam/Animation2dManager.h
 	include/jam/Application.h
 	include/jam/AudioManager.h
-	include/jam/AutoReleasePool.h
 	include/jam/B2Sprite.h
 	include/jam/Base64.h
 	include/jam/BaseManager.hpp

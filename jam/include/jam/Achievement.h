@@ -31,10 +31,11 @@
 #define __JAM_ACHIEVEMENT_H__
 
 #include <jam/jam.h>
+#include <jam/Object.h>
 #include <jam/BaseManager.hpp>
 #include <jam/Event.h>
 
-#ifdef JAM_EXCLUDED_BLOCK
+//#ifdef JAM_EXCLUDED_BLOCK
 
 namespace jam
 {
@@ -49,21 +50,21 @@ public:
 	/** Creates a new AchievementCompletedEventArgs */
 	static AchievementCompletedEventArgs* create() ;
 
-	int						getAchievementId() const { return m_achievementId; }
-	void					setAchievementId(int val) { m_achievementId = val; }
+	String					getAchievementName() const { return m_achievementName; }
+	void					setAchievementName(const String& val) { m_achievementName = val; }
 
 private:
-							AchievementCompletedEventArgs() : m_achievementId(0) {} ;
+							AchievementCompletedEventArgs() = default ;
 		
-	int						m_achievementId ;
+	String					m_achievementName ;
 };
 
 
 // ***
-class JAM_API Achievement : public RefCountedObject
+class JAM_API Achievement : public NamedTaggedObject
 {
 public:
-	typedef Event<AchievementCompletedEventArgs>		AchievementCompletedEvent ;
+	typedef Event<AchievementCompletedEventArgs>	AchievementCompletedEvent ;
 
 							Achievement() ;
 
@@ -98,12 +99,12 @@ private:
 	int						m_order;
 	int						m_reward ;
 
-	AchievementCompletedEvent		m_achievementEvent ;
+	AchievementCompletedEvent	m_achievementEvent ;
 };
 
 
 // ***
-class JAM_API AchievementManager : public BaseManager<Achievement>, public jam::Singleton<AchievementManager>
+class JAM_API AchievementManager : public NamedTaggedObjectManager<Achievement>, public jam::Singleton<AchievementManager>
 {
 	friend class jam::Singleton<AchievementManager> ;
 
@@ -137,7 +138,7 @@ protected:
 	virtual					~AchievementManager() ;
 	static void				setInstance( AchievementManager* pInstance ) ;
 
-	Ref<Timer>				m_checkTimer ;
+	Timer*					m_checkTimer ;
 	jam::time				m_checkInterval ;
 	static const jam::time	DefaultCheckinterval ;
 
@@ -148,6 +149,6 @@ JAM_INLINE  AchievementManager& GetAchievementMgr() { return (AchievementManager
 
 }
 
-#endif // JAM_EXCLUDED_BLOCK
+//#endif // JAM_EXCLUDED_BLOCK
 
 #endif // __JAM_ACHIEVEMENT_H__
