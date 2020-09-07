@@ -44,14 +44,14 @@ namespace jam
 /**
 	Represents a sprite vertex buffer in which each vertex attribute is tight packed in its dedicated array
 */
-class JAM_API SpriteMesh : public RefCountedObject
+class JAM_API SpriteMesh : public Collectible
 {
 public:
 							SpriteMesh() ;
 	virtual					~SpriteMesh() ;
 
-	Ref<Material>			getMaterial() ;
-	void					setMaterial( const Ref<Material>& pMaterial ) ;
+	Material*				getMaterial() ;
+	void					setMaterial( Material* pMaterial ) ;
 
 	void					create(int numOfVertices, int numOfElements) ;
 	void					destroy() ;
@@ -66,7 +66,7 @@ public:
 	void					set( float hw, float hh ) ;
 
 private:
-	Ref<Material>			m_pMaterial ;
+	Material*				m_pMaterial ;
 
 	HeapArray<Vector2>		m_vertices ;
 	HeapArray<Vector2>		m_texCoords ;
@@ -80,7 +80,7 @@ private:
 	bool					m_uploaded ;
 };			
 
-JAM_INLINE Ref<Material>			SpriteMesh::getMaterial() { return m_pMaterial; }
+JAM_INLINE Material*				SpriteMesh::getMaterial() { return m_pMaterial; }
 JAM_INLINE HeapArray<Vector2>&		SpriteMesh::getVerticesArray() { return m_vertices; }
 JAM_INLINE HeapArray<Vector2>&		SpriteMesh::getTexCoordsArray() { return m_texCoords; }
 JAM_INLINE HeapArray<uint16_t>&		SpriteMesh::getElementsArray() { return m_elements; }

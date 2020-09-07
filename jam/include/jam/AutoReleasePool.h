@@ -32,6 +32,8 @@
 
 #include <jam/jam.h>
 
+#ifdef JAM_EXCLUDED_BLOCK
+
 #include <jam/Timer.h>
 #include <jam/Singleton.h>
 //#include <jam/MutableArray.hpp>
@@ -104,5 +106,7 @@ private:
 JAM_INLINE AutoReleasePool& GetAutoReleasePoolMgr() { return AutoReleasePool::getSingleton(); }
 
 }
+
+#endif // JAM_EXCLUDED_BLOCK
 
 #endif // __JAM_AUTORELEASEPOOL_H__

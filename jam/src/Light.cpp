@@ -43,7 +43,7 @@ namespace jam
 
 
 	Light::Light() :
-		BankItem(),
+		NamedObject(),
 		m_type(Type::DIRECTIONAL),
 		m_position(0.0f,0.0f,0.0f),
 		m_direction(0.0f,0.0f,-1.0f),
@@ -59,7 +59,7 @@ namespace jam
 	void Light::update( int16_t idx )
 	{
 		static char uniformName[64] = { 0 } ;
-		Shader* pShader = ShaderManager::getSingleton().getCurrent() ;
+		Shader* pShader = GetShaderMgr().getCurrent() ;
 
 		sprintf( uniformName, JAM_PROGRAM_UNIFORM_LIGHT_TYPE, idx ) ;
 		if( pShader->uniformLocation(uniformName) >= 0 ) {

@@ -43,7 +43,7 @@ class StridedVertexBuffer ;
 /**
 	Base class for the other Grid based classes
 */
-class GridBase : public jam::RefCountedObject
+class GridBase : public Collectible
 {
 public:
 	virtual ~GridBase();

@@ -4,7 +4,7 @@
 * 
 * This file is part of Jam
 * 
-* Copyright (c) 2014-2019 Giovanni Zito.
+* Copyright (c) 2014-2019 Giovanni Zito & Gianluca Sclano.
 * Copyright (c) 2014-2019 Jam contributors (cf. AUTHORS.md)
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -43,42 +43,31 @@ using namespace std ;
 namespace jam
 {
 
-DrawItemManager::DrawItemManager() : Bank<DrawItem>()
-{
-}
-
-DrawItemManager::~DrawItemManager()
-{
-}
-
-DrawItem* DrawItemManager::loadTexture( const String& filename,
-	const String& groupName,
-	int id /*= -1*/,
-	const String& name/*=""*/,
-	float gfxScale /*= 1.0f*/ )
+/*
+	Load texture from file and upload it to the gpu
+*/
+DrawItem* DrawItemManager::loadTexture( const String& filename, const String& groupName, const String& name/*=""*/,	float gfxScale /*= 1.0f*/ )
 {
 	assert(filename.size()) ;
 	assert(groupName.size()) ;
 
-	String str = jam::getBasename(filename) ;
-	str = jam::getFileNameWithoutExtension(str) ;
-
 	String aName = name ;
 
 	if( aName.empty() ) {
-		aName = str ;
+		aName = jam::getFileNameWithoutExtension( jam::getBasename(filename) );
 	}
 
-	Ref<Texture2D> pTexture( new Texture2D() ) ;
+	Texture2D* pTexture = new (GC) Texture2D() ;
 	pTexture->load(filename) ;
 	pTexture->setName(aName) ;
 
 	// create a single drawitem
-	return grab(pTexture, 0,0,pTexture->getWidth(),pTexture->getHeight(),id,0,0, aName, gfxScale);
+	return grab(pTexture, 0,0,pTexture->getWidth(),pTexture->getHeight(), 0,0, aName, gfxScale);
 }
 
 /*
-* This load the texture and DON'T UPLOAD it, use loadTexture instead if you want upload
+	Load texture from file and DOESN'T upload it to the gpe.
+	Use loadTexture instead if you want upload it
 */
 DrawItem* DrawItemManager::loadTextureFromFileSystem( const String& filename,
 	int id /*= -1*/,
@@ -87,159 +76,113 @@ DrawItem* DrawItemManager::loadTextureFromFileSystem( const String& filename,
 {
 	assert(filename.size()) ;
 
-	Ref<Texture2D> pTexture( new Texture2D() ) ;
+	Texture2D* pTexture = new (GC) Texture2D() ;
 	pTexture->load(filename,true,false) ;			// load and do not upload it!
 
 	String aName = name ;
 
 	if( aName.empty() ) {
-		String str = jam::getBasename(filename) ;
-		str = jam::getFileNameWithoutExtension(str) ;
-		aName = str ;
+		aName = jam::getFileNameWithoutExtension( jam::getBasename(filename) );
 	}
 
 	pTexture->setName(aName) ;
 
 	// create a single drawitem
-	return grab(pTexture, 0,0,pTexture->getWidth(),pTexture->getHeight(),id,0,0, aName, gfxScale);
+	return grab(pTexture, 0,0,pTexture->getWidth(),pTexture->getHeight(), 0,0, aName, gfxScale);
 }
 
-
-DrawItem* DrawItemManager::grab( const Ref<Texture2D>& pTexture, int _x0, int _y0, int xsize, int ysize, int position/*=-1*/, int offsetX/*=0*/,int offsetY/*=0*/, const String& name/*=""*/, float gfxScale /*= 1.0f*/ )
-{
-	DrawItem* cutted = DrawItem::create(pTexture,
-		_x0+offsetX,
-		_y0+offsetY,
-		_x0+xsize+offsetX,
-		_y0+ysize+offsetY, gfxScale);
-
-#ifdef JAM_DRAWITEM_AUTORELEASED
-		cutted->autorelease() ;
-		bool bAddRef = true ;
-#else
-	bool bAddRef = false ;
-#endif
-
-	if( position != -1 && !name.empty()) {
-		addByIdAndName(cutted,position,name,bAddRef) ;
-	}
-	else if (position == -1 && !name.empty() ) {
-		addByName(cutted,name,bAddRef) ;
-	}
-	else if( position != -1 ) {
-		addById(cutted,position,bAddRef) ;
-	}
-	else {
-		addById(cutted,getLastFreeId(),bAddRef) ;
-	}
-
-	return cutted;
-}
-	
-
-// *** Simpler and useful (smart) version
-// 	int DrawItemManager::LoadSheetFast( const String& filename, const String& grpName, int xsize,int ysize, int id_position )
-// 	{
-// 		CIwResGroup* pGroup = IwGetResManager()->GetGroupNamed(grpName.c_str());
-// 		CIwTexture* pTexture = (CIwTexture*)pGroup->GetResNamed(filename.c_str(),IW_GX_RESTYPE_TEXTURE);
-// 		int cols=int(pTexture->GetWidth()/xsize);
-// 		int rows=int(pTexture->GetHeight()/ysize);
-// 		return LoadSheet(filename,grpName,xsize,ysize,cols,rows,id_position);		
-// 	}
-
-int DrawItemManager::deleteSheetCuts(   int cols,int rows,int id_position, const String& aName)
-{
-	int nextId=id_position;
-	for (int r=0; r<rows; r++)
-	{
-		for (int c=0; c<cols; c++)
-		{
-			String  cutName = aName + "_" + to_string(nextId) ;
-			if (existsByName(cutName))
-			{
-				removeByName(cutName);
-				JAM_TRACE( "Remove cut %s", cutName.c_str() );
-			}
-			nextId++;
-		}
-	}
-	return nextId;
-}
 // ************************************************************************
 // *** Load Texture and create regular Sheet
 // ************************************************************************
-
-int DrawItemManager::loadSheet( const String& filename, const String& groupName, int xsize,int ysize, int cols,int rows, int id_position, int offsetX/*=0*/,int offsetY/*=0*/, const String& name/*="" */,int spacingx/*=0*/,int spacingy/*=0*/, float gfxScale /*= 1.0f*/ )
+int DrawItemManager::loadSheet( const String& filename, const String& groupName,
+							   int xsize,int ysize,
+							   int cols,int rows,
+							   int offsetX/*=0*/,int offsetY/*=0*/,
+							   const String& name/*="" */,
+							   int spacingx/*=0*/,int spacingy/*=0*/,
+							   float gfxScale /*= 1.0f*/,
+							   bool zeroBasedCuts /* = true */ )
 {
-	if (m_drawItemsPerSheet[filename].size())
-	{		
-		std::list<int>::iterator it;
-		for(it=m_drawItemsPerSheet[filename].begin(); it != m_drawItemsPerSheet[filename].end(); ++it) 
-		{
-			int id=*it;
-			JAM_TRACE( ("Remove cut [%d] %s", id, filename.c_str()) );
-			removeById(id);
-		}			
+	if( m_drawItemsPerSheet[filename].size() ) {
+		m_drawItemsPerSheet[filename].clear() ;
 	}
 
-	Ref<Texture2D> pTexture ( new Texture2D() ) ;
+	Texture2D* pTexture = new (GC) Texture2D() ;
 	pTexture->load(filename);
 	
-	if (cols<0) {
+	if( cols < 0 ) {
 		cols=int((pTexture->getWidth()-offsetX)/(xsize+spacingx));
 	}
 
-	if (rows<0) {
+	if( rows < 0 ) {
 		rows=int((pTexture->getHeight()-offsetY)/(ysize+spacingy));
 	}
 
-	std::list<int> listOfIds ;
+	std::list<String> listOfIds ;
 	String aName = name ;
 
 	if (aName.empty()) {
-		String str = jam::getBasename(filename) ;
-		str = jam::getFileNameWithoutExtension(str) ;
-		aName = str ;
+		aName = jam::getFileNameWithoutExtension( jam::getBasename(filename) ); ;
 	}
 
 	int x0, y0;
 	String cutName ;
-	for (int r=0; r<rows; r++)
-	{
-		for (int c=0; c<cols; c++)
-		{
+	int id_position = zeroBasedCuts ? 0 : 1 ;
 
+	for (int r=0; r<rows; r++) {
+		for (int c=0; c<cols; c++) {
 			x0=offsetX + c*(xsize+spacingx);	
 			y0=offsetY + r*(ysize+spacingy);	
-
-			//DrawItem cutted = DrawItem::create(pTexture, x0,y0,x0+ xsize-1,y0+ ysize-1);
-			DrawItem* cutted = DrawItem::create(pTexture, x0,y0, x0+xsize, y0+ysize, gfxScale);
-#ifdef JAM_DRAWITEM_AUTORELEASED
-			cutted->autorelease() ;
-			bool bAddRef = true ;
-#else
-			bool bAddRef = false ;
-#endif
-
 			cutName = aName + "_" + to_string(id_position) ;
-			addByIdAndName(cutted,id_position,cutName,bAddRef);
-			listOfIds.push_back(id_position) ;
-			JAM_TRACE( "Create cut [%d] %s", id_position, cutName.c_str() );
-			id_position++;
+			id_position ++ ;
+			DrawItem* cutted = DrawItem::create(pTexture, x0,y0, x0+xsize, y0+ysize, gfxScale);
+			cutted->setName(cutName) ;
+			addObject(cutted);
+			listOfIds.push_back(aName) ;
+			JAM_TRACE( "Create cut %s", cutName.c_str() );
 		}
 	}
 
 	m_drawItemsPerSheet[filename] = listOfIds ;
-	return (id_position);
+	return zeroBasedCuts ? id_position : id_position-1 ;
 }
 
 
 // ************************************************************************
-// *** LOAD XML from Zwoptex file format (no animations)
+// *** Load regular sheet and create a unique big animation 
 // ************************************************************************
-int DrawItemManager::loadXmlSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName, int id_position )
+int DrawItemManager::loadAnimationSheet( const String& sheetFileName, const String& sheetName, const String& grpName, float timing, 
+										int xsize,int ysize,
+										int cols,int rows, 
+										int offsetX/*=0*/, int offsetY/*=0*/,
+										const String& name/*="" */,
+										int spacingx/*=0*/, int spacingy/*=0*/,
+										float gfxScale /*= 1.0f*/,
+										bool zeroBasedCuts /* = true */ )
 {
-	Ref<Texture2D> pTexture( new Texture2D() ) ;
+	int framesCount = loadSheet(sheetFileName, grpName, xsize,ysize, cols,rows, offsetX,offsetY, name, spacingx,spacingy, gfxScale, zeroBasedCuts);
+
+	// if sheetName.empty() works as loadSheet()
+	if (sheetName.empty()) return framesCount;
+
+	Animation2D* pAnim = Animation2D::create();
+	pAnim->setLoop(true);
+	pAnim->setName(sheetName);
+	GetAnim2DMgr().addObject(pAnim);
+
+	for( auto it=m_drawItemsPerSheet[sheetFileName].begin(); it != m_drawItemsPerSheet[sheetFileName].end(); ++it) 
+	{
+		pAnim->addFrame( GetDrawItemMgr().getObject(*it), timing ) ;
+	}
+	return framesCount;
+}
+
+// ************************************************************************
+// *** Load XML from Zwoptex file format (no animations) and create frames / drawtems
+// ************************************************************************
+int DrawItemManager::loadXmlSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName )
+{
+	Texture2D* pTexture = new (GC) Texture2D() ;
 	pTexture->load(sheetFilename);
 	
 	TiXmlDocument xmlDoc;
@@ -255,8 +198,9 @@ int DrawItemManager::loadXmlSheet( const String& xmlFilePath, const String& shee
 	String prefix="";
 	String number="";
 
-	std::list<int> listOfIds ;
+	std::list<String> listOfIds ;
 
+	int id_position = 0 ;
 	for( ;; ) {
 		if( node==0 ) break ;
 
@@ -275,13 +219,13 @@ int DrawItemManager::loadXmlSheet( const String& xmlFilePath, const String& shee
 		el = el->NextSiblingElement("real") ;
 		String offsetY = el->GetText() ;
 
-		JAM_TRACE( ("Grabbing [%s]: [%d][%s]",sheetFilename.c_str(),id_position, name.c_str()) );
-		DrawItem* item = grab(pTexture,stoi(x),stoi(y),stoi(w),stoi(h),id_position++,0,0,name) ;
+		JAM_TRACE( ("Grabbing [%s]: [%s]",sheetFilename.c_str(),name.c_str()) );
+		DrawItem* item = grab(pTexture,stoi(x),stoi(y),stoi(w),stoi(h),0,0,name) ;
 		item->setOffsetX(stof(offsetX)) ;
 		item->setOffsetY(stof(offsetY)) ;
-		listOfIds.push_back(item->getId()) ;
+		listOfIds.push_back(item->getName()) ;
+		id_position++ ;
 
-		//node = node->NextSiblingElement("dict") ;
 		nel = nel->NextSiblingElement("key") ;
 		node = node->NextSiblingElement("dict") ;
 	}
@@ -292,8 +236,9 @@ int DrawItemManager::loadXmlSheet( const String& xmlFilePath, const String& shee
 
 // ************************************************************************
 // *** Load Zwoptex XML and create Animation
+// *** You must load frames in advance using loadXmlSheet()
 // ************************************************************************
-int DrawItemManager::loadXmlAnimationSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName, int position, float timing )
+int DrawItemManager::loadXmlAnimationSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName, float timing )
 {
 
 	TiXmlDocument xmlDoc;
@@ -307,101 +252,58 @@ int DrawItemManager::loadXmlAnimationSheet( const String& xmlFilePath, const Str
 	TiXmlElement* nel = topFramesDict->FirstChildElement("key") ;	
 	TiXmlElement* node = topFramesDict->FirstChildElement("dict") ;
 
-	std::map<String,int> animMap;	animMap.clear();
-	std::list<int> listOfIds ;
+	std::map<String,int> animMap;
+	std::list<String> listOfIds ;
 	jam::Animation2D* pAnim = 0 ;			
 	String lastPrefix="";
 	String prefix="";
-	int id_position=position;
+	int id_position=0;
 	int number=0;		
 	int total=0;
 	int idanim=0;
 		
 	for( ;; ) {
 		if( node==0 ) break ;
-		String name = nel->GetText() ;
+		String name = nel->GetText() ;		// frame name
 		prefix=findPrefix(prefix,name,number);
-		if (prefix!=lastPrefix)
-		{
+		
+		if( prefix != lastPrefix ) { // new animation found in plist xml file
 			pAnim =	Animation2D::create();
 			JAM_TRACE( "Create Animation [%s][anim:%s]",sheetFilename.c_str(),prefix.c_str() );
 			pAnim->setLoop(true);
-
-#ifdef JAM_ANIMFRAME2D_AUTORELEASED
-			pAnim->autorelease() ;
-			bool bAddRef = true ;
-#else
-			bool bAddRef = false ;
-#endif
-
-			GetAnim2DMgr().addByName(pAnim,prefix,bAddRef);
+			pAnim->setName(prefix) ;
+			GetAnim2DMgr().addObject(pAnim);
 			lastPrefix=prefix;					
 			idanim=0;
 			animMap[prefix]=0;
-			listOfIds.push_back( pAnim->getId() ) ;
+			listOfIds.push_back( pAnim->getName() ) ;
 		}				
 		total++;
 		JAM_TRACE( "+--->Add [anim:%s] = [%s] from pos[:%d / %d]",prefix.c_str(),  name.c_str(),id_position, total );
-		pAnim->addFrame( jam::GetDrawItemMgr().getPtrById(id_position), timing ) ;
-		animMap[prefix]=++idanim;
-		id_position++; //=position+number;
+		pAnim->addFrame( jam::GetDrawItemMgr().getObject(name), timing ) ;
+		animMap[prefix]=++idanim;	// count the number of frames for animation "prefix"
+		id_position++;
 		nel = nel->NextSiblingElement("key") ;
 		node = node->NextSiblingElement("dict") ;
 	}
 
 	JAM_TRACE( "Imported in [%s] with [%zu] Animations.",sheetFilename.c_str(),animMap.size() );	
 	std::map<String, int>::iterator iter ;
-	for(iter = animMap.begin(); iter != animMap.end(); iter++)
-	{
+	for(iter = animMap.begin(); iter != animMap.end(); iter++) {
 		JAM_TRACE( "Animation [%s] of [%d] frames", (iter->first).c_str(),(iter->second) );	
 	}
 
 	m_animationsPerSheet[sheetFilename] = listOfIds ;
 
-	return  id_position;
+	return id_position;
 }
-
-// ************************************************************************
-// *** Load regular sheet and create a unique big animation 
-// ************************************************************************
-int DrawItemManager::loadAnimationSheet( const String& sheetFileName, const String& sheetName,const String& grpName, float timing , int xsize,int ysize, int cols,int rows, int id_position, int offsetX/*=0*/,int offsetY/*=0*/, const String& name/*="" */, int spacingx/*=0*/, int spacingy/*=0*/ )
-{
-	int new_position=loadSheet(sheetFileName,grpName,xsize,ysize,cols,rows,id_position,offsetX,offsetY,name,spacingx,spacingy);
-
-	jam::Animation2D* pAnim = 0 ;	
-	if (sheetName.empty()) return new_position;
-
-	pAnim =	Animation2D::create();
-	pAnim->setLoop(true);
-
-#ifdef JAM_ANIMFRAME2D_AUTORELEASED
-	pAnim->autorelease() ;
-	bool bAddRef = true ;
-#else
-	bool bAddRef = false ;
-#endif
-
-	jam::GetAnim2DMgr().addByName(pAnim,sheetName,bAddRef);
-	//std::map<String,std::list<int> >
-	std::list<int> idList = (m_drawItemsPerSheet[sheetFileName]);
-	std::list<int>::iterator it;
-	for(it=m_drawItemsPerSheet[sheetFileName].begin(); it != m_drawItemsPerSheet[sheetFileName].end(); ++it) 
-	{
-		int id=*it;
-		pAnim->addFrame( GetDrawItemMgr().getPtrById(id), timing ) ;
-	}
-	return new_position;
-	//m_drawItemsPerSheet[sheetFileName] =
-}
-
-
 
 // ************************************************************************
 // *** LOAD XML from TexturePacker file format (no animations)
 // ************************************************************************
-int DrawItemManager::loadXmlPackSheet( const String& xmlFilePath, const String& sheetName, const String& grpName, int id_position, float gfxScale /*= 1.0f*/ )
+int DrawItemManager::loadXmlPackSheet( const String& xmlFilePath, const String& sheetName, const String& grpName, float gfxScale /*= 1.0f*/ )
 {
-	Ref<Texture2D> pTexture( new Texture2D() ) ;
+	Texture2D* pTexture = new (GC) Texture2D() ;
 	pTexture->load(sheetName);
 	pTexture->setName(sheetName.c_str()) ;
 	printf( "> Loading file: %s\n", xmlFilePath.c_str() ) ;
@@ -411,17 +313,15 @@ int DrawItemManager::loadXmlPackSheet( const String& xmlFilePath, const String& 
 	}
 	TiXmlElement* xmlRoot = xmlDoc.RootElement() ;
 	TiXmlElement* topDictElem = xmlRoot->FirstChildElement("dict") ;
-	//TiXmlElement* topFramesDict = topDictElem->FirstChildElement("dict")->NextSiblingElement("dict") ;
-
 		
 	TiXmlElement* node = topDictElem->FirstChildElement("dict")->FirstChildElement("dict") ;
 	TiXmlElement* nel = topDictElem->FirstChildElement("dict")->FirstChildElement("key") ;	
-// 	String prefix="";
-// 	String number="";
 
-	std::list<int> listOfIds ;
+	std::list<String> listOfIds ;
 	int x=0,y=0,w=0,h=0;
 	float offsetX=0,offsetY=0;
+
+	int id_position = 0 ;
 
 	for( ;; ) {
 		if( node==0 ) break ;
@@ -452,15 +352,14 @@ int DrawItemManager::loadXmlPackSheet( const String& xmlFilePath, const String& 
 			offsetX=(float)atof(rectInfo[0].c_str());  offsetY=(float)atof(rectInfo[1].c_str()); 
 				
 		}
-		printf( "> import : [%s] (from %s)\n", name.c_str(), sheetName.c_str() ) ;	
+		JAM_TRACE( "> import : [%s] (from %s)\n", name.c_str(), sheetName.c_str() ) ;	
 		JAM_TRACE( "Grabbing [%s]: [%d][%s]",sheetName.c_str(),id_position, name.c_str() );
-		DrawItem* item = grab(pTexture,x,y,w,h,id_position++,0,0,name,gfxScale) ;
+		DrawItem* item = grab(pTexture,x,y,w,h,0,0,name,gfxScale) ;
 		item->setOffsetX(offsetX) ;
 		item->setOffsetY(offsetY) ;
 
-		listOfIds.push_back(item->getId()) ;
+		listOfIds.push_back(item->getName()) ;
 			
-		//node = node->NextSiblingElement("dict") ;
 		nel = nel->NextSiblingElement("key") ;
 		node = node->NextSiblingElement("dict") ;
 	}
@@ -469,12 +368,10 @@ int DrawItemManager::loadXmlPackSheet( const String& xmlFilePath, const String& 
 	return id_position ;
 }
 
-
-	
 // ************************************************************************
 // *** Load TexturePacker XML and create Animation
 // ************************************************************************
-int DrawItemManager::importXmlPackAnimationSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName, int position, float timing )
+int DrawItemManager::importXmlPackAnimationSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName, float timing )
 {
 	TiXmlDocument xmlDoc;
 	if( !xmlDoc.LoadFile(xmlFilePath.c_str()) ) {
@@ -488,11 +385,11 @@ int DrawItemManager::importXmlPackAnimationSheet( const String& xmlFilePath, con
 	TiXmlElement* nel = topDictElem->FirstChildElement("dict")->FirstChildElement("key") ;	
 
 	std::map<String,int> animMap;	animMap.clear();
-	std::list<int> listOfIds ;
+	std::list<String> listOfIds ;
 	jam::Animation2D* pAnim = 0 ;			
 	String lastPrefix="";
 	String prefix="";
-	int id_position=position;
+	int id_position=0;
 	int number=0;		
 	int total=0;
 	int idanim=0;
@@ -502,30 +399,25 @@ int DrawItemManager::importXmlPackAnimationSheet( const String& xmlFilePath, con
 			
 		String name = nel->GetText() ;
 		prefix=findPrefix(prefix,name,number);
-		if (prefix!=lastPrefix)
+		if (prefix != lastPrefix)	// new animation found
 		{
 			pAnim =	Animation2D::create() ;
 			JAM_TRACE( "Create Animation [%s][anim:%s]",sheetFilename.c_str(),prefix.c_str() );
 			pAnim->setLoop(true);
+			pAnim->setName(prefix);
 
-#ifdef JAM_ANIMFRAME2D_AUTORELEASED
-			pAnim->autorelease() ;
-			bool bAddRef = true ;
-#else
-			bool bAddRef = false ;
-#endif
-			jam::GetAnim2DMgr().addByName(pAnim,prefix,bAddRef);
+			jam::GetAnim2DMgr().addObject(pAnim);
 			lastPrefix=prefix;					
 			idanim=0;
 			animMap[prefix]=0;
-			listOfIds.push_back( pAnim->getId() ) ;
+			listOfIds.push_back( pAnim->getName() ) ;
 		}				
 		total++;
 		JAM_TRACE( "+--->Add [anim:%s] = [%s] from pos[:%d / %d]",prefix.c_str(),  name.c_str(),id_position, total );
-		// pAnim becomes autorelease when added to mgr
-		pAnim->addFrame( jam::GetDrawItemMgr().getPtrById(id_position), timing ) ;
+
+		pAnim->addFrame( jam::GetDrawItemMgr().getObject(name), timing ) ;
 		animMap[prefix]=++idanim;
-		id_position++; //=position+number;
+		id_position++;
 		nel = nel->NextSiblingElement("key") ;
 		node = node->NextSiblingElement("dict") ;
 	}
@@ -542,6 +434,24 @@ int DrawItemManager::importXmlPackAnimationSheet( const String& xmlFilePath, con
 	return  id_position;
 }
 
+DrawItem* DrawItemManager::grab( Texture2D* pTexture, int _x0, int _y0, int xsize, int ysize, int offsetX/*=0*/,int offsetY/*=0*/,
+								const String& name/*=""*/, float gfxScale /*= 1.0f*/ )
+{
+	DrawItem* cutted = DrawItem::create(pTexture,
+		_x0+offsetX,
+		_y0+offsetY,
+		_x0+xsize+offsetX,
+		_y0+ysize+offsetY, gfxScale);
+
+	if( !name.empty() ) {
+		cutted->setName(name) ;
+	}
+
+	addObject(cutted) ;
+
+	return cutted;
+}
+
 //
 // This method destroys all draw items associated with the given sheet (by sheet name)
 // Also it destroys all the animations defined in the given sheet
@@ -549,12 +459,11 @@ int DrawItemManager::importXmlPackAnimationSheet( const String& xmlFilePath, con
 void DrawItemManager::destroySheet( const String& name)
 {
 	// destroy DrawItems
-	map<String,list<int> >::iterator it = m_drawItemsPerSheet.find(name);
+	auto it = m_drawItemsPerSheet.find(name);
 	if( it != m_drawItemsPerSheet.end() ) {
-		list<int>& listOfIds = it->second ; 
-		list<int>::iterator idsIt = listOfIds.begin() ;
-		for( ; idsIt!=listOfIds.end(); idsIt++ ) {
-			removeById(*idsIt) ;
+		list<String>& listOfIds = it->second ; 
+		for( auto idsIt = listOfIds.begin(); idsIt!=listOfIds.end(); idsIt++ ) {
+			eraseObject(*idsIt) ;
 		}
 		m_drawItemsPerSheet.erase(it) ;
 	}
@@ -562,13 +471,27 @@ void DrawItemManager::destroySheet( const String& name)
 	// Destroy Animations
 	it = m_animationsPerSheet.find(name);
 	if( it != m_animationsPerSheet.end() ) {
-		list<int>& listOfIds = it->second ; 
-		list<int>::iterator idsIt = listOfIds.begin() ;
-		for( ; idsIt!=listOfIds.end(); idsIt++ ) {
-			GetAnim2DMgr().removeById(*idsIt) ;
+		list<String>& listOfIds = it->second ; 
+		for( auto idsIt = listOfIds.begin(); idsIt!=listOfIds.end(); idsIt++ ) {
+			GetAnim2DMgr().eraseObject(*idsIt) ;
 		}
 		m_animationsPerSheet.erase(it) ;
 	}
+}
+
+int DrawItemManager::deleteSheetCuts( int cols, int rows, const String& aName )
+{
+	int nextId=0;
+	for (int r=0; r<rows; r++)
+	{
+		for (int c=0; c<cols; c++)
+		{
+			String  cutName = aName + "_" + to_string(++nextId) ;
+			eraseObject(cutName);
+			JAM_TRACE( "Remove cut %s", cutName.c_str() );
+		}
+	}
+	return nextId;
 }
 
 // ************************************************************************

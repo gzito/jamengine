@@ -32,9 +32,14 @@
 
 #include <jam/Application.h>
 #include <jam/Draw3dManager.h>
-#include <jam/SpriteManager.h>
+#include <jam/BaseManager.hpp>
 #include <jam/Pivot2d.h>
 #include <jam/Layer.h>
+
+
+struct SpriteManager : public jam::NamedTaggedObjectManager<jam::Sprite>
+{
+};
 
 class SpritesDemo : public jam::Application
 {
@@ -48,11 +53,14 @@ protected:
 	virtual void					destroy() override ;
 
 private:
-	jam::SpriteManager*				m_pSprMgr;
+	SpriteManager*					m_pSprMgr;
 
 	float							m_angle ;
 	float							m_initialSpeed ;
 	jam::Pivot2D*					m_piv ;
+
+	jam::String						m_sonicName ;
+	jam::String						m_gemSheetName ;
 };
 
 #endif

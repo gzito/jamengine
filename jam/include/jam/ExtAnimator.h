@@ -38,7 +38,7 @@
 namespace jam
 {
 
-	class JAM_API ExtAnimator : public RefCountedObject
+	class JAM_API ExtAnimator : public Collectible
 	{
 	public:
 		ExtAnimator(IDrawable2D* pIDrawable);

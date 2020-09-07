@@ -50,8 +50,8 @@ public:
 	void					setFlipY( bool flipY ) ;
 
 	/** The sprite to render */
-	Ref<Sprite>				getSprite() const ;
-	void					setSprite( const Ref<Sprite>& sprite ) ;
+	Sprite*					getSprite() const ;
+	void					setSprite( Sprite* sprite ) ;
 
 	/** Rendering color for the sprite graphics */
 	Color					getColor() const ;
@@ -61,7 +61,7 @@ private:
 	Color					m_color ;
 	bool					m_flipX ;
 	bool					m_flipY ;
-	Ref<Sprite>				m_sprite ;
+	Sprite*					m_sprite ;
 };
 
 JAM_INLINE void SpriteRenderer::setFlipX(bool flipX) {
@@ -80,11 +80,11 @@ JAM_INLINE bool SpriteRenderer::getFlipY() const {
 	return m_flipY;
 }
 
-JAM_INLINE Ref<Sprite> SpriteRenderer::getSprite() const {
+JAM_INLINE Sprite* SpriteRenderer::getSprite() const {
 	return m_sprite;
 }
 
-JAM_INLINE void SpriteRenderer::setSprite(const Ref<Sprite>& sprite) {
+JAM_INLINE void SpriteRenderer::setSprite( Sprite* sprite) {
 	m_sprite = sprite ;
 }
 

@@ -31,14 +31,14 @@
 #define  __JAM_SPRITEPOOLMANAGER_H__
 
 #include <jam/jam.h>
-#include <jam/Bank.h>
+#include <jam/BaseManager.hpp>
 #include <jam/Sprite.h>
 
 // ************************************************************************
 namespace jam
 {
 
-class JAM_API SpritePoolManager : public Bank<Sprite>, public jam::Singleton<SpritePoolManager>
+class JAM_API SpritePoolManager : public NamedTaggedObjectManager<Sprite>, public jam::Singleton<SpritePoolManager>
 {
 	friend class jam::Singleton<SpritePoolManager> ;
 

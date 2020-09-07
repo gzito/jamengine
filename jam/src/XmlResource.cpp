@@ -1,6 +1,6 @@
 /**********************************************************************************
 * 
-* ObjectManager.cpp
+* XmlResource.cpp
 * 
 * This file is part of Jam
 * 
@@ -29,62 +29,55 @@
 
 #include "stdafx.h"
 
-#ifdef JAM_USE_MEMORY_MANAGER	
-#include "jam/ObjectManager.h"
-
-#include <typeinfo>
-
-
-using namespace std ;
+#include "jam/XmlResource.h"
+#include "jam/Application.h"
 
 namespace jam
 {
+/***************************************************************************
+* XmlResourceExtraData
+*/
 
-ObjectManager::ObjectManager()
+String XmlResourceExtraData::toString()
 {
-
+	return "XmlResourceExtraData" ;
 }
 
-ObjectManager::~ObjectManager()
+void XmlResourceExtraData::parseXml(char* pRawBuffer)
 {
-
+	m_pXmlDocument->Parse(pRawBuffer) ;
 }
 
-RefCountedObject* ObjectManager::insert( RefCountedObject* obj )
+
+/***************************************************************************
+* XmlResourceLoader
+*/
+
+XmlResourceLoader::XmlResourceLoader()
 {
-	JAM_ASSERT_MSG( obj != 0, ("obj is NULL") ) ;
-	m_objectsTable[typeid(*obj).name()].insert( obj ) ;
-	return obj ;
+	m_patterns.clear() ;
+	m_patterns.emplace_back("*.xml") ;
 }
 
-RefCountedObject* ObjectManager::erase( RefCountedObject* obj )
+bool XmlResourceLoader::loadResource(char* rawBuffer,size_t rawSize,ResHandle& handle)
 {
-	if( obj ) {
-	//	JAM_TRACE( ("ObjectManager::erase [%s]", typeid(*obj).name()) ) ;
-		m_objectsTable[typeid(*obj).name()].erase( obj ) ;
-	}
-	return obj ;
+	if (rawSize <= 0)
+		return false;
+
+	XmlResourceExtraData* pExtraData = new (GC) XmlResourceExtraData();
+	pExtraData->parseXml(rawBuffer);
+
+	handle.setExtra(pExtraData);
+
+	return true;
 }
 
-void ObjectManager::dump()
+TiXmlElement* XmlResourceLoader::loadAndReturnRootXmlElement(const char* resourceString)
 {
-	TObjectMapIterator itMap = m_objectsTable.begin() ;
-	while( itMap != m_objectsTable.end() ) {
-		const char* objectType = itMap->first ; 
-
-		set<RefCountedObject*>& theSet = itMap->second ;
-		JAM_TRACE( ("%s: %d",objectType, theSet.size()) ) ;
-
-		set<RefCountedObject*>::iterator itSet = theSet.begin() ;
-		while ( itSet!=theSet.end() ) {
-			RefCountedObject* theObj = *itSet ;
-			JAM_TRACE( ("\t%s", theObj->getDebugInfo(false).c_str()) ) ;
-			itSet++ ;
-		}
-
-		itMap++ ;
-	} 
+	Resource resource(resourceString);
+	ResHandle* pResourceHandle = GetAppMgr().getResourceManager().getHandle(&resource);  // this actually loads the XML file from the ResourceFile
+	XmlResourceExtraData* pExtraData = dynamic_cast<XmlResourceExtraData*>(pResourceHandle->getExtra());
+	return pExtraData->getRoot();
 }
 
 }
-#endif

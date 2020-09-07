@@ -29,8 +29,9 @@
 
 #include "stdafx.h"
 
+#ifdef JAM_EXCLUDED_BLOCK
+
 #include "jam/RefCountedObject.h"
-#include "jam/AutoReleasePool.h"
 #include <sstream>
 
 
@@ -39,9 +40,7 @@ namespace jam
 
 
 RefCountedObject::RefCountedObject() : 
-	m_refCount(1),
-	m_managed(false),
-	m_markedAsDestroyed(false)
+	m_refCount(1)
 #ifdef JAM_DEBUG
 	, m_file(), m_line(0)
 #endif
@@ -50,13 +49,6 @@ RefCountedObject::RefCountedObject() :
 
 RefCountedObject::~RefCountedObject()
 {
-	if( m_managed ) {
-		GetAutoReleasePoolMgr().removeObject(this) ;
-	}
-
-	if( m_markedAsDestroyed ) {
-		GetAutoReleasePoolMgr().removeFromDestroyList(this) ;
-	}
 }
 
 void RefCountedObject::addRef()
@@ -79,46 +71,6 @@ int32_t RefCountedObject::getRefCount() const
 	return m_refCount ;
 }
 
-RefCountedObject* RefCountedObject::autorelease()
-{
-	if( !m_managed ) {
-		m_managed = true ;
-		AutoReleasePool::getSingleton().addObject(this) ;
-	}
-	return this ;
-}
-
-/*
-void RefCountedObject::destroy()
-{
-	if( !m_markedAsDestroyed ) {
-		m_markedAsDestroyed = true ;
-		// if not already into autoreleasepool, insert in it for later release
-		autorelease() ;
-	}
-}
-*/
-
-void RefCountedObject::destroy()
-{
-	if( !m_markedAsDestroyed ) {
-		m_markedAsDestroyed = true ;
-
-		GetAutoReleasePoolMgr().addToDestroyList(this) ;
-	}
-}
-
-// do nothing implementation
-void RefCountedObject::destroy_internal()
-{
-
-}
-
-bool RefCountedObject::isMarkedForDestruction() const
-{
-	return m_markedAsDestroyed ;
-}
-
 #ifdef JAM_DEBUG
 String RefCountedObject::getDebugInfo(bool typeInfo/*=true*/)
 {
@@ -127,10 +79,10 @@ String RefCountedObject::getDebugInfo(bool typeInfo/*=true*/)
 		oss << "type=" << typeid(*this).name() << ", " ;
 	}
 	oss << "refCount=" << m_refCount << ", "  ;
-	oss << "managed=" << m_managed << ", "  ;
-	oss << "markedAsDestroyed=" << m_markedAsDestroyed ;
 	return oss.str().c_str() ;
 }
 #endif
 
 }
+
+#endif // JAM_EXCLUDED_BLOCK

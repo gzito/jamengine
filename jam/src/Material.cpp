@@ -63,7 +63,6 @@ namespace jam
 		Creates a new material
 	*/
 	Material::Material() :
-		BankItem(),
 		m_ambient(51,51,51),
 		m_diffuse(204,204,204),
 		m_specular(Color::GRAY),
@@ -76,7 +75,7 @@ namespace jam
 		m_normalTexture(nullptr),
 		m_pShader(nullptr)
 	{
-		setShader( ShaderManager::getSingleton().getDefaultUnlit() ) ;
+		setShader( GetShaderMgr().getDefaultUnlit() ) ;
 	}
 
 
@@ -181,17 +180,17 @@ namespace jam
 		m_shininess = shininess ;
 	}
 
-	void Material::setDiffuseTexture( const Ref<Texture2D>& tex )
+	void Material::setDiffuseTexture( Texture2D* tex )
 	{
 		m_diffuseTexture = tex ;
 	}
 
-	void Material::setSpecularTexture( const Ref<Texture2D>& tex )
+	void Material::setSpecularTexture( Texture2D* tex )
 	{
 		m_specularTexture = tex ;
 	}
 
-	void Material::setNormalTexture( const Ref<Texture2D>& tex )
+	void Material::setNormalTexture( Texture2D* tex )
 	{
 		m_normalTexture = tex ;
 	}
@@ -201,27 +200,27 @@ namespace jam
 		m_blendMode = blendMode ;
 	}
 
-	void Material::setShader(const Ref<Shader>& val)
+	void Material::setShader(Shader* val)
 	{
 		m_pShader = val;
 	}
 
-	Ref<Texture2D> Material::getDiffuseTexture()
+	Texture2D* Material::getDiffuseTexture()
 	{
 		return m_diffuseTexture ;
 	}
 
-	Ref<Texture2D> Material::getSpecularTexture()
+	Texture2D* Material::getSpecularTexture()
 	{
 		return m_specularTexture ;
 	}
 
-	Ref<Texture2D> Material::getNormalTexture()
+	Texture2D* Material::getNormalTexture()
 	{
 		return m_normalTexture ;
 	}
 
-	Ref<Shader> Material::getShader() const
+	Shader* Material::getShader() const
 	{
 		return m_pShader;
 	}
@@ -239,7 +238,7 @@ namespace jam
 			glDisable(GL_DEPTH_TEST) ;
 		}
 
-		Ref<Shader> pProgram = getShader() ;
+		Shader* pProgram = getShader() ;
 		pProgram->use();
 
 		GLint shininessLocIdx = pProgram->uniformLocation(JAM_PROGRAM_UNIFORM_MATERIAL_SHININESS) ;
@@ -252,13 +251,13 @@ namespace jam
 		for( uint8_t idx = 0; idx < 3; idx++ )
 		{
 			if( idx == 0 ) {
-				pTex = getDiffuseTexture().get() ;
+				pTex = getDiffuseTexture() ;
 			}
 			else if( idx == 1 ) {
-				pTex = getSpecularTexture().get() ;
+				pTex = getSpecularTexture() ;
 			}
 			else {
-				pTex = getNormalTexture().get() ;
+				pTex = getNormalTexture() ;
 			}
 
 			if( pTex ) {

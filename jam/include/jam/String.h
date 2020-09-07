@@ -40,6 +40,8 @@ namespace jam
 using String = std::string ;
 using WString = std::wstring ;
 
+using TagType = String ;
+
 /// convert from wide string (UTF-16) to multibyte String (UTF-8)
 JAM_API String				ws2s(const WString& wstr) ;
 

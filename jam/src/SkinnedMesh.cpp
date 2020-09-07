@@ -64,7 +64,7 @@ namespace jam
 	{
 		destroy() ;
 
-		JAM_RELEASE(m_pMaterial) ;
+		m_pMaterial = nullptr ;
 
 		for( size_t i=0; i<m_vbos.length(); i++ ) {
 			m_vbos[i].destroy() ;
@@ -100,7 +100,7 @@ namespace jam
 			return ;
 		}
 
-		Shader* pProg = ShaderManager::getSingleton().getCurrent() ;
+		Shader* pProg = GetShaderMgr().getCurrent() ;
 
 		for( size_t i=0; i<m_vbos.length(); i++ ) {
 			m_vbos[i].create() ;

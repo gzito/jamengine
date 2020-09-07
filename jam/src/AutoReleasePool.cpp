@@ -31,6 +31,8 @@
 
 //#include <GL/glew.h>
 
+#ifdef JAM_EXCLUDED_BLOCK
+
 #include "jam/AutoReleasePool.h"
 #include "jam/RefCountedObject.h"
 
@@ -297,3 +299,5 @@ void AutoReleasePool::processDestroyList()
 }
 
 }
+
+#endif

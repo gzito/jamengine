@@ -82,8 +82,8 @@ namespace jam
         
 		bool boneTransformSet = false ;
 
+		Shader* pProg = nullptr ;
 		for( size_t i = 0; i < m_meshes.size(); i++ ) {
-			Ref<Shader> pProg(0) ;
 			pMesh = m_meshes[i] ;
 			pMaterial = pMesh->getMaterial() ;
 			pProg = pMaterial->getShader() ;
@@ -180,7 +180,7 @@ namespace jam
 		}
 
 		SkinnedMesh* pMesh = new SkinnedMesh() ;
-		pMesh->getMaterial()->setShader( ShaderManager::getSingleton().getSkinningLit() ) ;
+		pMesh->getMaterial()->setShader( GetShaderMgr().getSkinningLit() ) ;
 
 		pMesh->create(numOfVertices, numOfIndices) ;
 
@@ -233,35 +233,35 @@ namespace jam
 				pMaterial->setShininess( matShininess ) ;
 			}
 
-			std::vector<Ref<Texture2D>> diffuseMaps ;
+			std::vector<Texture2D*> diffuseMaps ;
 			loadMaterialTextures(pAiMaterial, aiTextureType_DIFFUSE, diffuseMaps);
 			if( diffuseMaps.size() > 0 ) {
 				pMaterial->setDiffuseTexture( diffuseMaps[0] ) ;
 			}
 			else {
-				pMaterial->setDiffuseTexture( Ref<Texture2D>(0) ) ;
+				pMaterial->setDiffuseTexture( nullptr ) ;
 			}
 
-			std::vector<Ref<Texture2D>> specularMaps ;
+			std::vector<Texture2D*> specularMaps ;
 			loadMaterialTextures(pAiMaterial, aiTextureType_SPECULAR, specularMaps);
 			if( specularMaps.size() > 0 ) {
 				pMaterial->setSpecularTexture( specularMaps[0] ) ;
 			}
 			else {
-				pMaterial->setSpecularTexture( Ref<Texture2D>(0) ) ;
+				pMaterial->setSpecularTexture( nullptr ) ;
 			}
 		}
 
 		return pMesh ;
 	}
 	
-	void SkinnedModel::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::vector<Ref<Texture2D>>& out )
+	void SkinnedModel::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::vector<Texture2D*>& out )
 	{
 		unsigned int textureCountForType = mat->GetTextureCount(type) ;
 		if( textureCountForType > 0 ) {
 			for( size_t i = 0; i < textureCountForType; i++ )
 			{
-				Ref<Texture2D> texture( new Texture2D() ) ;
+				Texture2D* texture = new (GC) Texture2D() ;
 
 				aiString str;
 				mat->GetTexture(type, (unsigned int)i, &str);

@@ -33,8 +33,11 @@
 
 #include <jam/jam.h>
 #include <jam/Resource.h>
+#include <jam/RefCountedObject.h>
 #include <jam/core/interfaces.hpp>
 #include <jam/thirdparty/Delegate.h>
+
+#include <gc_cpp.h>
 
 #include <map>
 #include <list>
@@ -44,7 +47,7 @@ namespace jam
 {
 
 //*****************************************************************************
-class JAM_API FileSystemResourceFile : public IResourceFile
+class JAM_API FileSystemResourceFile : public IResourceFile, public Collectible
 {
 public:
 							FileSystemResourceFile(const String& resFileName);
@@ -76,7 +79,7 @@ private:
 
 class ResourceManager ;
 
-class JAM_API ResHandle
+class JAM_API ResHandle : public Collectible
 {
 	friend class			ResourceManager ;
 
@@ -90,8 +93,8 @@ public:
 
 	char*					getWritableBuffer() ;
 
-	sptr<IResourceExtraData>	getExtra() ;
-	void					setExtra( sptr<IResourceExtraData> extra ) ;
+	IResourceExtraData*		getExtra() ;
+	void					setExtra( IResourceExtraData* extra ) ;
 
 	const Resource&			getResource() const ;
 
@@ -105,7 +108,7 @@ protected:
 	// The size of buffer
 	size_t					m_size ;
 
-	sptr<IResourceExtraData>	m_extra ;
+	IResourceExtraData*		m_pExtra ;
 
 	ResourceManager*		m_pResManager ;
 };
@@ -113,8 +116,8 @@ protected:
 JAM_INLINE size_t			ResHandle::getSize() const { return m_size; }
 JAM_INLINE char*			ResHandle::getBuffer() const { return m_buffer; }
 JAM_INLINE char*			ResHandle::getWritableBuffer() { return m_buffer; }
-JAM_INLINE sptr<IResourceExtraData>	ResHandle::getExtra() { return m_extra; }
-JAM_INLINE void				ResHandle::setExtra( sptr<IResourceExtraData> extra ) { m_extra = extra; }
+JAM_INLINE IResourceExtraData*	ResHandle::getExtra() { return m_pExtra; }
+JAM_INLINE void				ResHandle::setExtra( IResourceExtraData* extra ) { m_pExtra = extra; }
 JAM_INLINE const Resource&	ResHandle::getResource() const { return m_resource; }
 
 
@@ -136,7 +139,7 @@ public:
 	// rawBuffer and rawSize are initialized by the IResourceFile with the content and size of resource
 	// handle is initialized by ResourceManager and reference the resource
 	// returns true on successfull load, otherwise return false
-	virtual bool			loadResource( char* rawBuffer, size_t rawSize, sptr<ResHandle> handle ) = 0 ;
+	virtual bool			loadResource( char* rawBuffer, size_t rawSize, ResHandle& handle ) = 0 ;
 
 	// specifies if raw buffer is useless after load, thus it can be discarded
 	virtual bool			discardRawBufferAfterLoad() const = 0 ;
@@ -156,7 +159,7 @@ JAM_INLINE const std::vector<String>&	IResourceLoader::getPatterns() const { ret
 /**
     Manager of all game resources
 */
-class JAM_API ResourceManager
+class JAM_API ResourceManager : public Collectible
 {
 	friend class			ResHandle;
 
@@ -164,30 +167,30 @@ public:
 							ResourceManager( const size_t sizeInMb, IResourceFile* resFile ) ;
 							~ResourceManager() ;
 	bool					init() ;
-	void					registerLoader( sptr<IResourceLoader> loader ) ;
+	void					registerLoader( IResourceLoader* loader ) ;
 
-	sptr<ResHandle>			getHandle( Resource* r ) ;
+	ResHandle*				getHandle( Resource* r ) ;
 	int						preload( const String& pattern, SA::delegate<void(int,bool&)> progressDelegate ) ;
 	void					flush() ;
 
 protected:
-	using					ResHandleList = std::list<sptr<ResHandle>> ;
-	using					ResHandleMap = std::map<String, sptr<ResHandle>> ;
-	using					ResourceLoaders = std::list<sptr<IResourceLoader>> ;
+	using					ResHandleList = std::list<ResHandle*> ;
+	using					ResHandleMap = std::map<String,ResHandle*> ;
+	using					ResourceLoaders = std::list<IResourceLoader*> ;
 
 	ResHandleList			m_lru ;
 	ResHandleMap			m_resources ;
 	ResourceLoaders			m_resourceLoaders ;
 
-	uptr<IResourceFile>		m_file ;
+	std::unique_ptr<IResourceFile>		m_file ;
 
 	size_t					m_cacheSize ;
 	size_t					m_allocated ;
 
-	sptr<ResHandle>			find( Resource* r ) ;
-	void					update( sptr<ResHandle> handle ) ;
-	sptr<ResHandle>			load( Resource* r ) ;
-	void					free( sptr<ResHandle> gonner ) ;
+	ResHandle*				find( Resource* r ) ;
+	void					update( ResHandle* handle ) ;
+	ResHandle*				load( Resource* r ) ;
+	void					free( ResHandle* gonner ) ;
 
 	bool					makeRoom( size_t size ) ;
 	char*					allocate( size_t size ) ;
@@ -197,14 +200,14 @@ protected:
 
 
 //*****************************************************************************
-class JAM_API DefaultResourceLoader : public IResourceLoader
+class JAM_API DefaultResourceLoader : public IResourceLoader, public Collectible
 {
 public:
 							DefaultResourceLoader() ;
 
 	bool					useRawFile() const override ;
 	size_t					getLoadedResourceSize( char* rawBuffer, size_t rawSize ) override ;
-	bool					loadResource( char* rawBuffer, size_t rawSize, sptr<ResHandle> handle ) override ;
+	bool					loadResource( char* rawBuffer, size_t rawSize, ResHandle& handle ) override ;
 	bool					discardRawBufferAfterLoad() const override ;
 	bool					addNullZero() const override ;
 };

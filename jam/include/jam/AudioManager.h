@@ -32,8 +32,8 @@
 
 
 #include <jam/jam.h>
-#include <jam/Bank.h>
 #include <jam/Singleton.h>
+#include <jam/BaseManager.hpp>
 #include <jam/Timer.h>
 #include <jam/String.h>
 
@@ -43,7 +43,7 @@
 namespace jam
 {
 
-class JAM_API ISound : public BankItem
+class JAM_API ISound : public NamedObject
 {
 public:
 	enum FadeControl
@@ -194,26 +194,22 @@ private:
 	bool					m_aLoop ;
 };
 
-class JAM_API AudioManager : public Singleton<AudioManager>, public Bank<ISound>
+class JAM_API AudioManager : public Singleton<AudioManager>, public NamedObjectManager<ISound>
 {
 	friend class Singleton<AudioManager> ;
 
 public:
 	// sound handling 
 	ISound*					loadSound( const String& afilename, const String& name, bool aloopFlag=false, float avolume=1.0f, float apitch=0.0f ) ;
-	ISound*					loadSound( const String& afilename, int id, bool aloopFlag=false, float avolume=1.0f, float apitch=0.0f ) ;
 
 	/// play the sound on a new channel unconditionally
 	void					play( const String& itemName );
-	void					play( int id );
 
 	/// play the sound only if it isn't already playing
 	void					playOnce( const String& itemName );
-	void					playOnce( int id );
 
 	/// play the sound again, stopping the current if it's already playing
 	void					playForce( const String& itemName );
-	void					playForce( int id );
 
 	/// Sets the volume for all loaded sounds
 	void					setSoundsVolume(float aVolume);
@@ -269,7 +265,6 @@ public:
 
 	// music handling
 	ISound*					loadMusic(const String& afilename, const String& name, bool aloopFlag=false, bool start=false);
-	ISound*					loadMusic(const String& afilename, int id, bool aloopFlag=false, bool start=false);
 	void					setMusicVolume(float volume);
 	float					getMusicVolume() { return m_musicVolume; } ;
 //	void					getMusicName(String val) { m_musicName = val; }

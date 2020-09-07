@@ -31,14 +31,13 @@
 #define __JAM_NODE_H__
 
 #include <jam/jam.h>
-#include <jam/BankItem.h>
+#include <jam/Object.h>
 #include <jam/Polygon2f.h>
 #include <jam/Circle2f.h>
 #include <jam/Action.h>
 #include <jam/Color.h>
 #include <jam/CollisionManager.h>
 #include <jam/Event.h>
-#include <jam/Relation.h>
 #include <jam/InputManager.h>
 
 #include <list>
@@ -91,7 +90,7 @@ typedef std::list<Node*>					NodesList ;
 
 	\remark This is an abstract class
 */
-class JAM_API Node : public BankItem
+class JAM_API Node : public NamedTaggedObject
 {
 	friend class CollisionManager ;
 	friend class ActionManager ;
@@ -174,9 +173,6 @@ public:
 	/** Gets a child from the container given its name */
 	Node*					getChildByName(const String& name) const ;
 
-	/** Gets a child from the container given its ID */
-	Node*					getChildById(int id) const ;
-
 	/**
 		Remove itself from its parent node. If cleanup is YES, then also remove all actions. If the node orphan, then nothing happens
 	
@@ -210,13 +206,6 @@ public:
 		\remark This method decrement the reference count of the child node
 	*/
 	void					removeChildByName(const String& name, bool cleanup);
-
-	/**
-		Removes a child from the container by id value. It will also cleanup all running actions depending on the cleanup parameter 
-	
-		\remark This method decrement the reference count of the child node
-	*/
-	void					removeChildById(int id, bool cleanup);
 
 	/**
 		Removes all children from the container and do a cleanup all running actions depending on the cleanup parameter.
@@ -805,10 +794,6 @@ public:
 	CollisionEvent&			getCollisionEvent() { return m_collisionEvent; }
 
 	
-	const RelationsList&	getRelations() const { return m_relations;}
-	RelationsList&			getRelations()  { return m_relations;}
-	int						createRelation(Node* target) ;
-
 	/**
 		Transforms between coordinate systems.
 	
@@ -906,8 +891,6 @@ private:
 
 	void					detachChild(Node *child, bool doCleanup);
 
-	void					destroyRelations() ;
-
 protected:
 	bool					m_local_tform_dirty ;
 	Matrix3				m_local_tform ;
@@ -993,9 +976,6 @@ private:
 	CollisionsList			m_colls ;
 	int						m_savedCollType;			// used to pause collision detection for this node
 	bool					m_justCollisionPaused;		// tells if collisions detection is paused for the node
-
-	// relations with other nodes
-	RelationsList			m_relations ;
 
 	// Speed of actions
 	float					m_actionSpeed;

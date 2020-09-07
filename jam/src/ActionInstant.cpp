@@ -51,9 +51,7 @@ FiniteTimeAction* ActionInstant::reverse()
 //
 Show* Show::action()
 {
-	Show* pRet = JAM_ALLOC(Show);
-	pRet->autorelease();
-	return pRet;
+	return new (GC) Show();
 }
 void Show::startWithTarget(Node *pTarget)
 {
@@ -79,9 +77,7 @@ Show::~Show()
 //
 Hide * Hide::action()
 {
-	Hide *pRet = JAM_ALLOC(Hide);
-	pRet->autorelease();
-	return pRet;
+	return new (GC) Hide();
 }
 void Hide::startWithTarget(Node *pTarget)
 {
@@ -107,9 +103,7 @@ Hide::Hide()
 //
 ToggleVisibility * ToggleVisibility::action()
 {
-	ToggleVisibility *pRet = JAM_ALLOC(ToggleVisibility);
-	pRet->autorelease();
-	return pRet;
+	return new (GC) ToggleVisibility();
 }
 void ToggleVisibility::startWithTarget(Node *pTarget)
 {
@@ -122,9 +116,8 @@ void ToggleVisibility::startWithTarget(Node *pTarget)
 //
 Place * Place::actionWithPosition(const Vector2& pos)
 {
-	Place *pRet = JAM_ALLOC(Place);
+	Place *pRet = new (GC) Place();
 	pRet->initWithPosition(pos);
-	pRet->autorelease();
 	return pRet;
 }
 bool Place::initWithPosition(const Vector2& pos)
@@ -146,14 +139,12 @@ CallStaticFunc::CallStaticFunc() : ActionInstant(), m_pFunc(0)
 
 CallStaticFunc* CallStaticFunc::actionWithTarget( CallbackFunc staticFunc )
 {
-	CallStaticFunc* pCallFunc = JAM_ALLOC(CallStaticFunc);
-	if( pCallFunc->initWithTarget(staticFunc) ) {
-		pCallFunc->autorelease();
+	CallStaticFunc* pCallFunc = new (GC) CallStaticFunc();
+	if( pCallFunc && pCallFunc->initWithTarget(staticFunc) ) {
 		return pCallFunc ;
 	}
 
-	JAM_FREE(pCallFunc);
-	return 0;
+	return nullptr;
 }
 
 bool CallStaticFunc::initWithTarget( CallbackFunc staticFunc )
@@ -183,9 +174,7 @@ void DestroyTarget::startWithTarget( Node *pTarget )
 
 DestroyTarget * DestroyTarget::action( Node *pTarget )
 {
-	DestroyTarget *pRet = JAM_ALLOC(DestroyTarget) ;
-	pRet->autorelease() ;
-	return pRet;
+	return new (GC) DestroyTarget() ;
 }
 
 DestroyTarget::~DestroyTarget()
@@ -201,9 +190,7 @@ DestroyTarget::DestroyTarget()
 //
 Enable* Enable::action()
 {
-	Enable *pRet = JAM_ALLOC(Enable);
-	pRet->autorelease();
-	return pRet;
+	return new (GC) Enable() ;
 }
 void Enable::startWithTarget(Node *pTarget)
 {
@@ -229,9 +216,7 @@ Enable::Enable()
 //
 Disable * Disable::action()
 {
-	Disable *pRet = JAM_ALLOC(Disable);
-	pRet->autorelease();
-	return pRet;
+	return new (GC) Disable() ;
 }
 void Disable::startWithTarget(Node *pTarget)
 {

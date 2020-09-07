@@ -115,8 +115,6 @@ SkyBox::~SkyBox()
 {
 	destroy() ;
 
-	JAM_RELEASE(m_pTexture3D) ;
-
 	m_verticesVbo.destroy() ;
 //		m_elementsVbo.destroy() ;
 	m_vao.destroy() ;
@@ -124,13 +122,7 @@ SkyBox::~SkyBox()
 
 void SkyBox::setTexture3D(TextureCubemap * pTexture3D)
 {
-	if( m_pTexture3D ) {
-		JAM_RELEASE_NULL(m_pTexture3D) ;
-	}
 	m_pTexture3D = pTexture3D ;
-	if( m_pTexture3D ) {
-		m_pTexture3D->addRef() ;
-	}
 }
 
 void SkyBox::create()
@@ -153,7 +145,7 @@ void SkyBox::upload()
 		return ;
 	}
 
-	Shader* pProg = ShaderManager::getSingleton().getCurrent() ;
+	Shader* pProg = GetShaderMgr().getCurrent() ;
 
 	m_verticesVbo.create() ;
 //		m_elementsVbo.create() ;
@@ -193,7 +185,7 @@ void SkyBox::draw()
 	GetGfx().setDepthMask(false);
 	GetGfx().setDepthFunc(GL_LEQUAL) ;
 
-	Shader* pShader = ShaderManager::getSingleton().getSkyBox().get() ;
+	Shader* pShader = GetShaderMgr().getSkyBox() ;
 	pShader->use();
 
 	// sets view and projection matrix

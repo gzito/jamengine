@@ -43,13 +43,10 @@ namespace jam
 //
 ActionEase* ActionEase::actionWithAction(ActionInterval *pAction)
 {
-	ActionEase *pRet = JAM_ALLOC(ActionEase);
+	ActionEase *pRet = new (GC) ActionEase();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -63,8 +60,6 @@ bool ActionEase::initWithAction(ActionInterval *pAction)
 	if (ActionInterval::initWithDuration(pAction->getDuration()))
 	{
 		m_pOther = pAction;
-		pAction->addRef();
-
 		return true;
 	}
 
@@ -73,7 +68,7 @@ bool ActionEase::initWithAction(ActionInterval *pAction)
 
 ActionEase::~ActionEase()
 {
-	JAM_RELEASE_NULL(m_pOther) ;
+	m_pOther = nullptr ;
 }
 
 void ActionEase::startWithTarget(Node *pTarget)
@@ -108,13 +103,10 @@ ActionEase::ActionEase()
 //
 EaseRateAction* EaseRateAction::actionWithAction(ActionInterval *pAction, float fRate)
 {
-	EaseRateAction *pRet = JAM_ALLOC(EaseRateAction);
+	EaseRateAction *pRet = new (GC) EaseRateAction();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction,fRate) ) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction,fRate) ) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -147,13 +139,10 @@ EaseRateAction::EaseRateAction()
 //
 EaseIn* EaseIn::actionWithAction(ActionInterval *pAction, float fRate)
 {
-	EaseIn *pRet = JAM_ALLOC(EaseIn);
+	EaseIn *pRet = new (GC) EaseIn();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction,fRate)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction,fRate)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -175,13 +164,10 @@ EaseIn::EaseIn()
 //
 EaseOut* EaseOut::actionWithAction(ActionInterval *pAction, float fRate)
 {
-	EaseOut *pRet = JAM_ALLOC(EaseOut);
+	EaseOut *pRet = new (GC) EaseOut();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction,fRate)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction,fRate)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -203,13 +189,10 @@ EaseOut::EaseOut()
 //
 EaseInOut* EaseInOut::actionWithAction(ActionInterval *pAction, float fRate)
 {
-	EaseInOut *pRet = JAM_ALLOC(EaseInOut);
+	EaseInOut *pRet = new (GC) EaseInOut();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction,fRate)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction,fRate)) {
+			pRet = nullptr;
 		}
 	}
 
@@ -251,13 +234,10 @@ EaseInOut::EaseInOut()
 //
 EaseExponentialIn* EaseExponentialIn::actionWithAction(ActionInterval* pAction)
 {
-	EaseExponentialIn *pRet = JAM_ALLOC(EaseExponentialIn);
+	EaseExponentialIn *pRet = new (GC) EaseExponentialIn();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr;
 		}
 	}
 
@@ -284,13 +264,10 @@ EaseExponentialIn::EaseExponentialIn()
 //
 EaseExponentialOut* EaseExponentialOut::actionWithAction(ActionInterval* pAction)
 {
-	EaseExponentialOut *pRet = JAM_ALLOC(EaseExponentialOut);
+	EaseExponentialOut *pRet = new (GC) EaseExponentialOut();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr;
 		}
 	}
 
@@ -317,13 +294,10 @@ EaseExponentialOut::EaseExponentialOut()
 //
 EaseExponentialInOut* EaseExponentialInOut::actionWithAction(ActionInterval *pAction)
 {
-	EaseExponentialInOut *pRet = JAM_ALLOC(EaseExponentialInOut);
+	EaseExponentialInOut *pRet = new (GC) EaseExponentialInOut();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr;
 		}
 	}
 
@@ -353,13 +327,10 @@ EaseExponentialInOut::EaseExponentialInOut()
 //
 EaseElastic* EaseElastic::actionWithAction(ActionInterval *pAction)
 {
-	EaseElastic *pRet = JAM_ALLOC(EaseElastic);
+	EaseElastic *pRet = new (GC) EaseElastic();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -368,13 +339,10 @@ EaseElastic* EaseElastic::actionWithAction(ActionInterval *pAction)
 
 EaseElastic* EaseElastic::actionWithAction(ActionInterval *pAction, float fPeriod)
 {
-	EaseElastic *pRet = JAM_ALLOC(EaseElastic);
+	EaseElastic *pRet = new (GC) EaseElastic();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction, fPeriod)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction, fPeriod)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -414,13 +382,10 @@ EaseElastic::EaseElastic()
 //
 EaseElasticIn* EaseElasticIn::actionWithAction(ActionInterval *pAction, float fPeriod)
 {
-	EaseElasticIn *pRet = JAM_ALLOC(EaseElasticIn);
+	EaseElasticIn *pRet = new (GC) EaseElasticIn();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction, fPeriod)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction, fPeriod)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -429,13 +394,10 @@ EaseElasticIn* EaseElasticIn::actionWithAction(ActionInterval *pAction, float fP
 
 EaseElasticIn* EaseElasticIn::actionWithAction(ActionInterval *pAction)
 {
-	EaseElasticIn *pRet = JAM_ALLOC(EaseElasticIn);
+	EaseElasticIn *pRet = new (GC) EaseElasticIn();
 	if( pRet ) {
-		if( pRet->initWithAction(pAction) ) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction) ) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -474,13 +436,10 @@ EaseElasticIn::EaseElasticIn()
 //
 EaseElasticOut* EaseElasticOut::actionWithAction(ActionInterval *pAction)
 {
-	EaseElasticOut *pRet = JAM_ALLOC(EaseElasticOut);
+	EaseElasticOut *pRet = new (GC) EaseElasticOut();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -489,13 +448,10 @@ EaseElasticOut* EaseElasticOut::actionWithAction(ActionInterval *pAction)
 
 EaseElasticOut* EaseElasticOut::actionWithAction(ActionInterval *pAction, float fPeriod)
 {
-	EaseElasticOut *pRet = JAM_ALLOC(EaseElasticOut);
+	EaseElasticOut *pRet = new (GC) EaseElasticOut();
 	if( pRet ) {
-		if( pRet->initWithAction(pAction, fPeriod) ) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction, fPeriod) ) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -533,13 +489,10 @@ EaseElasticOut::EaseElasticOut()
 //
 EaseElasticInOut* EaseElasticInOut::actionWithAction(ActionInterval *pAction)
 {
-	EaseElasticInOut *pRet = JAM_ALLOC(EaseElasticInOut);
+	EaseElasticInOut *pRet = new (GC) EaseElasticInOut();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -548,13 +501,10 @@ EaseElasticInOut* EaseElasticInOut::actionWithAction(ActionInterval *pAction)
 
 EaseElasticInOut* EaseElasticInOut::actionWithAction(ActionInterval *pAction, float fPeriod)
 {
-	EaseElasticInOut *pRet = JAM_ALLOC(EaseElasticInOut);
+	EaseElasticInOut *pRet = new (GC) EaseElasticInOut();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction,fPeriod)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction,fPeriod)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -607,13 +557,10 @@ EaseElasticInOut::EaseElasticInOut()
 //
 EaseBounce* EaseBounce::actionWithAction( ActionInterval* pAction )
 {
-	EaseBounce *pRet = JAM_ALLOC(EaseBounce);
+	EaseBounce *pRet = new (GC) EaseBounce();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -651,13 +598,10 @@ EaseBounce::EaseBounce()
 //
 EaseBounceIn* EaseBounceIn::actionWithAction(ActionInterval* pAction)
 {
-	EaseBounceIn *pRet = JAM_ALLOC(EaseBounceIn);
+	EaseBounceIn *pRet = new (GC) EaseBounceIn();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -685,13 +629,10 @@ EaseBounceIn::EaseBounceIn()
 //
 EaseBounceOut* EaseBounceOut::actionWithAction(ActionInterval* pAction)
 {
-	EaseBounceOut *pRet = JAM_ALLOC(EaseBounceOut);
+	EaseBounceOut *pRet = new (GC) EaseBounceOut();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -719,13 +660,10 @@ EaseBounceOut::EaseBounceOut()
 //
 EaseBounceInOut	* EaseBounceInOut::actionWithAction(ActionInterval* pAction)
 {
-	EaseBounceInOut *pRet = JAM_ALLOC(EaseBounceInOut);
+	EaseBounceInOut *pRet = new (GC) EaseBounceInOut();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -758,13 +696,10 @@ EaseBounceInOut::EaseBounceInOut()
 //
 EaseBackIn* EaseBackIn::actionWithAction(ActionInterval *pAction)
 {
-	EaseBackIn *pRet = JAM_ALLOC(EaseBackIn);
+	EaseBackIn *pRet = new (GC) EaseBackIn();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -792,13 +727,10 @@ EaseBackIn::EaseBackIn()
 //
 EaseBackOut* EaseBackOut::actionWithAction(ActionInterval* pAction)
 {
-	EaseBackOut *pRet = JAM_ALLOC(EaseBackOut);
+	EaseBackOut *pRet = new (GC) EaseBackOut();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr ;
 		}
 	}
 
@@ -828,13 +760,10 @@ EaseBackOut::EaseBackOut()
 //
 EaseBackInOut* EaseBackInOut::actionWithAction(ActionInterval* pAction)
 {
-	EaseBackInOut *pRet = JAM_ALLOC(EaseBackInOut);
+	EaseBackInOut *pRet = new (GC) EaseBackInOut();
 	if (pRet ) {
-		if( pRet->initWithAction(pAction)) {
-			pRet->autorelease() ;
-		}
-		else {
-			JAM_RELEASE_NULL(pRet);
+		if( !pRet->initWithAction(pAction)) {
+			pRet = nullptr ;
 		}
 	}
 

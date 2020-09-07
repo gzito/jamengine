@@ -30,10 +30,12 @@
 #include "stdafx.h"
 
 #include "jam/Achievement.h"
-#include "jam/ObjectManager.h"
+#include "jam/Object.h"
 #include "jam/Timer.h"
 
 #include <fstream>
+
+#ifdef JAM_EXCLUDED_BLOCK
 
 namespace jam
 {
@@ -74,17 +76,16 @@ namespace jam
 	// ***
 	const jam::time AchievementManager::DefaultCheckinterval = 2.0f ;
 
-	AchievementManager::AchievementManager() : Bank<Achievement>(), m_checkTimer(0), m_checkInterval(DefaultCheckinterval)
+	AchievementManager::AchievementManager() : BaseManager<Achievement>(), m_checkTimer(0), m_checkInterval(DefaultCheckinterval)
 	{
-		m_checkTimer = Timer::create() ;
-		m_checkTimer ->setReserved() ;
+		m_checkTimer.reset( Timer::create() ) ;
+//		m_checkTimer ->setReserved() ;
 		m_checkTimer ->start();
 	}
 
 
 	AchievementManager::~AchievementManager()
 	{
-		JAM_RELEASE_NULL(m_checkTimer) ;
 	}
 
 	void AchievementManager::check( bool force /*= false */ )
@@ -97,24 +98,24 @@ namespace jam
 		}
 
 		// itera sugli achievements
-		for( size_t i=0; i<m_objectsArray.size(); i++ ) {
-			if( m_objectsArray[i] != 0 ) {
-				pAch = (Achievement*)m_objectsArray[i] ;
+		for( auto& pAchPair : getManagerMap() )
+			Ref<Achievement> pAch = pAchPair.second ;
+			if( pAch->isActive() ) {
+				if( !pAch->isCompleted() && pAch->check() ) {
+					pAch->complete();
+					pAch->sidefx();
+					Ref<AchievementCompletedEventArgs> evtArgs( AchievementCompletedEventArgs::create() ) ;
+					evtArgs->setAchievementId( pAch->getId() ) ;
+					pAch->getEvent().enqueue(
+						dynamic_ref_cast<EventArgs,AchievementCompletedEventArgs>(evtArgs),
+						dynamic_ref_cast<IEventSource,AchievementManager>(Ref<AchievementManager>(this))
+					) ;
 
-				if( pAch->isActive() ) {
-					if( !pAch->isCompleted() && pAch->check() ) {
-						pAch->complete();
-						pAch->sidefx();
-						AchievementCompletedEventArgs* evtArgs = AchievementCompletedEventArgs::create() ;
-						evtArgs->setAchievementId( pAch->getId() ) ;
-						pAch->getEvent().enqueue(evtArgs,this) ;
-
-					}
 				}
 			}
 		}
 
-		m_checkTimer->reset() ;
+		m_checkTimer.reset() ;
 	}
 
 	void AchievementManager::setActiveByTag( bool activeStatus, const TagType& tag )
@@ -221,4 +222,7 @@ namespace jam
 		archEvtArgs->autorelease() ;
 		return archEvtArgs ;
 	}
+
 }
+
+#endif // JAM_EXCLUDED_BLOCK 

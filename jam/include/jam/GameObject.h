@@ -31,7 +31,7 @@
 #define __JAM_GAMEOBJECT_H__
 
 #include <jam/jam.h>
-#include <jam/RefCountedObject.h>
+#include <jam/Object.h>
 
 #include <list>
 
@@ -41,7 +41,7 @@ namespace jam
 class Transform ;
 class Component ;
 
-class JAM_API GameObject : public RefCountedObject
+class JAM_API GameObject : public NamedTaggedObject
 {
 public:
 							GameObject() ;
@@ -58,9 +58,9 @@ public:
 
 private:
 	// each GameObject has a Transform component
-	Ref<Transform>			m_transform ;
+	Transform*				m_transform ;
 	// and a list of components
-	std::list<Ref<Component>>		m_components ;
+	std::list<Component*>	m_components ;
 	bool					m_active ;
 };
 

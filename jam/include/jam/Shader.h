@@ -33,11 +33,11 @@
 #define __JAM_SHADER_H__
 
 #include <jam/ShaderFile.h>
+#include <jam/BaseManager.hpp>
 #include <jam/Singleton.h>
 #include <jam/core/geom.h>
 
 #include <vector>
-#include <unordered_map>
 
 
 #define JAM_PROGRAM_ATTRIB_POSITION						"in_Position"
@@ -79,7 +79,7 @@ namespace jam
 /**
     Represents an OpenGL program made by linking shaders.
 */
-class JAM_API Shader : public RefCountedObject
+class JAM_API Shader : public NamedObject
 { 
 public:
 	/**
@@ -90,7 +90,7 @@ public:
 							Shader() ;
 	virtual					~Shader() ;
         
-	void					setShaderFiles( const std::vector<Ref<ShaderFile>>& shaderFiles ) ;
+	void					setShaderFiles( const std::vector<ShaderFile*>& shaderFiles ) ;
 
 	void					compile() ;
 
@@ -110,9 +110,6 @@ public:
     bool					isInUse() const ;
 
     void					stopUsing() const ;
-
-	const String&			getName() const ;
-	void					setName( const String& name ) ;
 
 public:
     /**
@@ -195,8 +192,7 @@ public:
 
 private:
     GLuint					m_object;
-	String					m_name ;
-	std::vector<Ref<ShaderFile>>	m_shaderFiles ;
+	std::vector<ShaderFile*>	m_shaderFiles ;
 
     //copying disabled
 							Shader(const Shader&) = delete ;
@@ -207,21 +203,21 @@ private:
 //*****************************************************************************
 // ShaderManager
 //
-class JAM_API ShaderManager : public Singleton<ShaderManager>
+class JAM_API ShaderManager : public NamedObjectManager<Shader>, public Singleton<ShaderManager>
 {
-using ShadersMap = std::unordered_map<String,Shader*> ;
+    friend class Singleton<ShaderManager>;
 
 public:
-							ShaderManager() ;
-
 	static const String		DEFAULT_PROGRAM_UNLIT_NAME ;
 	static const String		DEFAULT_PROGRAM_LIT_NAME ;
 	static const String		SKINNIG_PROGRAM_LIT_NAME ;
 	static const String		SKYBOX_PROGRAM_NAME ;
 	static const String		NORMAL_MAPPING_PROGRAM_NAME ;
 	static const String		SCREEN_PROGRAM_NAME ;
-
 	static const String		DEFAULT_SHADERS_PATH ;
+
+public:
+							ShaderManager() ;
 
 	void					createDefaultUnlit() ;
 	void					createDefaultLit() ;
@@ -230,24 +226,25 @@ public:
 	void					createNormalMapping() ;
 	void					createScreen() ;
 
-	Ref<Shader>				getDefaultUnlit() ;
-	Ref<Shader>				getDefaultLit() ;
-	Ref<Shader>				getSkinningLit() ;
-	Ref<Shader>				getSkyBox() ;
-	Ref<Shader>				getNormalMapping() ;
-	Ref<Shader>				getScreen() ;
+	Shader*		            getDefaultUnlit() ;
+	Shader*		            getDefaultLit() ;
+	Shader*		            getSkinningLit() ;
+	Shader*		            getSkyBox() ;
+	Shader*		            getNormalMapping() ;
+	Shader*		            getScreen() ;
 
-	Ref<Shader>				getShader( const String& name ) ;
+	Shader*                 getShader( const String& name ) ;
 
 	void					loadAndCreateProgram( const String& shaderName ) ;
 
-	Shader*					getCurrent() ;
+	Shader*     			getCurrent() ;
 	void					setCurrent( Shader* pShader ) ;
 
 private:
-	ShadersMap				m_shadersMap ;
-	Shader*					m_pCurrentShader ;
+	Shader*                 m_pCurrentShader ;
 };
+
+JAM_INLINE ShaderManager& GetShaderMgr() { return ShaderManager::getSingleton(); }
 
 }
 

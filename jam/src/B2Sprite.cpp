@@ -39,13 +39,12 @@ namespace jam
 {
 
 B2Sprite::B2Sprite() :
-	AliveSprite(), m_pBody(0)
+	Sprite(), m_pBody(0)
 {
-	show() ;
 }
 
-B2Sprite::B2Sprite( jam::DrawItem* frame ) :
-	AliveSprite(frame), m_pBody(0)
+B2Sprite::B2Sprite( DrawItem* frame ) :
+	Sprite(frame), m_pBody(0)
 {
 }
 
@@ -59,15 +58,15 @@ if( m_pBody ) {
 #endif
 }
 
-void B2Sprite::setFrame( jam::DrawItem* frame )
+void B2Sprite::setFrame( DrawItem* frame )
 {
 	// GZ : should adjust shape here
-	AliveSprite::setFrame(frame) ;	
+	Sprite::setFrame(frame) ;	
 }
 
 void B2Sprite::update()
 {
-	AliveSprite::update() ;
+	Sprite::update() ;
 
 #ifdef JAM_PHYSIC_ENABLED
 	if( m_pBody ) {

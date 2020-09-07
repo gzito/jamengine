@@ -34,8 +34,9 @@
 
 #include <jam/jam.h>
 #include <jam/Color.h>
-#include <jam/Bank.h>
 #include <jam/Singleton.h>
+#include <jam/Object.h>
+#include <jam/BaseManager.hpp>
 #include <jam/core/geom.h>
 
 namespace jam
@@ -44,7 +45,7 @@ namespace jam
 /*!
 	\class Light
 */
-class JAM_API Light : public BankItem
+class JAM_API Light : public NamedObject
 {
 public:
 	enum class Type {
@@ -69,8 +70,8 @@ public:
 	void				setSpecularColor( const Color& specular ) ;
 
 	Type				getType() const ;
-	Vector3			getPosition() const ;
-	Vector3			getDirection() const ;
+	Vector3				getPosition() const ;
+	Vector3				getDirection() const ;
 	float				getConstantAttenuationFactor() const ;
 	float				getLinearAttenuationFactor() const ;
 	float				getQuadraticAttenuationFactor() const ;
@@ -80,8 +81,8 @@ public:
 
 private:
 	Type				m_type ;
-	Vector3			m_position ;
-	Vector3			m_direction ;
+	Vector3				m_position ;
+	Vector3				m_direction ;
 
 	// attenuation triplet for point lights
 	float				m_constant ;
@@ -103,14 +104,14 @@ JAM_INLINE Color		Light::getAmbientColor() const { return m_ambient; }
 JAM_INLINE Color		Light::getDiffuseColor() const { return m_diffuse; }
 JAM_INLINE Color		Light::getSpecularColor() const { return m_specular; }
 
-class JAM_API LightManager : public Bank<Light>, public jam::Singleton<LightManager>
+class JAM_API LightManager : public NamedObjectManager<Light>, public jam::Singleton<LightManager>
 {
 	friend class jam::Singleton<LightManager> ;
 
 public:
 
 protected:
-	LightManager() : Bank<Light>() {}
+						LightManager() = default ;
 private:
 };
 

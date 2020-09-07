@@ -30,7 +30,7 @@
 #include "stdafx.h"
 
 #include "jam/State.h"
-#include "jam/ObjectManager.h"
+#include "jam/Object.h"
 
 namespace jam
 {
@@ -52,8 +52,8 @@ AndCondition::AndCondition( ICondition* condA, ICondition* condB ) :
 
 AndCondition::~AndCondition()
 {
-	JAM_FREE(m_pConditionA) ;
-	JAM_FREE(m_pConditionB) ;
+	m_pConditionA = nullptr ;
+	m_pConditionB = nullptr ;
 }
 
 
@@ -70,8 +70,8 @@ OrCondition::OrCondition( ICondition* condA, ICondition* condB ) :
 
 OrCondition::~OrCondition()
 {
-	JAM_FREE(m_pConditionA) ;
-	JAM_FREE(m_pConditionB) ;
+	m_pConditionA = nullptr ;
+	m_pConditionB = nullptr ;
 }
 
 
@@ -88,7 +88,7 @@ NotCondition::NotCondition( ICondition* cond ) :
 
 NotCondition::~NotCondition()
 {
-	JAM_FREE(m_pCondition) ;
+	m_pCondition = nullptr ;
 }
 
 
@@ -118,7 +118,7 @@ Transition::Transition( ICondition* pCondition /*= 0 */, State* targetState /*= 
 
 Transition::~Transition()
 {
-	JAM_FREE(m_pCondition) ;
+	m_pCondition = nullptr ;
 }
 
 
@@ -142,14 +142,6 @@ void State::linkState( State* targetState, Transition* transition, ICondition* c
 void State::addTransition( Transition* transition )
 {
 	m_transitions.push_back(transition) ;
-}
-
-State::~State()
-{
-	for( TransitionList::const_iterator it = m_transitions.begin(); it != m_transitions.end(); it++ ) {
-		// substitute with JAM_FREE
-		delete (*it) ;
-	}
 }
 
 }

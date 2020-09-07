@@ -47,7 +47,7 @@ struct ActionMgrMapElement
 
 
 ActionManager::ActionManager() :
-	Bank<Action>(), m_pCurrentTarget(0), m_bCurrentTargetSalvaged(false)
+	NamedTaggedObjectManager<Action>(), m_pCurrentTarget(0), m_bCurrentTargetSalvaged(false)
 {
 }
 
@@ -62,14 +62,13 @@ void ActionManager::addAction( Action* pAction, Node* pTarget, bool paused )
 	assert(pTarget) ;
 	
 	// add the action as bankitem
-	add(pAction) ;
+	addObject(pAction) ;
 	
 	ActionMgrMapElement* pElement = 0 ;
 	TargetsMap::iterator it = m_targets.find(pTarget) ;
 	if( it == m_targets.end() ) {
 		pElement = new ActionMgrMapElement();
 		pElement->actionIndex = 0 ;
-		pTarget->addRef() ;
 		pElement->target = pTarget ;
 		pElement->currentAction = 0 ;
 		pElement->currentActionSalvaged = false ;
@@ -80,7 +79,6 @@ void ActionManager::addAction( Action* pAction, Node* pTarget, bool paused )
 		pElement = it->second ;
 	}
 	pElement->actions.push_back(pAction) ;
-	pAction->addRef() ;
 
 	pAction->startWithTarget(pTarget) ;
 }
@@ -92,7 +90,7 @@ void ActionManager::removeAllActions()
 		removeAllActionsFromTarget(it->first, false) ;
 	}
 	m_targets.clear() ;
-	removeAllBankItems();	// release managed actions
+	clearAll() ;
 }
 
 void ActionManager::removeAllActionsFromTarget( Node* pTarget, bool eraseTargetElement /*= true*/ )
@@ -108,14 +106,12 @@ void ActionManager::removeAllActionsFromTarget( Node* pTarget, bool eraseTargetE
 		ActionsList::iterator currentActionIt = std::find(pElement->actions.begin(), pElement->actions.end(), pElement->currentAction) ;
 		if( currentActionIt != pElement->actions.end() && !pElement->currentActionSalvaged ) {
 
-			pElement->currentAction->addRef();
 			pElement->currentActionSalvaged = true ;
 		} 
 
 		for( ActionsList::iterator vit = pElement->actions.begin(); vit != pElement->actions.end(); vit++ ) {
 //			if( vit!=currentActionIt || pElement->currentActionSalvaged==false ) {
-				(*vit)->release() ;
-				(*vit)->removeFromBank() ;
+				eraseObject((*vit)->getName()) ;
 //			}
 		}
 		pElement->actions.clear() ;
@@ -124,8 +120,6 @@ void ActionManager::removeAllActionsFromTarget( Node* pTarget, bool eraseTargetE
 			m_bCurrentTargetSalvaged = true;
 		}
 		else {
-			pElement->target->release() ;
-			JAM_DELETE(pElement) ;
 			if( eraseTargetElement ) { 
 				m_targets.erase(it) ;
 			}
@@ -232,14 +226,7 @@ void ActionManager::update(jam::time dt)
 				float aspeed=node->getActionSpeed();
 				m_pCurrentTarget->currentAction->step(dt*aspeed) ;
 
-				if( m_pCurrentTarget->currentActionSalvaged )
-				{
-					// The currentAction told the node to remove it. To prevent the action from
-					// accidentally deallocating itself before finishing its step, we retained
-					// it. Now that step is done, it's safe to release it.
-					m_pCurrentTarget->currentAction->release();
-				}
-				else if(m_pCurrentTarget->currentAction->isDone())
+				if(m_pCurrentTarget->currentAction->isDone())
 				{
 						m_pCurrentTarget->currentAction->stop() ;
 						Action* pAction = m_pCurrentTarget->currentAction ;
@@ -253,9 +240,6 @@ void ActionManager::update(jam::time dt)
 		} // if( !m_pCurrentTarget->paused )
 
 		if (m_bCurrentTargetSalvaged && m_pCurrentTarget->actions.size() == 0) {
-			delete it->second ;
-
-			it->first->release() ;
 			m_targets.erase(it++);
 		}
 		else {
@@ -272,16 +256,14 @@ void ActionManager::removeActionAt( ActionsList::iterator it, ActionMgrMapElemen
 
 	if (pAction == pElement->currentAction && (! pElement->currentActionSalvaged))
 	{
-		pElement->currentAction->addRef() ;
 		pElement->currentActionSalvaged = true;
 	}
 
-	pAction->release() ;
 	size_t uIndex = it - pElement->actions.begin() ;
 	pElement->actions.erase(it);
 
 	// remove from bank
-	pAction->removeFromBank() ;
+	eraseObject(pAction->getName()) ;
 
 	// update actionIndex in case we are in tick. looping over the actions
 	if (pElement->actionIndex >= uIndex)
@@ -299,7 +281,6 @@ void ActionManager::removeActionAt( ActionsList::iterator it, ActionMgrMapElemen
 		{
 			TargetsMap::iterator it = m_targets.find(pElement->target) ;
 			if( it!= m_targets.end() ) {
-				pElement->target->release() ;
 				m_targets.erase(it);
 			}
 		}

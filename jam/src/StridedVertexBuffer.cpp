@@ -192,7 +192,7 @@ void StridedVertexBuffer::upload()
 {
 	JAM_ASSERT(!m_uploaded) ;
 
-	Shader* p = ShaderManager::getSingleton().getCurrent() ;
+	Shader* p = GetShaderMgr().getCurrent() ;
 
 	// create VAO
 	glGenVertexArrays( 1, &m_vao ) ;

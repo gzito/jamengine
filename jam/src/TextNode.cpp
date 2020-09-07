@@ -127,9 +127,7 @@ namespace jam
 
 	TextNode* TextNode::create()
 	{
-		TextNode* t = JAM_ALLOC(TextNode) ;
-		t->autorelease() ;
-		return t ;
+		return new (GC) TextNode ;
 	}
 
 	//
@@ -147,13 +145,14 @@ namespace jam
 	TextNode* TextNodeManager::addText(	const String& text,	float _x, float _y,	const String& name, 	Node* parent, const String& fontName, uint64_t _times/*=1000*/, float size /*=0.5f*/, Draw3DManager::DrawAlign align /*= Draw3DManager::DRAW_ALIGN_CENTER*/, float kerning/*=0.0f*/ , bool is_complex/*=false*/)
 	{
 		TextNode* t = 0 ;
-		if (!name.empty())	t=jam::GetTextNodeMgr().findPtrByName(name);
+		if (!name.empty())	t=jam::GetTextNodeMgr().getObject(name);
 
 		if( !t )
 		{
 			t = TextNode::create() ;
+			t->setName(name) ;
 			parent->addChild(t) ;
-			if (!name.empty())	addByName( t, name ) ;
+			if (!name.empty())	addObject( t ) ;
 		}
 		else
 		{
@@ -204,34 +203,35 @@ namespace jam
 		return t ;
 	}
 
-	TextNode* TextNodeManager::destroyByTag( const String& tag )
+	TextNode* TextNodeManager::destroyByName( const String& name )
 	{
 		TextNode* t = 0 ;
-		if (!tag.empty())	t=jam::GetTextNodeMgr().findPtrByName(tag);
+		if (!name.empty()) {
+			t = GetTextNodeMgr().getObject(name);
+			if( t ) t->destroy();
+		}
 
-		if( t ) t->destroy();
 		return 0;
 	}
 
-	TextNode* TextNodeManager::getNode( const String& tag )
+	TextNode* TextNodeManager::getNode( const String& name )
 	{
 		TextNode* t = 0 ;
-		if (!tag.empty())	t=jam::GetTextNodeMgr().findPtrByName(tag);
+		if (!name.empty()) {
+			t = GetTextNodeMgr().getObject(name);
+		}
 		return t;
 	}
 	
 	void TextNodeManager::destroyAllText()
 	{
-		TextNode* t = 0 ;
-		int items=countItems();
-		removeAllBankItems();
-		int items2=countItems();
+		clearAll() ;
 	}
 
 	TextNode* TextNodeManager::setText( const String& text, const String& name )
 	{
 		TextNode* t = 0 ;
-		if (!name.empty())	t=findPtrByName(name);
+		if (!name.empty())	t=getObject(name);
 
 		if( !t )
 		{

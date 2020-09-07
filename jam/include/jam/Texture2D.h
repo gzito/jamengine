@@ -33,9 +33,9 @@
 #include <jam/jam.h>
 
 #include <jam/Color.h>
-#include <jam/Bank.h>
 #include <jam/Singleton.h>
 #include <jam/String.h>
+#include <jam/Object.h>
 
 namespace jam
 {
@@ -44,7 +44,7 @@ namespace jam
 	\class Texture2D
 	\brief This class represents a texture
 */
-class JAM_API Texture2D : public BankItem
+class JAM_API Texture2D : public NamedObject
 {
 public:
 	// ctors/dtor
@@ -88,19 +88,6 @@ private:
 							Texture2D( const Texture2D& ) = default ;
 	Texture2D&				operator=( const Texture2D& ) = default ;
 };
-
-class JAM_API TextureManager : public Bank<Texture2D>, public jam::Singleton<TextureManager>
-{
-	friend class jam::Singleton<TextureManager> ;
-
-public:
-
-protected:
-	TextureManager() : Bank<Texture2D>() {}
-private:
-};
-
-JAM_INLINE TextureManager&	GetTextureMgr() { return (TextureManager&) TextureManager::getSingleton(); }
 
 }	// end namespace
 

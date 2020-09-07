@@ -31,6 +31,8 @@ if(MSVC)
 	add_compile_options(/MP)
 endif()
 
+add_definitions(-DGC_NOT_DLL)
+
 # The JAM library.
 add_subdirectory(jam)
 

@@ -112,7 +112,7 @@ void Action::setAttributeOnEnd( const String& key, const String& val )
 // implemented in derived classes
 FiniteTimeAction* FiniteTimeAction::reverse( void )
 {
-	return 0 ;
+	return nullptr ;
 }
 
 //
@@ -120,27 +120,20 @@ FiniteTimeAction* FiniteTimeAction::reverse( void )
 //
 Speed::~Speed()
 {
-	JAM_RELEASE_NULL(m_pOther) ;
 }
 
-Speed* Speed::actionWithAction(ActionInterval *pAction, float fRate)
+Speed* Speed::actionWithAction(ActionInterval* pAction, float fRate)
 {
-	Speed *pRet = JAM_ALLOC(Speed);
+	Speed* pRet = new (GC) Speed() ;
 	if( pRet ) {
-		if( pRet->initWithAction(pAction, fRate) ) {
-			pRet->autorelease();
-		}
-		else {
-			JAM_RELEASE_NULL(pRet) ;
-		}
+		pRet->initWithAction(pAction, fRate) ;
 	}
 	return pRet;
 }
 
-bool Speed::initWithAction(ActionInterval *pAction, float fRate)
+bool Speed::initWithAction(ActionInterval* pAction, float fRate)
 {
 	assert(pAction != 0);
-	pAction->addRef();
 	m_pOther = pAction;
 	m_fSpeed = fRate;	
 	return true;
@@ -168,9 +161,9 @@ bool Speed::isDone()
 	return m_pOther->isDone();
 }
 
-ActionInterval *Speed::reverse()
+ActionInterval* Speed::reverse()
 {
-	return (ActionInterval*)(Speed::actionWithAction(m_pOther->reverse(), m_fSpeed));
+	return dynamic_cast<ActionInterval*>(Speed::actionWithAction(m_pOther->reverse(), m_fSpeed)) ;
 }
 
 Speed::Speed()

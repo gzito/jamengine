@@ -100,7 +100,6 @@ InputManager::InputManager():
 	m_maxNumberOfTouches(JAM_MAX_TOUCHES), m_doubleTapDelay(DefaultDoubleTapMaxDelayMs)
 {
 	m_pUpdateTimer = Timer::create() ;
-	m_pUpdateTimer->setReserved() ;
 	if( !isMultiTouchAvailable() ) {
 		m_maxNumberOfTouches = 1 ;
 	}
@@ -118,7 +117,6 @@ InputManager::InputManager():
 
 InputManager::~InputManager()
 {
-	JAM_RELEASE_NULL(m_pUpdateTimer) ;
 }
 
 bool InputManager::keyUp(jam::key key) const

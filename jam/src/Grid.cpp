@@ -57,10 +57,6 @@ GridBase::GridBase() :
 GridBase::~GridBase()
 {
 	setActive(false);
-	JAM_DELETE(m_pGrabber);
-	JAM_RELEASE(m_pDrawItem) ;
-	JAM_DELETE(m_pVertexBuffer);
-	JAM_DELETE(m_pOriginalVertexBuffer);
 }
 
 //GridBase* GridBase::gridWithSize(const GridSize& gridSize)
@@ -110,7 +106,6 @@ bool GridBase::initWithSize(const GridSize& gridSize, DrawItem *pDrawItem, bool 
 	m_sGridSize = gridSize;
 
 	m_pDrawItem = pDrawItem;
-	JAM_ADDREF(pDrawItem);
 	m_bIsTextureFlipped = bFlipped;
 
 	m_obStep.x = m_pDrawItem->getWidth() / m_sGridSize.x;
@@ -138,8 +133,7 @@ bool GridBase::initWithSize(const GridSize& gridSize)
 		textureSize *= 2;
 	}
 
-	m_pDrawItem = DrawItem::create(Ref<Texture2D>(0),Rect(0,0,textureSize,textureSize));
-	m_pDrawItem->autorelease() ;
+	m_pDrawItem = DrawItem::create(nullptr,Rect(0,0,textureSize,textureSize));
 
 	if (initWithSize(gridSize, m_pDrawItem, m_bIsTextureFlipped)) {
 		// do something
@@ -264,15 +258,11 @@ void GridBase::reuse()
 
 Grid3D* Grid3D::gridWithSize(const GridSize& gridSize, DrawItem *pDrawItem, bool bFlipped)
 {
-	Grid3D *pRet= JAM_ALLOC(Grid3D);
+	Grid3D *pRet= new (GC) Grid3D;
 
 	if (pRet) {
-		if (pRet->initWithSize(gridSize, pDrawItem, bFlipped)) {
-			pRet->autorelease();
-		}
-		else {
-			JAM_FREE(pRet);
-			pRet = NULL;
+		if (!pRet->initWithSize(gridSize, pDrawItem, bFlipped)) {
+			pRet = nullptr;
 		}
 	}
 
@@ -281,15 +271,11 @@ Grid3D* Grid3D::gridWithSize(const GridSize& gridSize, DrawItem *pDrawItem, bool
 
 Grid3D* Grid3D::gridWithSize(const GridSize& gridSize)
 {
-	Grid3D *pRet= JAM_ALLOC(Grid3D);
+	Grid3D *pRet= new (GC) Grid3D;
 
 	if (pRet) {
-		if (pRet->initWithSize(gridSize)) {
-			pRet->autorelease();
-		}
-		else {
-			JAM_FREE(pRet);
-			pRet = NULL;
+		if (!pRet->initWithSize(gridSize)) {
+			pRet = nullptr;
 		}
 	}
 
@@ -361,15 +347,11 @@ void Grid3D::setVertex(const GridSize& pos, const Vector3& vertex)
 
 TiledGrid3D* TiledGrid3D::gridWithSize(const GridSize& gridSize, DrawItem *pDrawItem, bool bFlipped)
 {
-	TiledGrid3D *pRet= JAM_ALLOC(TiledGrid3D);
+	TiledGrid3D *pRet= new (GC) TiledGrid3D;
 
 	if (pRet) {
-		if (pRet->initWithSize(gridSize, pDrawItem, bFlipped)) {
-			pRet->autorelease();
-		}
-		else {
-			JAM_FREE(pRet);
-			pRet = NULL;
+		if (!pRet->initWithSize(gridSize, pDrawItem, bFlipped)) {
+			pRet = nullptr;
 		}
 	}
 
@@ -378,15 +360,11 @@ TiledGrid3D* TiledGrid3D::gridWithSize(const GridSize& gridSize, DrawItem *pDraw
 
 TiledGrid3D* TiledGrid3D::gridWithSize(const GridSize& gridSize)
 {
-	TiledGrid3D *pRet= JAM_ALLOC(TiledGrid3D);
+	TiledGrid3D *pRet= new (GC) TiledGrid3D;
 
 	if (pRet) {
-		if (pRet->initWithSize(gridSize)) {
-			pRet->autorelease();
-		}
-		else {
-			JAM_FREE(pRet);
-			pRet = NULL;
+		if (!pRet->initWithSize(gridSize)) {
+			pRet = nullptr;
 		}
 	}
 

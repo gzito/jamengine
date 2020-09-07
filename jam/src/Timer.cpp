@@ -32,7 +32,6 @@
 #include "jam/Timer.h"
 
 #include <jam/Application.h>
-#include <jam/ObjectManager.h>
 
 namespace jam
 {
@@ -132,9 +131,6 @@ namespace jam
 
 	void Timer::update()
 	{
-		if( isMarkedForDestruction() )
-			return ;
-
 		m_isSweep = m_running && m_currentTime >= m_endTime ;
 
 		if( isRunning() ) {
@@ -153,7 +149,6 @@ namespace jam
 		{
 			TimeExpiredEventArgs* evtArgs = TimeExpiredEventArgs::create() ;
 			m_timeExpiredEvent.fire(evtArgs,this) ;
-			JAM_RELEASE(evtArgs) ;
 			if( m_repeatSweep > 0 ) { m_repeatSweep-- ; }
 			setSweep(m_repeatSweepTime != 0 ? m_repeatSweepTime : m_sweepDelay ) ;
 		}
@@ -198,94 +193,60 @@ namespace jam
 
 	Timer* Timer::create()
 	{
-		return JAM_ALLOC(Timer) ;
-	}
-
-	void Timer::destroy()
-	{
-		if( !m_markedAsDestroyed ) {
-			stop() ;
-			BankItem::destroy() ;
-		}
+		return new (GC) Timer() ;
 	}
 
 	void TimerManager::update()
 	{
-//		int c = 0 ;
+		Timer* pTimer ;
+		for( auto& n : getManagerMap() ) {
+			pTimer = n.second ;
 
-		Timer* pTimer = 0 ;
+			if( !pTimer->isRunning() )
+				continue ;
 
-		JAM_BANK_ITERATION_START ;
-
-		for( size_t i=0; i<m_objectsArray.size(); i++ ) {
-			if( m_objectsArray[i] != 0 ) {
-//				c++ ;
-				pTimer = (Timer*)m_objectsArray[i] ;
-				if( pTimer->isMarkedForDestruction() )
-					continue ;
-
-				pTimer->update();
-			}
+			pTimer->update();
 		}
-
-		JAM_BANK_ITERATION_END ;
-// 		JAM_TRACE( ("Timers: %d",Timer::m_timersCount) ) ;
-// 		JAM_TRACE( ("TimerMgr::size: %d",c) ) ;
 	}
 
 	void TimerManager::pauseAll()
 	{
-		Timer* pTimer = 0 ;
-		for( size_t i=0; i<m_objectsArray.size(); i++ ) {
-			if( m_objectsArray[i] != 0 ) {
-				pTimer = (Timer*)m_objectsArray[i] ;
-				pTimer->pause();
-			}
+		Timer* pTimer ;
+		for( auto& n : getManagerMap() ) {
+			pTimer = n.second ;
+			pTimer->pause();
 		}
 	}
 
 	void TimerManager::resumeAll()
 	{
-		Timer* pTimer = 0 ;
-		for( size_t i=0; i<m_objectsArray.size(); i++ ) {
-			if( m_objectsArray[i] != 0 ) {
-				pTimer = (Timer*)m_objectsArray[i] ;
-				pTimer->resume();
-			}
+		Timer* pTimer ;
+		for( auto& n : getManagerMap() ) {
+			pTimer = n.second ;
+			pTimer->resume();
 		}
 	}
 
 	void TimerManager::stopAll()
 	{
-		Timer* pTimer = 0 ;
-		for( size_t i=0; i<m_objectsArray.size(); i++ ) {
-			if( m_objectsArray[i] != 0 ) {
-				pTimer = (Timer*)m_objectsArray[i] ;
-				pTimer->stop();
-			}
+		Timer* pTimer ;
+		for( auto& n : getManagerMap() ) {
+			pTimer = n.second ;
+			pTimer->stop();
 		}
 	}
 
 	void TimerManager::startAll()
 	{
-		Timer* pTimer = 0 ;
-		for( size_t i=0; i<m_objectsArray.size(); i++ ) {
-			if( m_objectsArray[i] != 0 ) {
-				pTimer = (Timer*)m_objectsArray[i] ;
-				pTimer->start();
-			}
+		Timer* pTimer ;
+		for( auto& n : getManagerMap() ) {
+			pTimer = n.second ;
+			pTimer->start();
 		}
-	}
-
-	void TimerManager::dump( const char* msg )
-	{
-//		JAM_TRACE( ("Timer::m_timersCount: %d", Timer::m_timersCount ) ) ;
-		BankItemHolder::dump(msg) ;
 	}
 
 	TimeExpiredEventArgs* TimeExpiredEventArgs::create()
 	{
-		TimeExpiredEventArgs* timeExpEvtArgs = JAM_ALLOC(TimeExpiredEventArgs) ;
-		return timeExpEvtArgs ;
+		return new (GC) TimeExpiredEventArgs() ;
 	}
 }

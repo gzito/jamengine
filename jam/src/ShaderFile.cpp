@@ -43,7 +43,7 @@ ShaderFile::ShaderFile( GLenum shaderType ) :
 {
 }
 
-ShaderFile::ShaderFile( const sptr<ResHandle>& resHandle, GLenum shaderType ) :
+ShaderFile::ShaderFile( ResHandle* resHandle, GLenum shaderType ) :
      ShaderFile( shaderType )
 {
 	m_resHandle = resHandle ;
@@ -58,22 +58,6 @@ ShaderFile::~ShaderFile()
 		glDeleteShader(m_objectID); m_objectID = 0;
 	}
 }
-
-//void ShaderFile::load( const String& filename )
-//{
-//    //open file
-//    std::ifstream f;
-//    f.open(filename.c_str(), std::ios::in | std::ios::binary);
-//    if( !f.is_open() ) {
-//        JAM_ERROR( "Failed to open file: \"%s\"", filename.c_str());
-//    }
-//
-//    //read whole file into stringstream buffer
-//    std::stringstream buffer;
-//    buffer << f.rdbuf();
-//
-//	setSource( buffer.str().c_str() ) ;
-//}
 
 void ShaderFile::compile()
 {
@@ -108,10 +92,10 @@ GLuint ShaderFile::objectID() const {
     return m_objectID;
 }
 
-Ref<ShaderFile> ShaderFile::shaderFromFile( const sptr<ResHandle>& resHandle, GLenum shaderType ) {
-    ShaderFile* sh = new ShaderFile(resHandle, shaderType);
+ShaderFile* ShaderFile::shaderFromFile( ResHandle* resHandle, GLenum shaderType ) {
+    ShaderFile* sh = new (GC) ShaderFile(resHandle, shaderType) ;
 	sh->compile() ;
-    return Ref<ShaderFile>(sh);	
+    return sh;	
 }
 
 void ShaderFile::setSource( const String& shaderCode )
@@ -150,7 +134,7 @@ size_t ShaderFileResourceLoader::getLoadedResourceSize(char* rawBuffer,size_t ra
 	return rawSize;
 }
 
-bool ShaderFileResourceLoader::loadResource(char* rawBuffer,size_t rawSize,sptr<ResHandle> handle)
+bool ShaderFileResourceLoader::loadResource(char* rawBuffer,size_t rawSize,ResHandle& handle)
 {
 	return true;
 }

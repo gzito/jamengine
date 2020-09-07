@@ -42,7 +42,7 @@ namespace jam
 	//*******************
 
 	Component::Component(GameObject& gameObject) :
-		m_gameObject( Ref<GameObject>(&gameObject))
+		m_gameObject( &gameObject )
 	{
 	}
 

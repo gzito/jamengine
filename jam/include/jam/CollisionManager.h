@@ -57,7 +57,7 @@ namespace jam
 * This class then uses the collision types to check for collisions between
 * all the nodes that have those collision types.
 */
-class JAM_API CollisionManager : public Singleton<CollisionManager>, public RefCountedObject
+class JAM_API CollisionManager : public Singleton<CollisionManager>, public Collectible
 {
 	friend class Singleton<CollisionManager> ;
 

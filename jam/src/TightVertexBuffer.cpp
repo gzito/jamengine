@@ -214,7 +214,7 @@ bool TightVertexBuffer::isSpaceAvailable( U16 vertexCount, U16 indexCount ) cons
 
 void TightVertexBuffer::upload()
 {
-	Shader* p = ShaderManager::getSingleton().getCurrent() ;
+	Shader* p = GetShaderMgr().getCurrent() ;
 
 	// create VAO
 	glGenVertexArrays(1,&m_vao) ;

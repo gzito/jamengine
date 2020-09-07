@@ -33,8 +33,7 @@
 namespace jam
 {
 
-	Animation2DManager::Animation2DManager() :
-		Bank<Animation2D>()
+	Animation2DManager::Animation2DManager()
 	{
 
 	}

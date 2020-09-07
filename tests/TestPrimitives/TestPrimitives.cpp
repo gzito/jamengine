@@ -50,7 +50,6 @@ using namespace jam;
 
 
 #define MEDIA_PATH				"./"
-#define MARIO_ID				20
 
 
 class TestPrimitivesApp : public jam::Application
@@ -70,27 +69,27 @@ protected:
 	virtual void			destroy() ;
 
 private:
-	Ref<Shader>				pUnlitProgram ;
-	Ref<Shader>				pLitProgram ;
-	Ref<Shader>				pNormalMapProgram ;
+	Shader*					pUnlitProgram ;
+	Shader*					pLitProgram ;
+	Shader*					pNormalMapProgram ;
 	
 	// quad
 	Mesh*					pQuadMesh ;
-	Ref<Texture2D>			pQuadTexture ;
+	Texture2D*				pQuadTexture ;
 
 	// cube
 	Mesh*					pCubeMesh ;
-	Ref<Texture2D>			pCubeTextureDiffuse ;
-	Ref<Texture2D>			pCubeTextureSpecular ;
+	Texture2D*				pCubeTextureDiffuse ;
+	Texture2D*				pCubeTextureSpecular ;
 
 	Vector3					cubeAngles ;
 	float					quadYRotation ;
 
 	// text
-	Ref<Texture2D>			pFontTex ;
+	Texture2D*				pFontTex ;
 
 	// light
-	Light*					m_pLight[2] ;
+	Light*					pLight[2] ;
 
 	Sprite*					marioSprite ;
 };
@@ -100,44 +99,45 @@ TestPrimitivesApp::TestPrimitivesApp() :
 	pQuadMesh(nullptr), pQuadTexture(nullptr), 
 	pCubeMesh(nullptr), pCubeTextureDiffuse(nullptr), pCubeTextureSpecular(nullptr), cubeAngles(0.0f),
 	quadYRotation(0.0f), pFontTex(nullptr), 
-	m_pLight()
+	pLight()
 {
 }
 
 void TestPrimitivesApp::loadTextures()
 {
-	pQuadTexture = Ref<Texture2D>( new Texture2D() ) ;
+	pQuadTexture = new (GC) Texture2D() ;
 	pQuadTexture->load( appendPath(MEDIA_PATH,"images/nvidia.jpg") ) ;
-	GetTextureMgr().addByName( pQuadTexture.get(), "nvidia" ) ;
+	pQuadTexture->setName("nvidia") ;
 
-	pCubeTextureDiffuse = Ref<Texture2D>( new Texture2D() ) ;
+	pCubeTextureDiffuse = new (GC) Texture2D() ;
 	pCubeTextureDiffuse->load( appendPath(MEDIA_PATH,"images/container2.png") ) ;
-	GetTextureMgr().addByName( pCubeTextureDiffuse.get(), "container2" ) ;
+	pCubeTextureDiffuse->setName("container2") ;
 
-	pCubeTextureSpecular = Ref<Texture2D>( new Texture2D() ) ;
+	pCubeTextureSpecular = new (GC) Texture2D() ;
 	pCubeTextureSpecular->load( appendPath(MEDIA_PATH,"images/container2_specular.png") ) ;
-	GetTextureMgr().addByName( pCubeTextureSpecular.get(), "container2_specular" ) ;
+	pCubeTextureSpecular->setName("container2_specular") ;
+//	GetTextureMgr().addObject( pCubeTextureSpecular ) ;
 
 	pFontTex = GetDraw3DMgr().LoadFont3D( appendPath(MEDIA_PATH,"images/Babylon1.png"),0,0 ) ;
 }
 
 void TestPrimitivesApp::createLights()
 {
-	m_pLight[0] = new Light() ;
-	m_pLight[0]->setType( Light::Type::DIRECTIONAL ) ;
-	m_pLight[0]->setAmbientColor( Color(128,128,128) ) ;
-	m_pLight[0]->setDiffuseColor( Color::GRAY ) ;
-	m_pLight[0]->setSpecularColor( Color::WHITE ) ;
-	m_pLight[0]->setPosition( Vector3( -10.0f, -5.0f, 10.0f ) ) ;
-	m_pLight[0]->setDirection( Vector3( 0.0f, -1.0f, 0.0f ) ) ;
+	pLight[0] = new Light() ;
+	pLight[0]->setType( Light::Type::DIRECTIONAL ) ;
+	pLight[0]->setAmbientColor( Color(128,128,128) ) ;
+	pLight[0]->setDiffuseColor( Color::GRAY ) ;
+	pLight[0]->setSpecularColor( Color::WHITE ) ;
+	pLight[0]->setPosition( Vector3( -10.0f, -5.0f, 10.0f ) ) ;
+	pLight[0]->setDirection( Vector3( 0.0f, -1.0f, 0.0f ) ) ;
 
-	m_pLight[1] = new Light() ;
-	m_pLight[1]->setType( Light::Type::DIRECTIONAL ) ;
-	m_pLight[1]->setAmbientColor( Color(128,128,128) ) ;
-	m_pLight[1]->setDiffuseColor( Color::GRAY ) ;
-	m_pLight[1]->setSpecularColor( Color::WHITE ) ;
-	m_pLight[1]->setPosition( Vector3( 10.0f, -5.0f, 10.0f ) ) ;
-	m_pLight[1]->setDirection( Vector3( 0.0f, 0.0f, -1.0f ) ) ;
+	pLight[1] = new Light() ;
+	pLight[1]->setType( Light::Type::DIRECTIONAL ) ;
+	pLight[1]->setAmbientColor( Color(128,128,128) ) ;
+	pLight[1]->setDiffuseColor( Color::GRAY ) ;
+	pLight[1]->setSpecularColor( Color::WHITE ) ;
+	pLight[1]->setPosition( Vector3( 10.0f, -5.0f, 10.0f ) ) ;
+	pLight[1]->setDirection( Vector3( 0.0f, 0.0f, -1.0f ) ) ;
 }
 
 //*************************************************************************
@@ -157,35 +157,34 @@ bool TestPrimitivesApp::init()
 
 	setClearColor( Color::MIDNIGHTBLUE ) ;
 
-	pUnlitProgram = ShaderManager::getSingleton().getDefaultUnlit() ;
-	pLitProgram = ShaderManager::getSingleton().getDefaultLit() ;
-	pNormalMapProgram = ShaderManager::getSingleton().getNormalMapping() ;
+	pUnlitProgram = GetShaderMgr().getDefaultUnlit() ;
+	pLitProgram = GetShaderMgr().getDefaultLit() ;
+	pNormalMapProgram = GetShaderMgr().getNormalMapping() ;
 
 
-	GetDrawItemMgr().loadSheet("images/TerDjjW.png","spritesheets",60,95,7,1,MARIO_ID);
+	GetDrawItemMgr().loadSheet("images/TerDjjW.png","spritesheets",60,95,7,1,0,0,"mariowalk");
 	Animation2D* pAnim = Animation2D::create();
-	pAnim->autorelease() ;
-	GetAnim2DMgr().addByName(pAnim,"mariowalk");
+	pAnim->setName("mariowalk");
+	GetAnim2DMgr().addObject(pAnim);
 	for( int i = 0; i < 7; i++ ) {
-		pAnim->addFrame( GetDrawItemMgr().getPtrById(MARIO_ID+i), 0.1f ) ;
+		pAnim->addFrame( GetDrawItemMgr().getObject(String("mariowalk_")+std::to_string(i)), 0.1f ) ;
 	}
 	pAnim->setLoop(true);
 
 	marioSprite = new Sprite() ;
-//	aSprite->autorelease() ;
 	marioSprite->setTag("player") ;
 	marioSprite->setScale(0.025f) ;
 	marioSprite->setPos(-12.5f,-4.5f);
-	marioSprite->getAnimator().setAnimation( GetAnim2DMgr().getPtrByName("mariowalk"), true, 0 ) ;
+	marioSprite->getAnimator().setAnimation( GetAnim2DMgr().getObject("mariowalk"), true, 0 ) ;
 	marioSprite->getAnimator().setSpeed(1);
-	marioSprite->setFrame( GetDrawItemMgr().getPtrById(MARIO_ID+0) ) ;
+	marioSprite->setFrame( GetDrawItemMgr().getObject("mariowalk_0") ) ;
 	this->getScene()->addChild(marioSprite);
 	
 	loadTextures() ;
 	createLights() ;
 
 	pQuadMesh = Primitives::createQuadMesh() ;
-	Ref<Material> quadMat = Ref<Material>(new Material()) ;
+	Material* quadMat = new (GC) Material() ;
 	pQuadMesh->disableTangents() ;
 	quadMat->setShader(pLitProgram) ;
 	quadMat->setDiffuseTexture(pQuadTexture) ;
@@ -193,7 +192,7 @@ bool TestPrimitivesApp::init()
 
 	pCubeMesh = Primitives::createCubeMesh() ;
 	pCubeMesh->disableTangents() ;
-	Ref<Material> cubeMat = Ref<Material>(new Material()) ;
+	Material* cubeMat = new (GC) Material() ;
 	cubeMat->setShader(pLitProgram) ;
 	cubeMat->setDiffuseTexture(pCubeTextureDiffuse) ;
 	cubeMat->setSpecularTexture(pCubeTextureSpecular) ;
@@ -258,7 +257,6 @@ void TestPrimitivesApp::beforeSceneUpdate()
 	if( !marioSprite->isMoving() ) {
 		marioSprite->setPos( -12.5f,-4.5f ) ;
 		MoveTo* moveToAction = MoveTo::actionWithDuration( 10.0f, Vector2(12.5f,-4.5f) ) ;
-		moveToAction->autorelease() ;
 		marioSprite->runAction( moveToAction ) ;
 	}
 }
@@ -273,13 +271,13 @@ void TestPrimitivesApp::render()
 	Matrix4 rotateMat(1.0f) ;
 
 	// draw quad
-	Ref<Shader> pShader = pQuadMesh->getMaterial()->getShader() ;
+	Shader* pShader = pQuadMesh->getMaterial()->getShader() ;
 	pShader->use() ;
 	translateMat = createTranslationMatrix3D( Vector3(7,3,0) ) ;
 	rotateMat = createRotationMatrix3D( quadYRotation, 0.0f, 0.f ) ;
 	scaleMat = createScaleMatrix3D( Vector3(4,4,1) ) ;
-	m_pLight[0]->update(0) ;
-	m_pLight[1]->update(1) ;
+	pLight[0]->update(0) ;
+	pLight[1]->update(1) ;
 
 	quadYRotation = WrapAngle((quadYRotation + 1.0f)) ;
 	modelMat = translateMat * scaleMat * rotateMat ;
@@ -297,8 +295,8 @@ void TestPrimitivesApp::render()
 	// draw cube
 	pShader = pCubeMesh->getMaterial()->getShader() ;
 	pShader->use() ;
-	m_pLight[0]->update(0) ;
-	m_pLight[1]->update(1) ;
+	pLight[0]->update(0) ;
+	pLight[1]->update(1) ;
 	translateMat = createTranslationMatrix3D( Vector3(0,0,0) ) ;
 	scaleMat = createScaleMatrix3D( Vector3(1.5,1.5,1.5) ) ;
 	rotateMat = createRotationMatrix3D( cubeAngles.y, cubeAngles.x, cubeAngles.z ) ;

@@ -48,7 +48,6 @@ namespace jam
 
 Shader::Shader() :
     m_object(0),
-	m_name(),
 	m_shaderFiles()
 {
 }
@@ -76,7 +75,7 @@ Shader::~Shader() {
 //	compile() ;
 //}
 
-void Shader::setShaderFiles( const std::vector<Ref<ShaderFile>>& shaderFiles )
+void Shader::setShaderFiles( const std::vector<ShaderFile*>& shaderFiles )
 {
 	m_shaderFiles = shaderFiles ;
 }
@@ -167,29 +166,19 @@ void Shader::use() const {
 	JAM_ASSERT_MSG( m_object != 0, "GPU program is null" ) ;
 	if( !isInUse() ) {
 		glUseProgram(m_object);
-		ShaderManager::getSingleton().setCurrent( const_cast<Shader*>(this) ) ;
+		GetShaderMgr().setCurrent( const_cast<Shader*>(this) ) ;
 	}
 }
 
 bool Shader::isInUse() const {
     GLint currentProgram = 0;
     glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
-    return ( currentProgram == (GLint)m_object ) && ( ShaderManager::getSingleton().getCurrent() == this );
+    return ( currentProgram == (GLint)m_object ) && ( GetShaderMgr().getCurrent() == this );
 }
 
 void Shader::stopUsing() const {
     glUseProgram(0);
-	ShaderManager::getSingleton().setCurrent( nullptr ) ;
-}
-
-const String& Shader::getName() const
-{
-	return m_name ;
-}
-
-void Shader::setName(const String& name)
-{
-	m_name = name ;
+	GetShaderMgr().setCurrent( nullptr ) ;
 }
 
 GLint Shader::attrib(const GLchar* attribName) const {
@@ -546,57 +535,58 @@ void ShaderManager::createScreen()
 	loadAndCreateProgram(SCREEN_PROGRAM_NAME) ;
 }
 
-Ref<Shader>	ShaderManager::getDefaultUnlit()
+Shader*	ShaderManager::getDefaultUnlit()
 {
 	return getShader(DEFAULT_PROGRAM_UNLIT_NAME) ;
 }
 
-Ref<Shader>	ShaderManager::getDefaultLit()
+Shader*	ShaderManager::getDefaultLit()
 {
 	return getShader(DEFAULT_PROGRAM_LIT_NAME) ;
 }
 
-Ref<Shader>	ShaderManager::getSkinningLit()
+Shader*	ShaderManager::getSkinningLit()
 {
 	return getShader(SKINNIG_PROGRAM_LIT_NAME) ;
 }
 
-Ref<Shader> ShaderManager::getSkyBox()
+Shader* ShaderManager::getSkyBox()
 {
 	return getShader(SKYBOX_PROGRAM_NAME) ;
 }
 
-Ref<Shader> ShaderManager::getNormalMapping()
+Shader* ShaderManager::getNormalMapping()
 {
 	return getShader(NORMAL_MAPPING_PROGRAM_NAME) ;
 }
 
-Ref<Shader> ShaderManager::getScreen()
+Shader* ShaderManager::getScreen()
 {
 	return getShader(SCREEN_PROGRAM_NAME) ;
 }
 
-Ref<Shader> ShaderManager::getShader(const String& name)
+Shader* ShaderManager::getShader(const String& name)
 {
-	auto ref = m_shadersMap.find(name) ;
-	if( ref == m_shadersMap.end() ) {
+	try {
+		return getObject(name) ;
+	}
+	catch( std::out_of_range& e ) {
 		JAM_ERROR("Shader \"%s\" not found", name.c_str()) ;
 	}
-	return Ref<Shader>(ref->second) ;
 }
 
 void ShaderManager::loadAndCreateProgram( const String& shaderName )
 {
-	std::vector<Ref<ShaderFile>> shadersFiles ;
+	std::vector<ShaderFile*> shadersFiles ;
 
 	Resource vsResource( shaderName + ".vert" ) ;
-	sptr<ResHandle> vsHandle( Application::getSingleton().getResourceManager().getHandle(&vsResource) ) ;
-	Ref<ShaderFile> vertexShader( ShaderFile::shaderFromFile(vsHandle,GL_VERTEX_SHADER) ) ;
+	ResHandle* vsHandle( Application::getSingleton().getResourceManager().getHandle(&vsResource) ) ;
+	ShaderFile* vertexShader( ShaderFile::shaderFromFile(vsHandle,GL_VERTEX_SHADER) ) ;
 	shadersFiles.emplace_back(vertexShader) ;
 
 	Resource psResource( shaderName + ".frag" ) ;
-	sptr<ResHandle> psHandle( Application::getSingleton().getResourceManager().getHandle(&psResource) ) ;
-	Ref<ShaderFile> pixelShader( ShaderFile::shaderFromFile(psHandle,GL_FRAGMENT_SHADER) ) ;
+	ResHandle* psHandle( Application::getSingleton().getResourceManager().getHandle(&psResource) ) ;
+	ShaderFile* pixelShader( ShaderFile::shaderFromFile(psHandle,GL_FRAGMENT_SHADER) ) ;
 	shadersFiles.emplace_back(pixelShader) ;
 
 	Shader* program( new Shader() ) ;
@@ -604,7 +594,7 @@ void ShaderManager::loadAndCreateProgram( const String& shaderName )
 	program->setShaderFiles( shadersFiles ) ;
 	program->compile() ;
 
-	m_shadersMap[shaderName] = program ;
+	addObject( program ) ;
 }
 
 Shader*	ShaderManager::getCurrent()
@@ -613,7 +603,7 @@ Shader*	ShaderManager::getCurrent()
 	return m_pCurrentShader ;
 }
 
-void ShaderManager::setCurrent(Shader* pShader)
+void ShaderManager::setCurrent( Shader* pShader)
 {
 	m_pCurrentShader = pShader ;
 }

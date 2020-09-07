@@ -37,6 +37,7 @@
 #include <jam/ActionEase.h>
 #include <jam/CollisionManager.h>
 #include <jam/Scene.h>
+#include <jam/Sprite.h>
 #include <jam/Camera.h>
 #include <jam/Gfx.h>
 #include <jam/Shader.h>
@@ -49,14 +50,14 @@
 
 using namespace jam;
 
-#define SONIC_ID	20
-#define GEMS_ID		30
 
 SpritesDemo::SpritesDemo() :
 	m_pSprMgr(nullptr),
 	m_angle(0),
 	m_initialSpeed(1000),
-	m_piv(nullptr)
+	m_piv(nullptr),
+	m_sonicName( "sonwalk2_" ),
+	m_gemSheetName( "gemsheet_" )
 {
 }
 
@@ -73,8 +74,8 @@ bool SpritesDemo::init()
  	glCullFace(GL_BACK) ;
  	glEnable(GL_CULL_FACE) ;
 
-	GetDrawItemMgr().loadSheet("./images/sonwalk2.png","spritesheets",64,64,8,1,SONIC_ID);
-	GetDrawItemMgr().loadSheet("./images/gemsheet.png","spritesheets",64,64,15,14,GEMS_ID);
+	GetDrawItemMgr().loadSheet("./images/sonwalk2.png","spritesheets",64,64,8,1);
+	GetDrawItemMgr().loadSheet("./images/gemsheet.png","spritesheets",64,64,15,14);
 
 	m_pSprMgr = new SpriteManager() ;
 
@@ -82,84 +83,84 @@ bool SpritesDemo::init()
 
 	// create sonic animations
 	// sonwalk_right
+
 	pAnim = Animation2D::create();
-	pAnim->autorelease() ;
-	GetAnim2DMgr().addByName(pAnim,"sonwalk_right");
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+0), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+1), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+2), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+3), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+4), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+5), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+6), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+7), 0.1f ) ;
+	pAnim->setName("sonwalk_right") ;
+	GetAnim2DMgr().addObject(pAnim);
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"0"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"1"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"2"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"3"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"4"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"5"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"6"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"7"), 0.1f ) ;
 	pAnim->setLoop(true);
 
 	// sonwalk_left
 	pAnim = Animation2D::create();
-	pAnim->autorelease() ;
-	GetAnim2DMgr().addByName(pAnim,"sonwalk_left");
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+0), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+1), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+2), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+3), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+4), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+5), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+6), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(SONIC_ID+7), 0.1f ) ;
+	pAnim->setName("sonwalk_left") ;
+	GetAnim2DMgr().addObject(pAnim);
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"0"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"1"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"2"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"3"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"4"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"5"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"6"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_sonicName+"7"), 0.1f ) ;
 	pAnim->setFlipAllX(true);	// use setFlipAllX to flip animation around X
 	pAnim->setLoop(true);
 
 	// define gem animation : yellow_gem_anim
 	pAnim = Animation2D::create();
-	pAnim->autorelease() ;
-	GetAnim2DMgr().addByName(pAnim,"yellow_gem_anim");
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+0), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+1), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+2), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+3), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+4), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+5), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+6), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+7), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+8), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+9), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+10), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+11), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+12), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+13), 0.1f ) ;
-	pAnim->addFrame( GetDrawItemMgr().getPtrById(GEMS_ID+14), 0.1f ) ;
+	pAnim->setName("yellow_gem_anim") ;
+	GetAnim2DMgr().addObject(pAnim);
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"0"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"1"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"2"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"3"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"4"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"5"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"6"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"7"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"8"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"9"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"10"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"11"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"12"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"13"), 0.1f ) ;
+	pAnim->addFrame( GetDrawItemMgr().getObject(m_gemSheetName+"14"), 0.1f ) ;
 	pAnim->setLoop(true);
 
 	// create the sonic sprite
-	aSprite = new Sprite() ;
-	aSprite->autorelease() ;
+	aSprite = new (GC) Sprite() ;
 	aSprite->setTag("player") ;
 	aSprite->setScale(2) ;
 	aSprite->setX(-120);
-	aSprite->getAnimator().setAnimation( GetAnim2DMgr().getPtrByName("sonwalk_right"), false, 4 ) ;
+	aSprite->getAnimator().setAnimation( GetAnim2DMgr().getObject("sonwalk_right"), false, 4 ) ;
 	aSprite->getAnimator().setSpeed(1);
-	aSprite->setFrame( GetDrawItemMgr().getPtrById(SONIC_ID+4) ) ;
-	m_pSprMgr->addByName(aSprite,"sonic") ;
+	aSprite->setFrame( GetDrawItemMgr().getObject(m_sonicName+"4") ) ;
+	aSprite->setName("sonic") ;
+	m_pSprMgr->addObject(aSprite) ;
 	this->getScene()->addChild(aSprite);
 
 	// create the gem sprite (yellow)
-	aSprite = new Sprite() ;
-	aSprite->autorelease() ;
+	aSprite = new (GC) Sprite() ;
 	aSprite->setCollisionType(2) ;
 	aSprite->setTag("gems") ;
 	aSprite->setPos(Vector2(0,60));
-	aSprite->getAnimator().setAnimation( GetAnim2DMgr().getPtrByName("yellow_gem_anim"), true ) ;
+	aSprite->getAnimator().setAnimation( GetAnim2DMgr().getObject("yellow_gem_anim"), true ) ;
 	aSprite->getAnimator().setSpeed(4) ;
-	m_pSprMgr->addByName(aSprite,"yellow_gem") ;
+	aSprite->setName("yellow_gem") ;
+	m_pSprMgr->addObject(aSprite) ;
 	this->getScene()->addChild(aSprite);
 
 	// create second gem (gray)
-	aSprite = new Sprite() ;
-	aSprite->autorelease() ;
+	aSprite = new (GC) Sprite() ;
 	aSprite->setCollisionType(2) ;
 	aSprite->setTag("gems") ;
-	aSprite->setFrame( GetDrawItemMgr().getPtrById(GEMS_ID+30) ) ;
+	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"30") ) ;
 	aSprite->setPos( Vector2(0,-60) );
 	RotateBy* actRotateBy = RotateBy::actionWithDuration(2,360);
 	EaseInOut* actEase = EaseInOut::actionWithAction(actRotateBy,2);
@@ -167,15 +168,15 @@ bool SpritesDemo::init()
 	Sequence* actSequence = Sequence::actionOneTwo(actEase,actEaseReverted) ;
 	RepeatForever* actRepeatForever = RepeatForever::actionWithAction(actSequence) ;
 	aSprite->runAction(actRepeatForever);
-	m_pSprMgr->addByName(aSprite,"gray_gem") ;
+	aSprite->setName("gray_gem") ;
+	m_pSprMgr->addObject(aSprite) ;
 	this->getScene()->addChild(aSprite);
 
 	// create third gem (orange)
-	aSprite = new Sprite() ;
-	aSprite->autorelease() ;
+	aSprite = new (GC) Sprite() ;
 	aSprite->setCollisionType(2) ;
 	aSprite->setTag("gems") ;
-	aSprite->setFrame( GetDrawItemMgr().getPtrById(GEMS_ID+150) ) ;
+	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"150") ) ;
 	aSprite->setPos( Vector2(0,-180) );
 	actRotateBy = RotateBy::actionWithDuration(1,360);
 	Repeat* actRepeat = Repeat::actionWithAction(actRotateBy,20) ;
@@ -188,18 +189,18 @@ bool SpritesDemo::init()
 	actSequence = Sequence::actionOneTwo(actEaseIn,actEaseIn2) ;
 	actRepeatForever = RepeatForever::actionWithAction(actSequence) ;
 	aSprite->runAction(actRepeatForever);
-
-	m_pSprMgr->addByName(aSprite,"orange_gem") ;
+	aSprite->setName("orange_gem") ;
+	m_pSprMgr->addObject(aSprite) ;
 	this->getScene()->addChild(aSprite);
 
 	// create forth gem (green)
-	aSprite = new Sprite() ;
-	aSprite->autorelease() ;
+	aSprite = new (GC) Sprite() ;
 	aSprite->setCollisionType(2) ;
 	aSprite->setTag("gems") ;
-	aSprite->setFrame( GetDrawItemMgr().getPtrById(GEMS_ID+180) ) ;
+	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"180") ) ;
 	aSprite->setPos( Vector2(100,60) );
-	m_pSprMgr->addByName(aSprite,"green_gem") ;
+	aSprite->setName("green_gem") ;
+	m_pSprMgr->addObject(aSprite) ;
 	actRotateBy = RotateBy::actionWithDuration(2,360);
 	actRepeat = Repeat::actionWithAction(actRotateBy,5) ;
 	DelayTime* delayTime = DelayTime::actionWithDuration(3) ;	
@@ -209,32 +210,32 @@ bool SpritesDemo::init()
 	this->getScene()->addChild(aSprite);
 
 	// create the fifth gem (purple)
-	aSprite = new Sprite() ;
-	aSprite->autorelease() ;
+	aSprite = new (GC) Sprite() ;
 	aSprite->setTag("gems") ;
-	aSprite->setFrame( GetDrawItemMgr().getPtrById(GEMS_ID+120) ) ;
-	m_pSprMgr->addByName(aSprite,"purple_gem") ;
+	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"120") ) ;
+	aSprite->setName("purple_gem") ;
+	m_pSprMgr->addObject(aSprite) ;
 	aSprite->setScale(0.5);
-	m_pSprMgr->getByName("sonic").addChild(aSprite) ;
+	m_pSprMgr->getObject("sonic")->addChild(aSprite) ;
 	aSprite->setPos( Vector2(0,60) );				// position relative to the parent
 
-	aSprite = new Sprite() ;
-	aSprite->autorelease() ;
+	aSprite = new (GC) Sprite() ;
 	aSprite->setCollisionType(2) ;
 	aSprite->setTag("gems") ;
-	aSprite->setFrame( GetDrawItemMgr().getPtrById(GEMS_ID+90) ) ;
-	m_pSprMgr->addByName(aSprite,"red_gem") ;
-	m_pSprMgr->getByName("purple_gem").addChild(aSprite) ;
+	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"90") ) ;
+	aSprite->setName("red_gem") ;
+	m_pSprMgr->addObject(aSprite) ;
+	m_pSprMgr->getObject("purple_gem")->addChild(aSprite) ;
 	aSprite->setScale(0.5);
 	aSprite->setPos( Vector2(0,60) );				// position relative to the parent
 
 	// create the sixth gem (gray)
-	aSprite = new Sprite() ;
-	aSprite->autorelease() ;
+	aSprite = new (GC) Sprite() ;
 	aSprite->setTag("gems") ;
-	aSprite->setFrame( GetDrawItemMgr().getPtrById(GEMS_ID+30) ) ;
+	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"30") ) ;
 	aSprite->setPos( Vector2(-100,120) );
-	m_pSprMgr->addByName(aSprite,"gray_gem2") ;
+	aSprite->setName("gray_gem2") ;
+	m_pSprMgr->addObject(aSprite) ;
 	JumpTo* actJump = JumpTo::actionWithDuration(2,Vector2(100,-120),80,1) ;
 	EaseIn* actJumpEaseIn = EaseIn::actionWithAction(actJump,1.5f) ;
 	aSprite->setColor(Color::RED) ;
@@ -242,12 +243,12 @@ bool SpritesDemo::init()
 	this->getScene()->addChild(aSprite);
 
 	// create the sixth gem (gray)
-	aSprite = new Sprite() ;
-	aSprite->autorelease() ;
+	aSprite = new (GC) Sprite() ;
 	aSprite->setTag("gems") ;
-	aSprite->setFrame( GetDrawItemMgr().getPtrById(GEMS_ID+30) ) ;
+	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"30") ) ;
 	aSprite->setPos( Vector2(-100,120) );
-	m_pSprMgr->addByName(aSprite,"gray_gem3") ;
+	aSprite->setName("gray_gem3") ;
+	m_pSprMgr->addObject(aSprite) ;
 	actJump = JumpTo::actionWithDuration(2,Vector2(100,-120),80,1) ;
 	DestroyTarget* actDestroy = DestroyTarget::action(aSprite) ;
 	actSequence = Sequence::actionOneTwo(actJump,actDestroy) ;
@@ -255,15 +256,14 @@ bool SpritesDemo::init()
 	this->getScene()->addChild(aSprite);
 
 	// set camera
-	Camera* pCamera = new Camera() ;
-	pCamera->autorelease() ;
+	Camera* pCamera = new (GC) Camera() ;
 	pCamera->setOrthographicProjection(	-Draw3DManager::VPWidth/2, Draw3DManager::VPWidth/2,
 										-Draw3DManager::VPHeight/2, Draw3DManager::VPHeight/2,
 										1.f, 50.f ) ;
 	pCamera->lookAt( Vector3(0,0,30), Vector3(0,0,0), Vector3(0,1,0) ) ;
 	getScene()->setCamera(pCamera) ;
 
-	ShaderManager::getSingleton().getDefaultUnlit()->use() ;
+	GetShaderMgr().getDefaultUnlit()->use() ;
 
 	return true ;
 }
@@ -271,14 +271,14 @@ bool SpritesDemo::init()
 
 void SpritesDemo::handleInput()
 {
-	Sprite* s = m_pSprMgr->getPtrByName("sonic") ;
+	Sprite* s = m_pSprMgr->getObject("sonic") ;
 
  	if( GetInputMgr().getPointerState(SDL_BUTTON_LEFT) == InputManager::DOWN ) {
  		if( s->getX() > Draw3DManager::MouseX3D ) {
- 			s->getAnimator().setAnimation( GetAnim2DMgr().getPtrByName("sonwalk_left"), true ) ;
+ 			s->getAnimator().setAnimation( GetAnim2DMgr().getObject("sonwalk_left"), true ) ;
 		}
  		else {
- 			s->getAnimator().setAnimation( GetAnim2DMgr().getPtrByName("sonwalk_right"), true ) ;
+ 			s->getAnimator().setAnimation( GetAnim2DMgr().getObject("sonwalk_right"), true ) ;
  		}
  
 		s->stopAllActions() ;
@@ -287,12 +287,12 @@ void SpritesDemo::handleInput()
 	}
 
 	if( GetInputMgr().keyPressed(SDL_SCANCODE_SPACE) ) {
-		Sprite* s = m_pSprMgr->getPtrByName("orange_gem") ;
+		Sprite* s = m_pSprMgr->getObject("orange_gem") ;
 		if( s->isRunning() ) {
-			m_pSprMgr->getByName("orange_gem").pause() ;
+			m_pSprMgr->getObject("orange_gem")->pause() ;
 		}
 		else {
-			m_pSprMgr->getByName("orange_gem").resume() ;
+			m_pSprMgr->getObject("orange_gem")->resume() ;
 		}
 	}
 }
@@ -307,15 +307,15 @@ void SpritesDemo::beforeSceneUpdate()
 	//Draw3DManager::Origin3D(Draw3DManager::Original3DWidth,Draw3DManager::Original3DHeight) ;
 	//Draw3DManager::Clear3D();
 
-	Sprite* sonic = m_pSprMgr->getPtrByName("sonic") ;
+	Sprite* sonic = m_pSprMgr->getObject("sonic") ;
 
 	if( !sonic->isMoving() && sonic->getAnimator().isPlaying() ) {
 		sonic->getAnimator().completeAnimation(0);
-		sonic->setFrame( GetDrawItemMgr().getPtrById(SONIC_ID+4) ) ;
+		sonic->setFrame( GetDrawItemMgr().getObject(m_sonicName+"4") ) ;
 	}
 
-	Sprite* gem = m_pSprMgr->getPtrByName("purple_gem") ;
-	m_piv = new Pivot2D();
+	Sprite* gem = m_pSprMgr->getObject("purple_gem") ;
+	m_piv = new (GC) Pivot2D();
 	sonic->addChild(m_piv,false) ;
 	m_piv->addChild(gem) ;
  
@@ -324,9 +324,8 @@ void SpritesDemo::beforeSceneUpdate()
 	sonic->addChild(gem);
 
 	sonic->removeChild(m_piv,true) ;
- 	JAM_DELETE(m_piv) ;
 
-	gem = m_pSprMgr->getPtrByName("red_gem") ;
+	gem = m_pSprMgr->getObject("red_gem") ;
 	int ncoll = gem->countCollisions() ;
 	if( ncoll ) {
 		Node* p = gem->collided(2) ;
@@ -340,8 +339,8 @@ void SpritesDemo::beforeSceneUpdate()
 void SpritesDemo::destroy() 
 {
 	JAM_DELETE( m_pSprMgr ) ;
- 	GetDrawItemMgr().deleteSheetCuts(8,1,SONIC_ID,"sonwalk2");
- 	GetDrawItemMgr().deleteSheetCuts(15,14,GEMS_ID,"gemsheet");
+ 	GetDrawItemMgr().deleteSheetCuts(8,1,"sonwalk2");
+ 	GetDrawItemMgr().deleteSheetCuts(15,14,"gemsheet");
 }
 
 

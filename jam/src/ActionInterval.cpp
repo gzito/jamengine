@@ -95,9 +95,8 @@ ActionInterval* ActionInterval::reverse( void )
 
 ActionInterval* ActionInterval::actionWithDuration( jam::time d )
 {
-	ActionInterval *pAction = JAM_ALLOC(ActionInterval);
+	ActionInterval *pAction = new (GC) ActionInterval();
 	pAction->initWithDuration(d);
-	pAction->autorelease() ;
 
 	return pAction;
 }
@@ -118,29 +117,26 @@ float ActionInterval::getAmplitudeRate(void)
 
 Sequence::Sequence()
 {
-	m_pActions[0] = 0 ;
-	m_pActions[1] = 0 ;
+	m_pActions[0] = nullptr ;
+	m_pActions[1] = nullptr ;
 }
 
 Sequence::~Sequence()
 {
-	JAM_RELEASE_NULL(m_pActions[0]) ;
-	JAM_RELEASE_NULL(m_pActions[1]) ;
+	m_pActions[0] = nullptr ;
+	m_pActions[1] = nullptr ;
 }
 
 bool Sequence::initOneTwo( FiniteTimeAction *pActionOne, FiniteTimeAction *pActionTwo )
 {
-	assert(pActionOne != NULL);
-	assert(pActionTwo != NULL);
+	assert(pActionOne != nullptr);
+	assert(pActionTwo != nullptr);
 
 	jam::time d = pActionOne->getDuration() + pActionTwo->getDuration();
 	ActionInterval::initWithDuration(d);
 
 	m_pActions[0] = pActionOne;
-	pActionOne->addRef() ;
-
 	m_pActions[1] = pActionTwo;
-	pActionTwo->addRef() ;
 
 	return true;
 }
@@ -235,9 +231,8 @@ FiniteTimeAction* Sequence::actions( FiniteTimeAction *pAction1, ...)
 
 Sequence* Sequence::actionOneTwo( FiniteTimeAction *pActionOne, FiniteTimeAction *pActionTwo )
 {
-	Sequence *pSequence = JAM_ALLOC(Sequence);
+	Sequence *pSequence = new (GC) Sequence();
 	pSequence->initOneTwo(pActionOne, pActionTwo);
-	pSequence->autorelease();
 	return pSequence;
 }
 
@@ -246,10 +241,8 @@ Sequence* Sequence::actionOneTwo( FiniteTimeAction *pActionOne, FiniteTimeAction
 //
 Repeat* Repeat::actionWithAction(FiniteTimeAction *pAction, unsigned int times)
 {
-	Repeat* pRepeat = JAM_ALLOC(Repeat);
+	Repeat* pRepeat = new (GC) Repeat();
 	pRepeat->initWithAction(pAction, times);
-	pRepeat->autorelease();
-
 	return pRepeat;
 }
 
@@ -261,10 +254,7 @@ bool Repeat::initWithAction(FiniteTimeAction *pAction, unsigned int times)
 	{
 		m_uTimes = times;
 		m_pOther = pAction;
-		pAction->addRef();
-
 		m_uTotal = 0;
-
 		return true;
 	}
 
@@ -273,7 +263,7 @@ bool Repeat::initWithAction(FiniteTimeAction *pAction, unsigned int times)
 
 Repeat::~Repeat(void)
 {
-	JAM_RELEASE_NULL(m_pOther) ;
+	m_pOther = nullptr ;
 }
 
 void Repeat::startWithTarget(Node *pTarget)
@@ -350,18 +340,17 @@ Repeat::Repeat()
 //
 RepeatForever::~RepeatForever()
 {
-	JAM_RELEASE_NULL(m_pOther) ;
+	m_pOther = nullptr ;
 }
 
 RepeatForever *RepeatForever::actionWithAction(ActionInterval *pAction)
 {
-	RepeatForever *pRet = JAM_ALLOC(RepeatForever);
+	RepeatForever *pRet = new (GC) RepeatForever();
 	if (pRet ) {
 		if( pRet->initWithAction(pAction) ) {
-			pRet->autorelease();
 		}
 		else {
-			JAM_RELEASE_NULL(pRet);
+			pRet=nullptr;
 		}
 	}
 	return pRet;
@@ -369,8 +358,7 @@ RepeatForever *RepeatForever::actionWithAction(ActionInterval *pAction)
 
 bool RepeatForever::initWithAction(ActionInterval *pAction)
 {
-	assert(pAction != NULL);
-	pAction->addRef();
+	assert(pAction != nullptr);
 	m_pOther = pAction;
 	return true;
 }
@@ -409,14 +397,14 @@ RepeatForever::RepeatForever()
 
 Spawn::~Spawn( void )
 {
-	JAM_RELEASE_NULL(m_pOne) ;
-	JAM_RELEASE_NULL(m_pTwo) ;
+	m_pOne = nullptr ;
+	m_pTwo = nullptr ;
 }
 
 bool Spawn::initOneTwo( FiniteTimeAction *pAction1, FiniteTimeAction *pAction2 )
 {
-	assert(pAction1 != NULL);
-	assert(pAction2 != NULL);
+	assert(pAction1 != nullptr);
+	assert(pAction2 != nullptr);
 
 	jam::time d1 = pAction1->getDuration();
 	jam::time d2 = pAction2->getDuration();
@@ -437,8 +425,6 @@ bool Spawn::initOneTwo( FiniteTimeAction *pAction1, FiniteTimeAction *pAction2 )
 		m_pOne = Sequence::actionOneTwo(pAction1, DelayTime::actionWithDuration(d2 - d1));
 	}
 
-	m_pOne->addRef();
-	m_pTwo->addRef();
 	return true;
 }
 
@@ -500,10 +486,8 @@ FiniteTimeAction* Spawn::actions( FiniteTimeAction *pAction1, ... )
 
 Spawn* Spawn::actionOneTwo( FiniteTimeAction *pAction1, FiniteTimeAction *pAction2 )
 {
-	Spawn *pSpawn = JAM_ALLOC(Spawn);
+	Spawn *pSpawn = new (GC) Spawn();
 	pSpawn->initOneTwo(pAction1, pAction2);
-	pSpawn->autorelease();
-	
 	return pSpawn;
 }
 
@@ -546,10 +530,8 @@ void MoveTo::update( jam::time time )
 
 MoveTo* MoveTo::actionWithDuration( jam::time duration, const Vector2& position )
 {
-	MoveTo *pMoveTo = JAM_ALLOC(MoveTo);
+	MoveTo *pMoveTo = new (GC) MoveTo();
 	pMoveTo->initWithDuration(duration, position);
-	pMoveTo->autorelease();
-
 	return pMoveTo;
 }
 
@@ -586,9 +568,8 @@ ActionInterval* MoveBy::reverse()
 
 MoveBy* MoveBy::actionWithDuration( jam::time duration, const Vector2& position )
 {
-	MoveBy *pMoveBy = JAM_ALLOC(MoveBy);
+	MoveBy *pMoveBy = new (GC) MoveBy();
 	pMoveBy->initWithDuration(duration, position);
-	pMoveBy->autorelease();
 	return pMoveBy;
 }
 
@@ -605,10 +586,8 @@ MoveBy::~MoveBy()
 //
 JumpBy* JumpBy::actionWithDuration(jam::time duration, const Vector2& position, jam::time height, int jumps)
 {
-	JumpBy *pJumpBy = JAM_ALLOC(JumpBy);
+	JumpBy *pJumpBy = new (GC) JumpBy();
 	pJumpBy->initWithDuration(duration, position, height, jumps);
-	pJumpBy->autorelease();
-
 	return pJumpBy;
 }
 
@@ -664,10 +643,8 @@ JumpBy::JumpBy()
 //
 JumpTo* JumpTo::actionWithDuration(jam::time duration, const Vector2& position, jam::time height, int jumps)
 {
-	JumpTo *pJumpTo = JAM_ALLOC(JumpTo);
+	JumpTo *pJumpTo = new (GC) JumpTo();
 	pJumpTo->initWithDuration(duration, position, height, jumps);
-	pJumpTo->autorelease();
-
 	return pJumpTo;
 }
 
@@ -748,9 +725,8 @@ void RotateTo::update( jam::time time )
 
 RotateTo* RotateTo::actionWithDuration( jam::time duration, float fDeltaAngle )
 {
-	RotateTo* pRotateTo = JAM_ALLOC(RotateTo);
+	RotateTo* pRotateTo = new (GC) RotateTo();
 	pRotateTo->initWithDuration(duration, fDeltaAngle);
-	pRotateTo->autorelease() ;
 
 	return pRotateTo;
 }
@@ -806,10 +782,8 @@ ActionInterval* RotateBy::reverse()
 
 RotateBy* RotateBy::actionWithDuration( jam::time duration, float fDeltaAngle )
 {
-	RotateBy *pRotateBy = JAM_ALLOC(RotateBy);
+	RotateBy *pRotateBy = new (GC) RotateBy();
 	pRotateBy->initWithDuration(duration, fDeltaAngle);
-	pRotateBy->autorelease() ;
-
 	return pRotateBy;
 }
 
@@ -834,10 +808,8 @@ static JAM_INLINE float bezierat( float a, float b, float c, float d, jam::time 
 //
 BezierBy* BezierBy::actionWithDuration(jam::time t, BezierConfig c)
 {
-	BezierBy *pBezierBy = JAM_ALLOC(BezierBy);
+	BezierBy *pBezierBy = new (GC) BezierBy();
 	pBezierBy->initWithDuration(t, c);
-	pBezierBy->autorelease();
-
 	return pBezierBy;
 }
 
@@ -911,10 +883,8 @@ BezierBy::BezierBy()
 //
 BezierTo* BezierTo::actionWithDuration(jam::time t, BezierConfig c)
 {
-	BezierTo *pBezierTo = JAM_ALLOC(BezierTo);
+	BezierTo *pBezierTo = new (GC) BezierTo();
 	pBezierTo->initWithDuration(t, c);
-	pBezierTo->autorelease();
-
 	return pBezierTo;
 }
 
@@ -939,10 +909,8 @@ BezierTo::BezierTo()
 //
 ScaleTo* ScaleTo::actionWithDuration(jam::time duration, float s)
 {
-	ScaleTo *pScaleTo = JAM_ALLOC(ScaleTo);
+	ScaleTo *pScaleTo = new (GC) ScaleTo();
 	pScaleTo->initWithDuration(duration, s);
-	pScaleTo->autorelease();
-	
 	return pScaleTo;
 }
 
@@ -962,10 +930,8 @@ bool ScaleTo::initWithDuration(jam::time duration, float s)
 
 ScaleTo* ScaleTo::actionWithDuration(jam::time duration, float sx, float sy)
 {
-	ScaleTo *pScaleTo = JAM_ALLOC(ScaleTo);
+	ScaleTo *pScaleTo = new (GC) ScaleTo();
 	pScaleTo->initWithDuration(duration, sx, sy);
-	pScaleTo->autorelease();
-
 	return pScaleTo;
 }
 
@@ -1016,19 +982,15 @@ ScaleTo::ScaleTo()
 //
 ScaleBy* ScaleBy::actionWithDuration(jam::time duration, float s)
 {
-	ScaleBy *pScaleBy = JAM_ALLOC(ScaleBy);
+	ScaleBy *pScaleBy = new (GC) ScaleBy();
 	pScaleBy->initWithDuration(duration, s);
-	pScaleBy->autorelease();
-
 	return pScaleBy;
 }
 
 ScaleBy* ScaleBy::actionWithDuration(jam::time duration, float sx, float sy)
 {
-	ScaleBy *pScaleBy = JAM_ALLOC(ScaleBy);
+	ScaleBy *pScaleBy = new (GC) ScaleBy();
 	pScaleBy->initWithDuration(duration, sx, sy);
-	pScaleBy->autorelease();
-
 	return pScaleBy;
 }
 
@@ -1057,10 +1019,8 @@ ScaleBy::ScaleBy()
 //
 Blink* Blink::actionWithDuration(jam::time duration, unsigned int uBlinks)
 {
-	Blink *pBlink = JAM_ALLOC(Blink);
+	Blink *pBlink = new (GC) Blink();
 	pBlink->initWithDuration(duration, uBlinks);
-	pBlink->autorelease();
-
 	return pBlink;
 }
 
@@ -1106,11 +1066,8 @@ Blink::Blink()
 //
 FadeIn* FadeIn::actionWithDuration(jam::time d)
 {
-	FadeIn* pAction = JAM_ALLOC(FadeIn);
-
+	FadeIn* pAction = new (GC) FadeIn();
 	pAction->initWithDuration(d);
-	pAction->autorelease();
-
 	return pAction;
 }
 
@@ -1139,11 +1096,8 @@ FadeIn::FadeIn()
 //
 FadeOut* FadeOut::actionWithDuration(jam::time d)
 {
-	FadeOut* pAction = JAM_ALLOC(FadeOut);
-
+	FadeOut* pAction = new (GC) FadeOut();
 	pAction->initWithDuration(d);
-	pAction->autorelease();
-
 	return pAction;
 }
 
@@ -1172,10 +1126,8 @@ FadeOut::FadeOut()
 //
 FadeTo* FadeTo::actionWithDuration( jam::time duration, uint8_t opacity )
 {
-	FadeTo *pFadeTo = JAM_ALLOC(FadeTo);
+	FadeTo *pFadeTo = new (GC) FadeTo();
 	pFadeTo->initWithDuration(duration, opacity);
-	pFadeTo->autorelease();
-
 	return pFadeTo;
 }
 
@@ -1218,10 +1170,8 @@ FadeTo::FadeTo()
 //
 TintTo* TintTo::actionWithDuration(jam::time duration, uint8_t red, uint8_t green, uint8_t blue)
 {
-	TintTo *pTintTo = JAM_ALLOC(TintTo);
+	TintTo *pTintTo = new (GC) TintTo();
 	pTintTo->initWithDuration(duration, red, green, blue);
-	pTintTo->autorelease();
-
 	return pTintTo;
 }
 
@@ -1265,10 +1215,8 @@ TintTo::TintTo()
 //
 TintBy* TintBy::actionWithDuration(jam::time duration, uint16_t deltaRed, uint16_t deltaGreen, uint16_t deltaBlue)
 {
-	TintBy *pTintBy = JAM_ALLOC(TintBy);
+	TintBy *pTintBy = new (GC) TintBy();
 	pTintBy->initWithDuration(duration, deltaRed, deltaGreen, deltaBlue);
-	pTintBy->autorelease();
-
 	return pTintBy;
 }
 
@@ -1330,10 +1278,8 @@ ActionInterval* DelayTime::reverse()
 
 DelayTime* DelayTime::actionWithDuration( jam::time d )
 {
-	DelayTime* pAction = JAM_ALLOC(DelayTime);
+	DelayTime* pAction = new (GC) DelayTime();
 	pAction->initWithDuration(d);
-	pAction->autorelease();
-
 	return pAction;
 }
 
@@ -1352,10 +1298,8 @@ DelayTime::DelayTime()
 ReverseTime* ReverseTime::actionWithAction(FiniteTimeAction *pAction)
 {
 	// casting to prevent warnings
-	ReverseTime *pReverseTime = JAM_ALLOC(ReverseTime);
+	ReverseTime *pReverseTime = new (GC) ReverseTime();
 	pReverseTime->initWithAction(pAction);
-	pReverseTime->autorelease();
-
 	return pReverseTime;
 }
 
@@ -1363,7 +1307,6 @@ bool ReverseTime::initWithAction(FiniteTimeAction *pAction)
 {
 	if (ActionInterval::initWithDuration(pAction->getDuration())) {
 		m_pOther = pAction;
-		pAction->addRef();
 		return true;
 	}
 
@@ -1372,7 +1315,7 @@ bool ReverseTime::initWithAction(FiniteTimeAction *pAction)
 
 ReverseTime::~ReverseTime(void)
 {
-	JAM_RELEASE_NULL(m_pOther) ;
+	m_pOther = nullptr ;
 }
 
 void ReverseTime::startWithTarget(Node *pTarget)
@@ -1408,28 +1351,22 @@ return (IntervalAction*)(m_pOther->copy());
 //
 Animate* Animate::actionWithAnimation(Animation2D *pAnimation)
 {
-	Animate *pAnimate = JAM_ALLOC(Animate);
+	Animate *pAnimate = new (GC) Animate();
 	pAnimate->initWithAnimation(pAnimation, true);
-	pAnimate->autorelease();
-
 	return pAnimate;
 }
 
 Animate* Animate::actionWithAnimation(Animation2D *pAnimation, bool bRestoreOriginalFrame)
 {
-	Animate *pAnimate = JAM_ALLOC(Animate);
+	Animate *pAnimate = new (GC) Animate();
 	pAnimate->initWithAnimation(pAnimation, bRestoreOriginalFrame);
-	pAnimate->autorelease();
-
 	return pAnimate;
 }
 
 Animate* Animate::actionWithDuration(jam::time duration, Animation2D *pAnimation, bool bRestoreOriginalFrame)
 {
-	Animate *pAnimate = JAM_ALLOC(Animate);
+	Animate *pAnimate = new (GC) Animate();
 	pAnimate->initWithDuration(duration, pAnimation, bRestoreOriginalFrame);
-	pAnimate->autorelease();
-
 	return pAnimate;
 }
 

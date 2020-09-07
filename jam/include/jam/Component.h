@@ -34,7 +34,7 @@
 
 #include <jam/jam.h>
 #include <jam/String.h>
-#include <jam/RefCountedObject.h>
+#include <jam/Object.h>
 
 namespace jam
 {
@@ -44,7 +44,7 @@ class Transform ;
 /*!
 	\class Component
 */
-class JAM_API Component : public RefCountedObject
+class JAM_API Component : public NamedTaggedObject
 {
 public:
 							Component( GameObject& gameObject ) ;
@@ -53,21 +53,14 @@ public:
 	GameObject&				getGameObject() ;
 	Transform&				getTransform() ;
 
-	String					getTag() const ;
-	void					setTag( const String& tag ) ;
-
 //	virtual void			update( jam::time deltaTime ) = 0 ;
 
 private:
-	Ref<GameObject>			m_gameObject ;
+	GameObject*				m_gameObject ;
 	String					m_tag ;
 };
 
-JAM_INLINE GameObject&		Component::getGameObject() { return *(m_gameObject.get()); }
-
-JAM_INLINE String			Component::getTag() const { return m_tag; }
-JAM_INLINE void				Component::setTag( const String& tag ) { m_tag = tag ; }
+JAM_INLINE GameObject&		Component::getGameObject() { return *m_gameObject; }
 }
 
 #endif // __JAM_COMPONENT_H__
-

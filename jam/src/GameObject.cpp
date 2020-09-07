@@ -40,8 +40,8 @@ namespace jam
 		m_active(true)
 	{
 		// each GameObject has a Transform component
-		m_transform = Ref<Transform>( new Transform(this) ) ;
-		addComponent(*dynamic_ref_cast<Component,Transform>(m_transform)) ;
+		m_transform = new (GC) Transform(this) ;
+		addComponent(*m_transform) ;
 	}
 
 	GameObject::~GameObject()
@@ -50,12 +50,12 @@ namespace jam
 
 	Transform& GameObject::getTransform()
 	{
-		return *(m_transform.get()) ;
+		return *m_transform ;
 	}
 
 	void GameObject::addComponent( Component& component )
 	{
-		m_components.push_back( Ref<Component>( &component) ) ;
+		m_components.push_back( &component ) ;
 	}
 
 

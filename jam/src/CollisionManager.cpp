@@ -64,7 +64,6 @@ CollisionManager::CollisionManager() :
 #endif
 
 	m_pUpdateTimer = Timer::create() ;
-	m_pUpdateTimer->setReserved() ;
 }
 
 
@@ -76,12 +75,6 @@ CollisionManager::~CollisionManager()
 	for( unsigned int i=0; i < m_freeColls.size(); i++ ){
 		JAM_DELETE( m_freeColls[i] ) ;
 	}
-
-#ifndef JAM_CM_QUADTREE_DISABLED
-	JAM_DELETE(m_quadTree) ;
-#endif
-
-	JAM_RELEASE_NULL(m_pUpdateTimer) ;
 }
 
 

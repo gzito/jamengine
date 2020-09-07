@@ -64,6 +64,8 @@ namespace jam
 	*/
 	void Texture2D::create(U32 width,U32 height,GLenum format,const void * data /* = 0 */ ,bool fUpload /*= true*/)
 	{
+		if( m_data && m_GLid ) { destroy(); }
+
 		m_width = width ;
 		m_height = height ;
 		m_bitCount = bitcountFromFormat(format) ;
@@ -76,6 +78,8 @@ namespace jam
 
 	void Texture2D::createDefaultEmpty( Color color /*= Color::WHITE*/, bool fUpload /*= true*/ )
 	{
+		if( m_data && m_GLid ) { destroy(); }
+
 		GLulong data = color.getRgba() ;
 
 		m_width = 1;
@@ -92,10 +96,11 @@ namespace jam
 
 	void Texture2D::load( const String& filename, bool flipV /*= true*/, bool fUpload /*= true*/ )
 	{
-		int w, h, channels ;
+		if( m_data && m_GLid ) { destroy(); }
 
-		stbi_set_flip_vertically_on_load(flipV);  
-		m_data = stbi_load( filename.c_str(), &w, &h, &channels, 0 ) ;
+		stbi_set_flip_vertically_on_load(flipV);
+		int w, h, channels ;
+		m_data = stbi_load( filename.c_str(), &w, &h, &channels, STBI_default ) ;
 		if( !m_data ) {
 			JAM_ERROR( "Failed to load %s", filename.c_str() ) ;
 		}

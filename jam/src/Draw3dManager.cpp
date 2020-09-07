@@ -259,7 +259,7 @@ int Draw3DManager::Text3D(
 {
 	if (drawItemName.empty()) return 0;
 
-	DrawItem* handle = GetDrawItemMgr().getPtrByName(drawItemName) ;
+	DrawItem* handle = GetDrawItemMgr().getObject(drawItemName) ;
 
 	return Text3D(handle,
 		FDrawX, FDrawY,
@@ -276,7 +276,7 @@ int Draw3DManager::Text3D(
 // *************************************************************************
 
 int Draw3DManager::Text3D(
-	const Ref<Texture2D>& pTexture,
+	Texture2D* pTexture,
 	float FDrawX, float FDrawY,
 	const String& FDrastring,
 	float FDrawAlign,
@@ -286,12 +286,12 @@ int Draw3DManager::Text3D(
 	float FZoom, float fZoomY,
 	bool fastParse/*=true*/, float FKerningHeight/*=1.0f*/)
 {
-	Ref<DrawItem> handle( DrawItem::create(pTexture) ) ;
+	DrawItem* handle = DrawItem::create(pTexture) ;
 
 	// questo è il default, pertanto è inutile specificarlo
 	//handle->setBlendingMode(Material::ALPHA_BLEND) ;
 
-	int iRetCode = Text3D(handle.get(),
+	int iRetCode = Text3D(handle,
 		FDrawX, FDrawY,
 		FDrastring,
 		FDrawAlign,
@@ -323,9 +323,9 @@ int Draw3DManager::Text3D( DrawItem* handle,
 	if (FDrastring.empty()) return 0;
 
 	StridedVertexBuffer& LDrawFace = GetGfx().getVertexBuffer(handle,FDrastring.size()*4,FDrastring.size()*6) ;
-	Ref<Texture2D> pTexture = handle->getTexture();
+	Texture2D* pTexture = handle->getTexture();
 	int LDrawSize = pTexture->getWidth() / 16 ;
-	std::vector<std::pair<int,int> >& sizes = (*m_pFontsSizeMap)[pTexture.get()] ;
+	std::vector<std::pair<int,int> >& sizes = (*m_pFontsSizeMap)[pTexture] ;
 	if (!fZoomY) fZoomY=FZoom ;
 
 	size_t IDrawLen		= FDrastring.length() ;
@@ -511,13 +511,13 @@ int Draw3DManager::Text3D( DrawItem* handle,
 //************************************************************************
 int Draw3DManager::StringWidth3D(const String& drawItemName,const String& FDrastring)
 {
-	Ref<Texture2D> pTexture = GetDrawItemMgr().getByName(drawItemName).getTexture() ;
+	Texture2D* pTexture = GetDrawItemMgr().getObject(drawItemName)->getTexture() ;
 	return StringWidth3D(pTexture,FDrastring) ;
 }
 
-int Draw3DManager::StringWidth3D(const Ref<Texture2D>& pTexture ,const String& FDrastring)
+int Draw3DManager::StringWidth3D(Texture2D* pTexture ,const String& FDrastring)
 {
-	std::vector<std::pair<int,int> > sizes = (*m_pFontsSizeMap)[pTexture.get()] ;
+	std::vector<std::pair<int,int> > sizes = (*m_pFontsSizeMap)[pTexture] ;
 
 	size_t IDrawLen =FDrastring.length();
 	float IDrawWidth=0;
@@ -535,7 +535,7 @@ int Draw3DManager::StringWidth3D(const Ref<Texture2D>& pTexture ,const String& F
 	return (int)(IDrawWidth * Draw3DManager::GDrawSFont - Draw3DManager::GDrawPFont) ;
 }
 
-Ref<Texture2D> Draw3DManager::LoadFont3D( const String& FDrawFile, int charstart /*= 0 */, uint32_t tollerance/*=0*/, bool fixed/*=false*/, int width_min/*=0*/ )
+Texture2D* Draw3DManager::LoadFont3D( const String& FDrawFile, int charstart /*= 0 */, uint32_t tollerance/*=0*/, bool fixed/*=false*/, int width_min/*=0*/ )
 {
 	int IDrawXLoop =0;
 	int IDrawYLoop =0;
@@ -543,7 +543,7 @@ Ref<Texture2D> Draw3DManager::LoadFont3D( const String& FDrawFile, int charstart
 
 	int oldTollerance = getDraw3DTextTollerance();
 	setDraw3DTextTollerance(tollerance);
-	Ref<Texture2D> t = GetDrawItemMgr().loadTextureFromFileSystem(FDrawFile)->getTexture() ;
+	Texture2D* t = GetDrawItemMgr().loadTextureFromFileSystem(FDrawFile)->getTexture() ;
 
 	int IDrawXMain = t->getWidth();
 	int IDrawYMain = t->getHeight();
@@ -582,14 +582,14 @@ Ref<Texture2D> Draw3DManager::LoadFont3D( const String& FDrawFile, int charstart
 
 	}
 
-	(*m_pFontsSizeMap)[t.get()] = sizes ;
+	(*m_pFontsSizeMap)[t] = sizes ;
 
 	t->upload();
 	setDraw3DTextTollerance(oldTollerance);
 	return t ;
 }
 
-bool Draw3DManager::XDrawTT3D(const Ref<Texture2D>& FDrawHandle,int FDrawXT ,int FDrawYT ,int FDrawXP ,int FDrawYP, int& IDrawLSet, int& IDrawRSet )
+bool Draw3DManager::XDrawTT3D(Texture2D* FDrawHandle,int FDrawXT ,int FDrawYT ,int FDrawXP ,int FDrawYP, int& IDrawLSet, int& IDrawRSet )
 {
 	// FDrawXT, FDrawYT = Width, height della texture (sheet)
 	// FDrawXP, FDrawYP = Posizione del tile nella matrice dello sheet
@@ -643,7 +643,7 @@ bool Draw3DManager::XDrawTT3D(const Ref<Texture2D>& FDrawHandle,int FDrawXT ,int
 	return res;
 }
 
-void Draw3DManager::DrawImage3D(const Ref<Texture2D>& pTexture,
+void Draw3DManager::DrawImage3D(Texture2D* pTexture,
 	jam::Rect* pSrcRect,
 	float FDrawX, float FDrawY,
 	int FDrawButton /*= 0*/,
@@ -657,7 +657,7 @@ void Draw3DManager::DrawImage3D(const Ref<Texture2D>& pTexture,
 {
 	DrawItem* item = DrawItem::create( pTexture, pSrcRect ) ;
 	DrawImage3D( item, FDrawX, FDrawY, FDrawButton, FDrawAngle, FDrawScale, LHotSpotX, LHotSpotY, color, SwapU, SwapV ) ;
-	JAM_RELEASE(item);
+	item = nullptr;
 }
 
 void Draw3DManager::DrawImage3D(DrawItem* handle,
@@ -1011,7 +1011,7 @@ void Draw3DManager::DrawQuad3D( Material* pMat, const jam::Rect& dstRect, Color*
 */
 }
 
-void Draw3DManager::DrawTexture( const Ref<Texture2D>& pTexture, const jam::Rect& dstRect, Color* color /*= 0*/, Shader* shader /*=0*/)
+void Draw3DManager::DrawTexture( Texture2D* pTexture, const jam::Rect& dstRect, Color* color /*= 0*/, Shader* shader /*=0*/)
 {
 /*
 	uint32_t diffuse = (!color) ? Draw3DManager::ColorG3D.getRgba() : color->getRgba() ;
@@ -1177,11 +1177,11 @@ void Draw3DManager::DrawTiledMap( DrawItem** items, int rows, int cols, float FD
 */
 }
 
-void Draw3DManager::Line3D( const Ref<Texture2D>& pTexture, float FDrawX1,float FDrawY1,float FDrawX2,float FDrawY2,float FDrawSize /*= 2*/ )
+void Draw3DManager::Line3D( Texture2D* pTexture, float FDrawX1,float FDrawY1,float FDrawX2,float FDrawY2,float FDrawSize /*= 2*/ )
 {
 	DrawItem* item = DrawItem::create( pTexture ) ;
 	Line3D( item, FDrawX1, FDrawY1, FDrawX2, FDrawY2, FDrawSize ) ;
-	JAM_RELEASE(item);
+	item = nullptr;
 }
 
 
@@ -1226,7 +1226,7 @@ void Draw3DManager::Line3D( DrawItem* pItem, float FDrawX1,float FDrawY1,float F
 }
 
 //Plot3D( Handle, X-Center, Y-Center, IDrawing-Size )
-void Draw3DManager::Plot3D( const Ref<Texture2D>& pTexture, float FDrawX, float FDrawY, float FDrawSize /*= 1*/ )
+void Draw3DManager::Plot3D( Texture2D* pTexture, float FDrawX, float FDrawY, float FDrawSize /*= 1*/ )
 {
 /*
 	if (FDrawSize==0) FDrawSize=1;
@@ -1248,7 +1248,7 @@ void Draw3DManager::Plot3D( const Ref<Texture2D>& pTexture, float FDrawX, float 
 */
 }
 
-void Draw3DManager::Rect3D( const Ref<Texture2D>& pTexture, float FDrawX, float FDrawY, float FDrawXS, float FDrawYS, int FDrawFill /*=0*/, float FDrawSize /*=0*/ )
+void Draw3DManager::Rect3D( Texture2D* pTexture, float FDrawX, float FDrawY, float FDrawXS, float FDrawYS, int FDrawFill /*=0*/, float FDrawSize /*=0*/ )
 {
 	// DrawBank Variable designation
 	DrawItem* it = DrawItem::create(pTexture) ;
@@ -1318,11 +1318,11 @@ void Draw3DManager::Rect3D( const Ref<Texture2D>& pTexture, float FDrawX, float 
 		}
 	}
 	GetGfx().appendOrDraw() ;
-	JAM_RELEASE(it) ;
+	it = nullptr ;
 }
 
 //Poly3D( Handle, X1-Pos, Y1-Pos, X2-Pos, Y2-Pos, X3-Pos, Y3-Pos )
-void Draw3DManager::Poly3D( const Ref<Texture2D>& pTexture, float FDrawX1, float FDrawY1, float FDrawX2, float FDrawY2, float FDrawX3, float FDrawY3 )
+void Draw3DManager::Poly3D( Texture2D* pTexture, float FDrawX1, float FDrawY1, float FDrawX2, float FDrawY2, float FDrawX3, float FDrawY3 )
 {
 	DrawItem* it = DrawItem::create(pTexture) ;
 	StridedVertexBuffer& LDrawFace = GetGfx().getVertexBuffer(it,3,3) ;
@@ -1336,10 +1336,10 @@ void Draw3DManager::Poly3D( const Ref<Texture2D>& pTexture, float FDrawX1, float
 	LDrawFace.addTriIndices(IDrawV0,IDrawV1,IDrawV2);
 
 	GetGfx().appendOrDraw() ;
-	JAM_RELEASE(it) ;
+	it = nullptr ;
 }
 
-void Draw3DManager::Oval3D( const Ref<Texture2D>& pTexture, float FDrawX, float FDrawY, float FDrawXS, float FDrawYS, int FDrawFill /*=0*/, float FDrawSize /*=0*/ )
+void Draw3DManager::Oval3D( Texture2D* pTexture, float FDrawX, float FDrawY, float FDrawXS, float FDrawYS, int FDrawFill /*=0*/, float FDrawSize /*=0*/ )
 {
 	//DrawBank Variable designation
 	DrawItem* it = DrawItem::create(pTexture) ;
@@ -1490,7 +1490,7 @@ void Draw3DManager::Oval3D( const Ref<Texture2D>& pTexture, float FDrawX, float 
 	}
 
 	GetGfx().appendOrDraw() ;
-	JAM_RELEASE(it) ;
+	it = nullptr ;
 }
 
 void Draw3DManager::DrawPoly(const Polygon2f& poly)

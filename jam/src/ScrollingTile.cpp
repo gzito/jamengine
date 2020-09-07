@@ -208,7 +208,8 @@ void ScrollingMap::renderLayerFast( int layer, int x_offset, int y_offset )
 			int tile = m_tmxLoader.getLayerDataAt ( tx , ty , layer);
 			if (tile > 0)
 			{
-				jam::DrawItem* handleImg = jam::GetDrawItemMgr().getPtrById(tile);
+				String tileName = m_tmxLoader.getFilename()+"_"+to_string(tile) ;
+				DrawItem* handleImg = jam::GetDrawItemMgr().getObject(tileName);
 				items[index++] = handleImg ;
 				showed++;
 			}
@@ -341,7 +342,8 @@ void ScrollingMap::renderLayerUltraFast( int layer, int x_offset, int y_offset )
 
 void ScrollingMap::DrawTile( int layer, int sx, int sy, int tile, float scale /*= 1.0f*/, bool flipX/*=false*/, bool flipY/*=false */)
 {
-	jam::DrawItem* handleImg = jam::GetDrawItemMgr().getPtrById(tile);
+	String tileName = m_tmxLoader.getFilename()+"_"+to_string(tile) ;
+	jam::DrawItem* handleImg = jam::GetDrawItemMgr().getObject(tileName);
 	GetGfx().setRenderLevel(m_drawTileMgrSlot) ;
 	GetDraw3DMgr().DrawImage3D(
 		handleImg,

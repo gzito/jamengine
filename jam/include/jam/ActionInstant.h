@@ -31,7 +31,6 @@
 #define __JAM_ACTIONINSTANT_H__
 
 #include <jam/jam.h>
-#include <jam/BankItem.h>
 #include <jam/Action.h>
 #include <jam/core/geom.h>
 

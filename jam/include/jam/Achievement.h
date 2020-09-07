@@ -31,11 +31,14 @@
 #define __JAM_ACHIEVEMENT_H__
 
 #include <jam/jam.h>
-#include <jam/Bank.h>
+#include <jam/BaseManager.hpp>
 #include <jam/Event.h>
+
+#ifdef JAM_EXCLUDED_BLOCK
 
 namespace jam
 {
+
 // fw references
 class Timer ;
 
@@ -57,7 +60,7 @@ private:
 
 
 // ***
-class JAM_API Achievement : public BankItem
+class JAM_API Achievement : public RefCountedObject
 {
 public:
 	typedef Event<AchievementCompletedEventArgs>		AchievementCompletedEvent ;
@@ -100,7 +103,7 @@ private:
 
 
 // ***
-class JAM_API AchievementManager : public Bank<Achievement>, public jam::Singleton<AchievementManager>, public RefCountedObject
+class JAM_API AchievementManager : public BaseManager<Achievement>, public jam::Singleton<AchievementManager>
 {
 	friend class jam::Singleton<AchievementManager> ;
 
@@ -134,7 +137,7 @@ protected:
 	virtual					~AchievementManager() ;
 	static void				setInstance( AchievementManager* pInstance ) ;
 
-	jam::Timer*				m_checkTimer ;
+	Ref<Timer>				m_checkTimer ;
 	jam::time				m_checkInterval ;
 	static const jam::time	DefaultCheckinterval ;
 
@@ -142,6 +145,9 @@ private:
 };
 
 JAM_INLINE  AchievementManager& GetAchievementMgr() { return (AchievementManager&) AchievementManager::getSingleton(); }
+
 }
+
+#endif // JAM_EXCLUDED_BLOCK
 
 #endif // __JAM_ACHIEVEMENT_H__

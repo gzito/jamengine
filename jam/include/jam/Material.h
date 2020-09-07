@@ -36,6 +36,7 @@
 #include <jam/Color.h>
 #include <jam/Texture2D.h>
 #include <jam/Shader.h>
+#include <jam/Object.h>
 
 namespace jam
 {
@@ -69,7 +70,7 @@ private:
 	2) What their specular highlights look like 
 	3) Whether the polygons appear to emit light
 */
-class JAM_API Material : public BankItem
+class JAM_API Material : public NamedObject
 {
 public:
 	Material() ;
@@ -80,25 +81,25 @@ public:
 	void					setSpecularColor( const Color& color ) ;
 	void					setEmissiveColor( const Color& color ) ;
 	void					setShininess( float shininess ) ;
-	void					setDiffuseTexture( const Ref<Texture2D>& tex ) ;
-	void					setSpecularTexture( const Ref<Texture2D>& tex ) ;
-	void					setNormalTexture( const Ref<Texture2D>& tex ) ;
+	void					setDiffuseTexture( Texture2D* tex ) ;
+	void					setSpecularTexture( Texture2D* tex ) ;
+	void					setNormalTexture( Texture2D* tex ) ;
 
 	void					setBlendEnabled(bool fval) ;
 	void					setBlendMode( const BlendMode& blendMode ) ;
-	void					setShader(const Ref<Shader>& val) ;
+	void					setShader(Shader* val) ;
 
 	Color					getAmbientColor() const ;
 	Color					getDiffuseColor() const ;
 	Color					getSpecularColor() const ;
 	float					getShininess() const ;
-	Ref<Texture2D>			getDiffuseTexture() ;
-	Ref<Texture2D>			getSpecularTexture() ;
-	Ref<Texture2D>			getNormalTexture() ;
+	Texture2D*				getDiffuseTexture() ;
+	Texture2D*				getSpecularTexture() ;
+	Texture2D*				getNormalTexture() ;
 
 	bool					getBlendEnabled() const ;
 	BlendMode				getBlendMode() const ;
-	Ref<Shader>				getShader() const ;
+	Shader*					getShader() const ;
 
 	void					bind() ;
 	void					unbind() ;
@@ -114,11 +115,11 @@ private:
 	BlendMode				m_blendMode ;
 
 	// texture stages
-	Ref<Texture2D>			m_diffuseTexture ;		// stage 0
-	Ref<Texture2D>			m_specularTexture ;		// stage 1
-	Ref<Texture2D>			m_normalTexture ;		// stage 2
+	Texture2D*				m_diffuseTexture ;		// stage 0
+	Texture2D*				m_specularTexture ;		// stage 1
+	Texture2D*				m_normalTexture ;		// stage 2
 
-	Ref<Shader>				m_pShader ;
+	Shader*					m_pShader ;
 };
 
 JAM_INLINE Color			Material::getAmbientColor() const { return m_ambient; }
@@ -136,14 +137,14 @@ JAM_INLINE GLenum			BlendMode::getBlendEquation() const { return m_blendEquation
 JAM_INLINE void				BlendMode::setBlendEquation(GLenum val) { m_blendEquation = val; }
 
 
-class JAM_API MaterialManager : public Bank<Material>, public jam::Singleton<MaterialManager>
+class JAM_API MaterialManager : public NamedObjectManager<Material>, public jam::Singleton<MaterialManager>
 {
 	friend class jam::Singleton<MaterialManager> ;
 
 public:
 
 protected:
-	MaterialManager() : Bank<Material>() {}
+	MaterialManager() = default ;
 private:
 };
 

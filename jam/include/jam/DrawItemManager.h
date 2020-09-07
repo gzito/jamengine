@@ -32,7 +32,7 @@
 
 #include <jam/jam.h>
 #include <jam/DrawItem.h>
-#include <jam/Bank.h>
+#include <jam/BaseManager.hpp>
 #include <jam/Singleton.h>
 #include <jam/String.h>
 
@@ -43,7 +43,7 @@
 namespace jam
 {
 
-class JAM_API DrawItemManager : public Singleton<DrawItemManager>, public Bank<DrawItem>
+class JAM_API DrawItemManager : public Singleton<DrawItemManager>, public NamedObjectManager<DrawItem>
 {
 	friend class Singleton<DrawItemManager> ;
 
@@ -53,50 +53,65 @@ public:
 	 Create a DrawItem from a texture filename.
 	 \param filename The name of texture to be loaded, as reported in group file, with no pathname nor extension
 	 \param groupName The name of the group the texture belongs, as reported in group file
-	 \param id The id to assign to the DrawItem. If id is -1, then it is automatically generated
 	 \param name The name to assign to draw item. If name is an empty string, then it is taken from filename
 	 \param gfxScale Scaling factor for the texture, default to 1
 	*/
-	DrawItem*				loadTexture( const String& filename, const String& groupName, int id=-1, const String& name="", float gfxScale = 1.0f );
+	DrawItem*				loadTexture( const String& filename, const String& groupName, const String& name="", float gfxScale = 1.0f );
 
 	DrawItem*				loadTextureFromFileSystem( const String& filename, int id=-1, const String& name="", float gfxScale = 1.0f );
 
 	/**
 	 Load a "regular" sheet file (based on the specified grid size)
-	 Create cuts from a texture name at starting the given id_position.
 	 
-	 \remark The id_position argument specifies the bank id the cuts will be created at. 
+	 \return Number of cuts
+
+	 \remark
 	  When a DrawItem is created from a sheet a default name is created 
 	  with texture name and number (es: textname_1, textname_10)
 	*/
-	int						loadSheet(const String& filename, const String& groupName, int xsize,int ysize, int cols,int rows, int id_position, int offsetX=0,int offsetY=0, const String& name="" , int  spacingx=0, int spacingy=0, float gfxScale = 1.0f);
+	int						loadSheet(const String& filename, const String& groupName,
+									  int xsize,int ysize,
+									  int cols,int rows, 
+									  int offsetX=0,int offsetY=0,
+									  const String& name="" ,
+									  int  spacingx=0, int spacingy=0,
+									  float gfxScale = 1.0f, bool zeroBasedCuts = true );
 
 	/**
 	 Load regular sheet and create a unique big animation.
 	*/
-	int						loadAnimationSheet(const String& xmlFilePath, const String& sheetFilename,const String& grpName, float timing , int xsize,int ysize, int cols,int rows, int id_position, int offsetX=0,int offsetY=0, const String& name="" , int  spacingx=0, int spacingy=0);
+	int						loadAnimationSheet(const String& xmlFilePath, const String& sheetFilename,const String& grpName, float timing,
+											   int xsize,int ysize,
+											   int cols,int rows,
+											   int offsetX=0,int offsetY=0,
+											   const String& name="",
+											   int  spacingx=0,int spacingy=0,
+											   float gfxScale = 1.0f, bool zeroBasedCuts = true );
 
 	/**
 	 Load XML from Zwoptex file format (no animations)
 	*/
-	int						loadXmlSheet(const String& xmlFilePath, const String& sheetFilename, const String& grpName, int id_position);
+	int						loadXmlSheet(const String& xmlFilePath, const String& sheetFilename, const String& grpName);
 
 	/**
 	 Load XML from Zwoptex file and create Animation
 	*/
-	int						loadXmlAnimationSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName, int position, float timing );
+	int						loadXmlAnimationSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName, float timing );
 
 	/**
 	 Load XML from TexturePacker file format (no animations)
 	*/
-	int						loadXmlPackSheet( const String& xmlFilePath, const String& sheetName, const String& grpName, int id_position, float gfxScale = 1.0f );
+	int						loadXmlPackSheet( const String& xmlFilePath, const String& sheetName, const String& grpName, float gfxScale = 1.0f );
 
 	/**
 	 Load XML from TexturePacker file and create Animation
 	*/
-	int						importXmlPackAnimationSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName, int position, float timing );
+	int						importXmlPackAnimationSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName, float timing );
 
-	DrawItem*				grab( const Ref<Texture2D>& pTexture, int _x0, int _y0, int xsize, int ysize, int position=-1, int offsetX=0, int offsetY=0, const String& name="", float gfxScale = 1.0f );
+	/**
+	 Grab a draw item and assign it the given name 
+	*/
+	DrawItem*				grab( Texture2D* pTexture, int _x0, int _y0, int xsize, int ysize, int offsetX=0, int offsetY=0, const String& name="", float gfxScale = 1.0f );
 
 	/**
 	 This method destroys all draw items associated with the given sheet (by sheet name)
@@ -107,19 +122,19 @@ public:
 	/**
     This method destroys cuts made from a sheet (doesn't remove the sheet itself)
 	*/
-	int						deleteSheetCuts( int cols,int rows,int id_position, const String& aName ) ;
+	int						deleteSheetCuts( int cols,int rows, const String& aName ) ;
 
 private:
-	DrawItemManager();
-	virtual ~DrawItemManager();
+							DrawItemManager() = default ;
+	virtual					~DrawItemManager() = default ;
 
 	static String			findPrefix(const String& prefix, const String& str, int& number);	
 	static int				splitString( const std::string& input, const std::string& delimiter, std::vector<std::string>& results, bool includeEmpties, bool includeLast, bool trimResults );
 	static unsigned int		stringReplace(std::string& str,const std::string& search,const std::string& replace);
 
 	
-	std::map<String,std::list<int> >		m_drawItemsPerSheet ;
-	std::map<String,std::list<int> >		m_animationsPerSheet ;
+	std::map<String,std::list<String>>		m_drawItemsPerSheet ;
+	std::map<String,std::list<String>>		m_animationsPerSheet ;
 };
 
 /** Returns the singleton instance */

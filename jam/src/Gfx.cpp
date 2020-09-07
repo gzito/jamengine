@@ -182,8 +182,8 @@ void Gfx::setRenderLevel(int level)
 
 void Gfx::draw( IVertexBuffer* pVBuff, DrawItem* item, GLenum pType /*= GL_TRIANGLES*/ )
 {
-	Ref<Material> pMat = getMaterial( item ) ;
-	draw(pVBuff, pMat.get(), pType) ;
+	Material* pMat = getMaterial( item ) ;
+	draw(pVBuff, pMat, pType) ;
 }
 
 void Gfx::draw( IVertexBuffer* pVBuff, Material* pMaterial, GLenum pType /*= GL_TRIANGLES*/ )
@@ -228,9 +228,9 @@ void Gfx::appendOrDraw()
 	}
 }
 
-Ref<Material> Gfx::getMaterial( DrawItem* item )
+Material* Gfx::getMaterial( DrawItem* item )
 {
-	Ref<Material> pMat = item->getMaterial() ;
+	Material* pMat = item->getMaterial() ;
 	JAM_ASSERT_MSG( pMat, "Null material in DrawItem" ) ;
 	return pMat ;
 }

@@ -31,7 +31,7 @@
 #define __JAM_B2Sprite_H__
 
 #include <jam/jam.h>
-#include <jam/AliveSprite.h>
+#include <jam/Sprite.h>
 #include <jam/core/geom.h>
 #include <Box2D/Dynamics/b2Body.h>
 #include <Box2D/Dynamics/b2Fixture.h>
@@ -43,11 +43,11 @@ namespace jam
 /**
 	A sprite with physics support
 */
-class JAM_API B2Sprite : public AliveSprite
+class JAM_API B2Sprite : public Sprite
 {
 public:
 							B2Sprite();
-							B2Sprite( jam::DrawItem* frame ) ;
+							B2Sprite( DrawItem* frame ) ;
 	virtual					~B2Sprite() ;
 
 
@@ -134,7 +134,7 @@ public:
 	b2Fixture*				createFixture(b2FixtureDef& fixtureDef) ;
 
 	// overrides
-	virtual void			setFrame(jam::DrawItem* frame);
+	virtual void			setFrame(DrawItem* frame ) override ;
 
 	// overrides
 	virtual void			update() ;

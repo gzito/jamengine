@@ -56,7 +56,7 @@ Node(),
 #endif
 }
 
-Sprite::Sprite( jam::DrawItem* pFrame ) :
+Sprite::Sprite( DrawItem* pFrame ) :
 Node(),
 	m_color(Color::WHITE),
 	m_flipX(false),
@@ -74,25 +74,18 @@ Node(),
 Sprite::~Sprite()
 {
 	destroyAnimator() ;
-	if( m_pFrame ) {
-		m_pFrame->release() ;
-	}
 #ifdef JAM_TRACE_INVIEW_SPRITES
 	m_totalSprites-- ;
 #endif
 }
 
-void Sprite::setFrame( jam::DrawItem* pNewFrame )
+void Sprite::setFrame( DrawItem* pNewFrame )
 {
 	if( m_pFrame == pNewFrame ) {  // the new frame is the current frame?
 		return ;
 	}
 
-	if( m_pFrame ) m_pFrame->release() ;
-
 	if( pNewFrame ) {
-		pNewFrame->addRef() ;
-
 		if( m_pFrame == 0 || (m_pFrame !=0 && (m_pFrame->getWidth() != pNewFrame->getWidth() || m_pFrame->getHeight() != pNewFrame->getHeight())) ) {
 			float LDrawHalfXSize = pNewFrame->getHalfWidth() ;
 			float LDrawHalfYSize = pNewFrame->getHalfHeight() ;
@@ -226,7 +219,7 @@ ExtAnimator& Sprite::getAnimator()
 
 void Sprite::destroyAnimator()
 {
-	JAM_RELEASE_NULL(m_pAnimator) ;
+	m_pAnimator = nullptr ;
 }
 
 bool Sprite::intersectPixelsSlow( Sprite* other ) const

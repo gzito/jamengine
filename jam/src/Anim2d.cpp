@@ -43,18 +43,16 @@ AnimFrame2D::AnimFrame2D() :
 
 AnimFrame2D* AnimFrame2D::create()
 {
-	return new AnimFrame2D() ; 
+	return new (GC) AnimFrame2D() ; 
 }
 
 AnimFrame2D::~AnimFrame2D()
 {
-	JAM_RELEASE(m_handleImg) ;
 }
 
 void AnimFrame2D::setDrawItem( DrawItem* val )
 {
 	m_handleImg = val;
-	m_handleImg->addRef() ;
 }
 
 //
@@ -70,39 +68,25 @@ Animation2D::Animation2D() :
 
 Animation2D::~Animation2D()
 {
-	for(size_t i=0; i<m_frames.size(); i++ ) {
-		JAM_RELEASE(m_frames[i]);
-	}
 	m_frames.clear() ;
-	JAM_DELETE(m_flipAllX) ;
-	JAM_DELETE(m_flipAllY) ;
 }
 
 void Animation2D::addFrame(AnimFrame2D* frame)
 {
-#ifdef JAM_ANIMFRAME2D_AUTORELEASED
-	frame->addRef() ;
-#endif
 	m_frames.push_back(frame) ;
 	m_totalTime += frame->getTime();
 	m_frames[m_frames.size()-1]->m_partialTime = m_totalTime ;
 }
 
-void Animation2D::addFrame( const Ref<Texture2D>& pTexture, const jam::Rect& rect, float time, bool flipX/*=false*/, bool flipY/*=false*/ )
+void Animation2D::addFrame( Texture2D* pTexture, const jam::Rect& rect, float time, bool flipX/*=false*/, bool flipY/*=false*/ )
 {
 	DrawItem* drawItem = DrawItem::create(pTexture,rect) ;
-#ifdef JAM_ANIMFRAME2D_AUTORELEASED
-	drawItem->autorelease();
-#endif
 	addFrame(drawItem,time,flipX,flipY) ;
 }
 
 void Animation2D::addFrame( DrawItem* elem, float time, bool flipX/*=false*/, bool flipY/*=false*/ )
 {
 	AnimFrame2D* frame = AnimFrame2D::create();
-#ifdef JAM_ANIMFRAME2D_AUTORELEASED
-	frame->autorelease() ;
-#endif
 	frame->setDrawItem(elem) ;
 	frame->setTime(time) ;		
 	frame->setFlipX(flipX);
@@ -175,18 +159,12 @@ bool Animation2D::isLooping()
 
 void Animation2D::setFlipAllX( bool flipX )
 {
-	if( m_flipAllX ) {
-		JAM_DELETE(m_flipAllX) ;
-	}
-	m_flipAllX = new bool(flipX); 
+	m_flipAllX = new (GC) bool(flipX); 
 }
 
 void Animation2D::setFlipAllY( bool flipY )
 { 
-	if( m_flipAllY ) {
-		JAM_DELETE(m_flipAllY) ;
-	}
-	m_flipAllY = new bool(flipY); 
+	m_flipAllY = new (GC) bool(flipY); 
 }
 
 bool Animation2D::getFlipAllX() const
@@ -201,7 +179,7 @@ bool Animation2D::getFlipAllY() const
 
 Animation2D* Animation2D::create()
 {
-	return new Animation2D() ;
+	return new (GC) Animation2D() ;
 }
 
 }

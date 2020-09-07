@@ -59,7 +59,7 @@ public:
 private:
 	void					processNode(aiNode* node, const aiScene* scene) ;
 	Mesh*					processMesh(aiMesh* mesh, const aiScene* scene) ;
-	void					loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::vector<Ref<Texture2D>>& out ) ;
+	void					loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::vector<Texture2D*>& out ) ;
 
 private:
 	std::vector<Mesh*>		m_meshes ;

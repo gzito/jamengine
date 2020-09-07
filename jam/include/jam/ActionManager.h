@@ -32,10 +32,9 @@
 
 
 #include <jam/jam.h>
-#include <jam/Bank.h>
 #include <jam/Action.h>
 #include <jam/Node.h>
-#include <jam/Singleton.h>
+#include <jam/BaseManager.hpp>
 
 #include <vector>
 #include <list>
@@ -53,7 +52,7 @@ typedef std::map<Node*,ActionMgrMapElement*>	TargetsMap ;
 /**
 	Internal class used to manage Action instances
 */
-class JAM_API ActionManager : public Singleton<ActionManager>, public Bank<Action>
+class JAM_API ActionManager : public Singleton<ActionManager>, public NamedTaggedObjectManager<Action>
 {
 	friend class Singleton<ActionManager> ;
 

@@ -46,7 +46,7 @@ namespace jam
 /**
 	This class represents a single frame of a 2D animation
 */
-class JAM_API AnimFrame2D : public BankItem
+class JAM_API AnimFrame2D : public NamedObject
 {
 	friend class Animation2D ;
 
@@ -82,13 +82,13 @@ private:
 /**
 	This class represents a 2D animation
 */
-class JAM_API Animation2D : public BankItem
+class JAM_API Animation2D : public NamedObject
 {
 public:
 	virtual					~Animation2D();
 
 	void					addFrame(AnimFrame2D* pFrame);
-	void					addFrame(const Ref<Texture2D>& pTexture, const jam::Rect& rect, float time, bool flipX=false, bool flipY=false);
+	void					addFrame(Texture2D* pTexture, const jam::Rect& rect, float time, bool flipX=false, bool flipY=false);
 	void					addFrame(DrawItem* pItem, float time, bool flipX=false, bool flipY=false);
 	
 	AnimFrame2D*			getFrame(int index) const ;

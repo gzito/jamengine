@@ -268,7 +268,7 @@ namespace jam
 		ogg_int64_t size = m_numOfSamples * (m_bitsPerSample/8) * m_numOfChannels ;
 		m_pSoundData = new char[size] ;
 
-		uptr<char> buf( new char[JAM_AUDIOMGR_LOAD_BUFFER_SIZE] ) ;
+		std::unique_ptr<char> buf( new char[JAM_AUDIOMGR_LOAD_BUFFER_SIZE] ) ;
 
 		int current_section ;
 		long i = 0 ;
@@ -560,7 +560,7 @@ namespace jam
 		AudioManager
 	*/
 	AudioManager::AudioManager()
-		: Bank<ISound>(), m_musicVolume(0.5f), m_pMusicSound(0), m_pUpdateTimer(0),
+		: m_musicVolume(0.5f), m_pMusicSound(), m_pUpdateTimer(nullptr),
 		m_outputRate(0), m_usedChannels(0)
 	{
 		initOpenAL();
@@ -571,7 +571,6 @@ namespace jam
 		}
 
 		m_pUpdateTimer = Timer::create() ;
-		m_pUpdateTimer->setReserved() ;
 	}
 
 	AudioManager::~AudioManager()
@@ -579,9 +578,6 @@ namespace jam
 // 		stopAllSounds() ;
 // 		musicOff() ;
 		cleanupOpenAL();
-
-		JAM_RELEASE_NULL(m_pMusicSound);
-		JAM_RELEASE_NULL(m_pUpdateTimer) ;
 	}	
 
 	void AudioManager::initOpenAL()
@@ -615,75 +611,40 @@ namespace jam
 	ISound* AudioManager::loadSound(const String& afilename,const String& name,bool aloopFlag/*=false*/,float avolume/*=1.0f*/,float apitch/*=0*/)
 	{
 		ISound* iSound = loadSound_private(afilename,aloopFlag,avolume,apitch) ;
-		addByName(iSound,name);
-		return iSound ;
-	}
-
-	ISound* AudioManager::loadSound( const String& afilename, int id, bool aloopFlag/*=false*/, float avolume/*=1.0f*/, float apitch/*=0*/)
-	{
-		ISound* iSound = loadSound_private(afilename,aloopFlag,avolume,apitch) ;
-		addById(iSound,id);
+		iSound->setName(name) ;
+		addObject(iSound);
 		return iSound ;
 	}
 
 	void AudioManager::play( const String& itemName )
 	{
-		ISound& iSound = getByName(itemName) ;
-		iSound.play() ;
-	}
-
-	void AudioManager::play( int id )
-	{
-		ISound& iSound = getById(id) ;
-		iSound.play() ;
+		ISound* iSound = getObject(itemName) ;
+		iSound->play() ;
 	}
 
 	void AudioManager::playOnce( const String& itemName )
 	{
-		ISound& iSound = getByName(itemName) ;
-		iSound.playOnce() ;
-	}
-
-	void AudioManager::playOnce( int id )
-	{
-		ISound& iSound = getById(id) ;
-		iSound.playOnce() ;
+		ISound* iSound = getObject(itemName) ;
+		iSound->playOnce() ;
 	}
 
 	void AudioManager::playForce( const String& itemName )
 	{
-		ISound& iSound = getByName(itemName) ;
-		iSound.playForce() ;
-	}
-
-	void AudioManager::playForce( int id )
-	{
-		ISound& iSound = getById(id) ;
-		iSound.playForce() ;
+		ISound* iSound = getObject(itemName) ;
+		iSound->playForce() ;
 	}
 
 	void AudioManager::setSoundsVolume(float aVolume)
 	{
-		BankItemMap::iterator it ;
-		for( it = m_objectsMap.begin(); it != m_objectsMap.end(); it++ ) {
-			ISound* sound = (ISound*)it->second ;
-			if( sound != m_pMusicSound ) {
-				sound->setVolume(aVolume) ;
-			}
+		for( auto& n : getManagerMap() ) {
+			n.second->setVolume(aVolume) ;
 		}
 	}
 
 	ISound* AudioManager::loadMusic( const String& afilename, const String& name, bool aloopFlag/*=false*/, bool start/*=false*/ )
 	{
 		ISound* iSound = loadMusic_private(afilename,aloopFlag,start) ;
-		addByName(iSound,name); ;
-		return iSound ;
-	}
-
-	ISound* AudioManager::loadMusic( const String& afilename, int id, bool aloopFlag/*=false*/, bool start/*=false*/ )
-	{
-		ISound* iSound = loadMusic_private(afilename,aloopFlag,start) ;
-		addById(iSound,id); ;
+		m_pMusicSound = dynamic_cast<StreamingSound*>(iSound);
 		return iSound ;
 	}
 
@@ -840,22 +801,16 @@ namespace jam
 
 	void AudioManager::update(float fTime/*=0.f*/)
 	{
-		JAM_BANK_ITERATION_START ;
-
-		BankItemMap::iterator it ;
-		for( it = m_objectsMap.begin(); it != m_objectsMap.end(); it++ ) {
-			ISound* s = (ISound*)it->second ;
-			s->update(fTime) ;
+		m_pUpdateTimer->update() ;
+		for( auto& n : getManagerMap() ) {
+			n.second->update(fTime) ;
 		}
-
-		JAM_BANK_ITERATION_END ;
 	}
 
 
 	ISound* AudioManager::loadSound_private( const String& afilename, bool aloopFlag/*=false*/, float avolume/*=1.0f*/, float apitch/*=0.0f */ )
 	{
-		ISound* iSound = JAM_ALLOC_2(Sound, afilename, aloopFlag) ;
-		iSound->autorelease();
+		ISound* iSound = new (GC) Sound(afilename, aloopFlag) ;
 		iSound->setVolume(avolume) ;
 		iSound->setPitch(apitch) ;
 		return iSound ;
@@ -865,20 +820,13 @@ namespace jam
 	{
 		if( m_pMusicSound ) {
 			musicOff() ;
-			m_pMusicSound->release() ;
-			m_pMusicSound->destroy() ;
 		}
 
-		ISound* iSound = JAM_ALLOC_2(StreamingSound,afilename, aloopFlag) ;
-		iSound->autorelease();
+		ISound* iSound = new (GC) StreamingSound(afilename, aloopFlag) ;
 		iSound->setVolume(m_musicVolume) ;
 		if( start ) {
 			iSound->play();
 		}
-
-		m_pMusicSound = (StreamingSound*)iSound;
-		m_pMusicSound->addRef() ;
-
 		return iSound ;
 	}
 

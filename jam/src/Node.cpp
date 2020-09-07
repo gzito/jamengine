@@ -69,8 +69,7 @@ TouchEventArgs::TouchEventArgs(uint32_t touchId, float x, float y, int status) :
 
 TouchEventArgs* TouchEventArgs::create( uint32_t touchId, float x, float y, int status )
 {
-	TouchEventArgs* touchEvtArgs = JAM_ALLOC_4(TouchEventArgs,touchId,x,y,status) ;
-	touchEvtArgs->autorelease() ;
+	TouchEventArgs* touchEvtArgs = new (GC) TouchEventArgs(touchId,x,y,status) ;
 	return touchEvtArgs ;
 }
 
@@ -153,8 +152,8 @@ Node::Node() :
 // dtor
 Node::~Node()
 {
-	JAM_RELEASE(m_pGrid) ;
-	JAM_RELEASE(m_pCamera) ;
+	m_pGrid = nullptr ;
+	m_pCamera = nullptr ;
 
 	Node* child = 0 ;
 	while( !m_children.empty() ) {
@@ -162,12 +161,10 @@ Node::~Node()
 		m_children.pop_front() ;
 		child->m_parent = 0 ;
 		child->stopAllActions() ;
-		child->release() ;
 	}
 
 	// check for no parent is done inside the called method
 	removeFromParentAndCleanup(true) ;
-	destroyRelations() ;
 		
 #ifdef JAM_TRACE_ACTIVE_NODES
 	m_totCount-- ;
@@ -180,39 +177,32 @@ Node::~Node()
 /** Sets sprite's color */
 void Node::setColorGlobal(const Color& c ) 
 {
-	if( !m_markedAsDestroyed ) {
-		// color also children
-		if( m_children.size() > 0 ) {
-			for( NodesList::iterator it = m_children.begin(); it != m_children.end(); it++ ) 
-			{
-				Node* child =(*it);
-				child->setColorGlobal(c) ;		// child is removed from parent
-			}
+	// color also children
+	if( m_children.size() > 0 ) {
+		for( NodesList::iterator it = m_children.begin(); it != m_children.end(); it++ ) 
+		{
+			Node* child =(*it);
+			child->setColorGlobal(c) ;		// child is removed from parent
 		}
-		setColor(c);
 	}
+	setColor(c);
 }
 
 void Node::destroy()
 {
-	if( !isMarkedForDestruction() ) {
-
 		this->setEnabled(false) ;
 		this->stopAllActions() ;
 
-		destroyRelations() ;
-
-		BankItem::destroy() ;
-
 		// destroy also children
- 		if( m_children.size() > 0 ) {
- 			for( NodesList::iterator it = m_children.begin(); it != m_children.end(); it++ ) {
- 				Node* child = *it ;
+ 		if( m_children.size() != 0 ) {
+			NodesList::iterator it = m_children.begin(); 
+ 			while( !m_children.empty() ) {
+ 				Node* child = *it++ ;
  				child->destroy() ;
  			}
  		}
 
-	}
+		removeFromParentAndCleanup(true) ;
 }
 
 void Node::destroy_internal()
@@ -273,7 +263,6 @@ Node* Node::addChild( Node* child, int zOrder, bool global /*=true*/ )
 		child->onEnter() ;
 	}
 
-	child->addRef() ;
 	return child ;
 }
 
@@ -283,9 +272,7 @@ Node* Node::getFirstChildByTag(const TagType& tag) const
 
 	NodesList::const_iterator it = m_children.begin() ;
 	while( it != m_children.end() ) {
-		const TagSet& tags = (*it)->getTags() ;
-
-		if( tags.find(tag)!=tags.end() ) {
+		if( (*it)->getTag() == tag ) {
 			n = *it ;
 			break ;
 		}
@@ -309,24 +296,6 @@ Node* Node::getChildByName(const String& name) const
 	}
 
 	JAM_ASSERT_MSG(n!=0, ("getChildByName() : child with name \"%s\" not found",name.c_str()));
-
-	return n ;
-}
-
-Node* Node::getChildById(int id) const
-{
-	Node* n = 0 ;
-
-	NodesList::const_iterator it = m_children.begin() ;
-	while( it != m_children.end() ) {
-		if( (*it)->getId() == id ) {
-			n = *it ;
-			break ;
-		}
-		it++ ;
-	}
-
-	JAM_ASSERT_MSG(n!=0, "getChildById() : child with id %d not found",id );
 
 	return n ;
 }
@@ -359,14 +328,6 @@ void Node::removeFirstChildByTag( const TagType& tag, bool cleanup )
 	}
 }
 
-void Node::removeChildById( int id, bool cleanup )
-{
-	Node* node = getChildById(id) ;
-	if( node ) {
-		removeChild(node,cleanup) ;
-	}
-}
-
 void Node::removeAllChildrenWithCleanup( bool cleanup )
 {
 	// not using detachChild improves speed here
@@ -389,8 +350,7 @@ void Node::removeAllChildrenWithCleanup( bool cleanup )
 				pNode->stopAllActions();
 			}
 			// set parent nil at the end
-			pNode->setParent(0);
-			pNode->release() ;
+			pNode->setParent(nullptr);
 		}
 	}
 }
@@ -668,7 +628,7 @@ void Node::visit()
 
 	// quick return if not enabled (if the node is marked for destroy it is also not enabled)
 	//2GZ: Non ho trovato il punto in cui lo se è marked allora è !enabled
-	if( !m_enabled || !m_running || m_markedAsDestroyed) {
+	if( !m_enabled || !m_running ) {
 		return;
 	}
 
@@ -727,15 +687,11 @@ void Node::visit()
 
 			pCamera->setActive() ;
 			Node::setCurrentCamera(pCamera) ;
-			ShaderManager::getSingleton().getCurrent()->setModelMatrix( Matrix4(1.0f) ) ;
+			GetShaderMgr().getCurrent()->setModelMatrix( Matrix4(1.0f) ) ;
 	  
 			if(pBatch && batchInProgress) { pBatch->begin() ; }
 		}
 	}
-
-	// GZ: Un sacco di volte capita dopo l'update che sia distrutto, perchè renderizzarlo e visitare i figli?
-	if (m_markedAsDestroyed) 
-		return;
 
 	// self draw
 	if( m_enabled && m_running && m_visible ) this->render();
@@ -872,20 +828,14 @@ void Node::render()
 Action* Node::runAction( Action* action )
 {
 	JAM_ASSERT_MSG(action, ("%s : null 'action' parameter",JAM_FUNCTION_NAME));
-	JAM_ASSERT_MSG( !isMarkedForDestruction(), ("Node is marked for destruction") ) ;
-	if( !isMarkedForDestruction() ) {
-		GetActionMgr().addAction(action,this,!m_running) ;
-	}
+	GetActionMgr().addAction(action,this,!m_running) ;
 	return action ;
 }
 Action* Node::runAction( Action* action,  const TagType& tag)
 {
 	JAM_ASSERT_MSG(action, ("%s : null 'action' parameter",JAM_FUNCTION_NAME));
-	JAM_ASSERT_MSG( !isMarkedForDestruction(), ("Node is marked for destruction") ) ;
-	if( !isMarkedForDestruction() ) {
-		action->setTag(tag);
-		GetActionMgr().addAction(action,this,!m_running) ;
-	}
+	action->setTag(tag);
+	GetActionMgr().addAction(action,this,!m_running) ;
 	return action;	
 	//return runAction(action) ;
 }
@@ -893,9 +843,9 @@ Action* Node::runAction( Action* action,  const TagType& tag)
 void Node::stopActionsByTag(const TagType& tag)
 {
  	std::vector<Action*> actions ;
-	GetActionMgr().queryByTag(tag,actions) ;
- 	for(size_t i=0; i<actions.size(); i++)
- 		stopAction(actions[i]);
+	auto range = GetActionMgr().findObjectsByTag(tag) ;
+ 	for( auto k = range.first; k!=range.second; k++ )
+ 		stopAction((*k).second);
 }
 
 
@@ -1187,8 +1137,7 @@ void Node::detachChild( Node *child, bool doCleanup )
 	m_children.remove(child);
 
 	// set parent nil at the end
-	child->setParent(0);
-	child->release() ;
+	child->setParent(nullptr);
 }
 
 void Node::setTouchable( bool val/*=true*/ )
@@ -1223,7 +1172,7 @@ bool Node::isInViewActive(bool forceVerify)
 	if (!m_isInViewCalculated) 
 	{
 		m_isInViewCalculated=true;
-		if (forceVerify && isMarkedForDestruction() || !isVisible() || !isEnabled()) m_is_in_view=false;
+		if (forceVerify || !isVisible() || !isEnabled()) m_is_in_view=false;
 		else return isInView() ;
 	}
 	return m_is_in_view;
@@ -1289,8 +1238,6 @@ void Node::faceTo( const Node& n, bool global /*= true*/ )
 
 void Node::setGrid( GridBase* val )
 {
-	JAM_ADDREF(val) ;
-	JAM_RELEASE(m_pGrid) ;
 	m_pGrid = val;
 }
 
@@ -1299,7 +1246,7 @@ void Node::setGrid( GridBase* val )
 String Node::getDebugInfo(bool typeInfo/*=true*/)
 {
 	stringstream oss ;
-	oss << BankItem::getDebugInfo(typeInfo) ;
+	oss << getDebugInfo(typeInfo) ;
 	oss << " wpos.x=" << getWorldPos().x ;
 	oss << " wpos.y=" << getWorldPos().y ;
 	oss << " wangle=" << getWorldRotationAngle() ;
@@ -1414,9 +1361,7 @@ const Circle2f& Node::getCollisionBoundingCircle() const
 
 void Node::setCamera( Camera* pCamera )
 {
-	JAM_RELEASE(m_pCamera)
 	m_pCamera = pCamera ;
-	JAM_ADDREF(pCamera) ;
 }
 	
 Camera* Node::getCamera()
@@ -1447,38 +1392,8 @@ Camera* Node::getAncestorCamera()
 	
 CollisionEventArgs* CollisionEventArgs::create( Node* src, Node* dst )
 {
-	CollisionEventArgs* collEvtArgs = JAM_ALLOC_2(CollisionEventArgs,src,dst) ;
-	collEvtArgs->autorelease() ;
+	CollisionEventArgs* collEvtArgs = new (GC) CollisionEventArgs(src,dst) ;
 	return collEvtArgs ;
-}
-
-int Node::createRelation( Node* target )
-{
-	Relation* r = JAM_ALLOC_2(Relation,this,target) ;
-	r->autorelease() ;
-	int id = GetRelationMgr().add(r) ;
-	this->getRelations().push_back(r) ;
-
-	r = JAM_ALLOC_2(Relation,target,this) ;
-	r->autorelease() ;
-	GetRelationMgr().add(r) ;
-	target->getRelations().push_back(r) ;
-
-	return id;
-}
-
-void Node::destroyRelations	()
-{
-	size_t n = m_relations.size() ;
-	if( n ) {
-		for( RelationsList::iterator it = m_relations.begin(); it != m_relations.end(); it++ ) {
-			Relation* r = *it ;
-			r->removePeer() ;
-			r->removeFromBank() ;
-		}
-
-		m_relations.clear() ;
-	}
 }
 
 void Node::setActionSpeed( float val/*=1.0f*/ )

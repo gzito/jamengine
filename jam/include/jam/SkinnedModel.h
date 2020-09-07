@@ -68,7 +68,7 @@ private:
 
 	void					processNode(aiNode* node) ;
 	SkinnedMesh*			processMesh(aiMesh* mesh) ;
-	void					loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::vector<Ref<Texture2D>>& out ) ;
+	void					loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::vector<Texture2D*>& out ) ;
 	void					loadBones( const aiMesh* pMesh, SkinnedMesh* pSkinnedMesh ) ;
 //	void					addBoneData(unsigned int vertexIdx, unsigned int boneId, float weight) ;
 

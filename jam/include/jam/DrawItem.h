@@ -33,8 +33,7 @@
 
 #include <jam/jam.h>
 #include <jam/Draw2d.h>
-//#include <jam/ObjectManager.h>
-#include <jam/BankItem.h>
+#include <jam/Object.h>
 #include <jam/Texture2D.h> 
 #include <jam/Material.h> 
 
@@ -44,24 +43,24 @@ namespace jam
 /**
 * Represents a portion of a texture to be drawn and its drawing attributes, such as blending mode
 */
-class JAM_API DrawItem : public BankItem
+class JAM_API DrawItem : public NamedObject
 {
 public:
 	static const BlendMode DEFAULT_BLEND_MODE ;
 
-	Ref<Material>			getMaterial() const ;
+	Material*				getMaterial() const ;
 
 	/** Returns the DrawItem's texture */
-	Ref<Texture2D>			getTexture() const ;
+	Texture2D*				getTexture() const ;
 
 	/** Sets the DrawItem's texture */
-	void					setTexture( const Ref<Texture2D>& val ) ;
+	void					setTexture( Texture2D* val ) ;
 
 	/** Returns the DrawItem's shader, 0 if there isn't a shader */
-	Ref<Shader>				getShader() const ;
+	Shader*					getShader() const ;
 
 	/** Sets the DrawItem's shader (default is no shader set) */
-	void					setShader( const Ref<Shader>& pShader ) ;
+	void					setShader( Shader* pShader ) ;
 
 	/**
 		Return the DrawItem's rectangle. 
@@ -120,17 +119,17 @@ public:
 	 Constructs a DrawItem with the given texture portion identified by the supplied rectangle.
 	 \remark If rect is not supplied or 0 is given, then the whole texture is used
 	*/
-	static DrawItem*		create(const Ref<Texture2D>& pTxtr, jam::Rect* pCut = 0, float gfxScale = 1.0f);
+	static DrawItem*		create(Texture2D* pTxtr, jam::Rect* pCut = 0, float gfxScale = 1.0f);
 	
 	/**
 	 Constructs a DrawItem with the given texture portion identified by the supplied rectangle.
 	*/
-	static DrawItem*		create(const Ref<Texture2D>& pTxtr, const jam::Rect& cut, float gfxScale = 1.0f);
+	static DrawItem*		create(Texture2D* pTxtr, const jam::Rect& cut, float gfxScale = 1.0f);
 
 	/**
 	 Constructs a DrawItem with the given texture portion identified by the supplied rectangle coordinates.
 	*/
-	static DrawItem*		create(const Ref<Texture2D>& pTxtr, int32_t x0, int32_t y0, int32_t x1, int32_t y1, float gfxScale = 1.0f);
+	static DrawItem*		create(Texture2D* pTxtr, int32_t x0, int32_t y0, int32_t x1, int32_t y1, float gfxScale = 1.0f);
 
 protected:
 	/**
@@ -143,14 +142,14 @@ protected:
 	 Constructs a DrawItem with the given texture portion identified by the supplied rectangle.
 	 \remark If rect is not supplied or 0 is given, then the whole texture is used
 	*/
-							DrawItem(const Ref<Texture2D>& pTxtr, jam::Rect* pCut = 0, float gfxScale = 1.0f );
+							DrawItem(Texture2D* pTxtr, jam::Rect* pCut = 0, float gfxScale = 1.0f );
 	
 	/**
 	 Constructs a DrawItem with the given texture portion identified by the supplied rectangle.
 	*/
-							DrawItem(const Ref<Texture2D>& pTxtr, const jam::Rect& cut, float gfxScale = 1.0f );
+							DrawItem(Texture2D* pTxtr, const jam::Rect& cut, float gfxScale = 1.0f );
 
-	Ref<Material>			m_pMaterial ;
+	Material*				m_pMaterial ;
 	jam::Rect				m_rect;
 
 	// used by Zwoptex
@@ -174,8 +173,8 @@ private:
 class IDrawable2D
 {
 public:
-	virtual jam::DrawItem*	getFrame() const = 0 ;
-	virtual void			setFrame(jam::DrawItem* frame) = 0 ;
+	virtual DrawItem*		getFrame() const = 0 ;
+	virtual void			setFrame( DrawItem* ) = 0 ;
 };
 
 }

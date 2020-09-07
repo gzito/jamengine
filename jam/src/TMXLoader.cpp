@@ -187,7 +187,10 @@ bool TMXLoader::VisitEnter (const TiXmlElement &elem, const TiXmlAttribute *attr
 //			IwPathGetFilename(tset.imageSheet.filename.c_str(),str,0); // use file extension
 		tset.imageSheet.name = str ;
 		// *** Here load imageSheet
-		m_nextIdPosition = jam::GetDrawItemMgr().loadSheet(tset.imageSheet.name ,m_Group, tset.tilewidth, tset.tilewidth, -1,-1, m_IdPosition+(tset.firstgid-1),tset.margin,tset.margin,"",tset.spacing, tset.spacing );
+		m_nextIdPosition = jam::GetDrawItemMgr().loadSheet(tset.imageSheet.name ,m_Group, tset.tilewidth, tset.tilewidth, 
+														   -1,-1, tset.margin,tset.margin,
+														   jam::getFileNameWithoutExtension(str),
+														   tset.spacing, tset.spacing );
 		//m_map.tileSetList.push_back(tset);
 		m_map.tileSetList[m_map.tileSetList.size()-1]=tset;
 	}
@@ -295,11 +298,9 @@ bool TMXLoader::loadDocument( const String& filename, const String& group, int i
 	//	String m_path = "./media/data/";
 	m_Group=group;
 	m_IdPosition=idPosition;
-	m_filename=filename;
-	//m_path = path;
-	m_completeName=m_filename;
+	m_filename=jam::getFileNameWithoutExtension( jam::getBasename(filename) );
+	m_completeName=filename;
 	TiXmlDocument doc((char*)m_completeName.c_str());
-	//TiXmlDocument doc("media/testa.tmx");
 	if ( ! doc.LoadFile() ) {
 		return false;
 	}

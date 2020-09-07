@@ -195,7 +195,7 @@ public:
 
 	void					VerifyQuad3D(DrawItem* handle, float FDrawX, float FDrawY, float FDrawAngle = 0.0f, float FDrawScale = 1.0f, float LHotSpotX = 0.0f, float LHotSpotY = 0.0f) ;
 
-	void					DrawImage3D(const Ref<Texture2D>& pTexture, jam::Rect* pSrcRect, float FDrawX, float FDrawY,int FDrawButton = 0, float FDrawAngle = 0.0f,
+	void					DrawImage3D(Texture2D* pTexture, jam::Rect* pSrcRect, float FDrawX, float FDrawY,int FDrawButton = 0, float FDrawAngle = 0.0f,
 											float FDrawScale = 1.0f, float LHotSpotX = 0.0f, float LHotSpotY = 0.0f, Color* color = 0, bool SwapU = false,	bool SwapV = false );
 
 	void					DrawImage3D(DrawItem* handle, float FDrawX, float FDrawY,	int FDrawButton = 0, float FDrawAngle = 0.0f, float FDrawScale = 1.0f,
@@ -205,7 +205,7 @@ public:
 
 	void					DrawQuad3D( const Polygon2f& poly, Color* color = 0 ) ;
 	void					DrawQuad3D( Material* pMat, const jam::Rect& dstRect, Color* color = 0 ) ;
-	void					DrawTexture( const Ref<Texture2D>& pTexture, const jam::Rect& dstRect, Color* color = 0, Shader* shader = 0 ) ;
+	void					DrawTexture( Texture2D* pTexture, const jam::Rect& dstRect, Color* color = 0, Shader* shader = 0 ) ;
 
 	void					DrawImageTransform3D(DrawItem* handle, const Matrix3& transform = Matrix3(1.0f), int FDrawButton = 0,
 											const Vector2& hotSpot = Vector2(0.0f),	Color* color = 0, bool SwapU = false, bool SwapV = false );
@@ -249,7 +249,7 @@ public:
 		\param FDrawX - Size of the point
 		\param FDrawSize - Sign thickness of the point
 	*/	 
-	void					Plot3D( const Ref<Texture2D>& pTexture, float FDrawX, float FDrawY, float FDrawSize = 1 ) ;
+	void					Plot3D( Texture2D* pTexture, float FDrawX, float FDrawY, float FDrawSize = 1 ) ;
 	
 	/**
 		Draws a line on the screen.
@@ -263,7 +263,7 @@ public:
 		\param FDrawY2 - y-end coordinate of the line 
 		\param FDrawSize - Sign thickness of the line
 	*/
-	void					Line3D( const Ref<Texture2D>& pTexture, float FDrawX1,float FDrawY1,float FDrawX2,float FDrawY2,float FDrawSize = 2 ) ;
+	void					Line3D( Texture2D* pTexture, float FDrawX1,float FDrawY1,float FDrawX2,float FDrawY2,float FDrawSize = 2 ) ;
 	void					Line3D( DrawItem* pItem, const Vector2& FDraw1, const Vector2& FDraw2, float FDrawSize = 2 ) ;
 	void					Line3D( DrawItem* pItem, float FDrawX1,float FDrawY1,float FDrawX2,float FDrawY2,float FDrawSize = 2 ) ;
 	
@@ -282,7 +282,7 @@ public:
 
 		\remark It draw axis aligned rectangle only, i.e. it doesn't work for rotated rectangles
 	*/
-	void					Rect3D( const Ref<Texture2D>& pTexture, float FDrawX, float FDrawY, float FDrawXS, float FDrawYS, int FDrawFill=0, float FDrawSize=0 ) ;
+	void					Rect3D( Texture2D* pTexture, float FDrawX, float FDrawY, float FDrawXS, float FDrawYS, int FDrawFill=0, float FDrawSize=0 ) ;
 	
 	/**
 		Draws a triangle on the screen.
@@ -295,7 +295,7 @@ public:
 		\param FDrawX3 - Third X-corner coordinates of the triangle 
 		\param FDrawY3 - Third Y-corner coordinates of the triangle 
 	*/
-	void					Poly3D( const Ref<Texture2D>& pTexture, float FDrawX1, float FDrawY1, float FDrawX2, float FDrawY2, float FDrawX3, float FDrawY3) ;
+	void					Poly3D( Texture2D* pTexture, float FDrawX1, float FDrawY1, float FDrawX2, float FDrawY2, float FDrawX3, float FDrawY3) ;
 	
 	/**
 		Draws an oval on the screen.
@@ -308,7 +308,7 @@ public:
 		\param FDrawFill - Fill mode: 0 - No fill, 1 - Filled
 		\param FDrawSize - Frame Thickness. If (FDrawFill==0 and FDrawSize==0) then FDrawSize=2
 	*/
-	void					Oval3D( const Ref<Texture2D>& pTexture, float FDrawX, float FDrawY, float FDrawXS, float FDrawYS, int FDrawFill=0, float FDrawSize=0 ) ;
+	void					Oval3D( Texture2D* pTexture, float FDrawX, float FDrawY, float FDrawXS, float FDrawYS, int FDrawFill=0, float FDrawSize=0 ) ;
 
 	void					DrawPoly(const Polygon2f& poly) ;
 	void					DrawCircle(const Circle2f& c, float a, int segs, bool drawLineToCenter=false) ;
@@ -321,13 +321,13 @@ public:
 	uint32_t				getDraw3DTextTollerance() const { return m_draw3DTextTollerance; }
 	void					setDraw3DTextTollerance(uint32_t val) { m_draw3DTextTollerance = val; }
 
-	Ref<Texture2D>			LoadFont3D( const String& FDrawFile, int charstart = 0 , uint32_t tollerance=0, bool fixed=false, int width_min=0) ;
+	Texture2D*				LoadFont3D( const String& FDrawFile, int charstart = 0 , uint32_t tollerance=0, bool fixed=false, int width_min=0) ;
 
 	int						Text3D(const String& drawItemName, float FDrawX, float FDrawY, const String& FDrastring, float FDrawAlign=0.0f, int FDrawButton=0, float FDrawAngle=0.0f, float FKerningWidth=0.0f, float FZoom=1.0f, float FZoomY=0, bool fastParse=true, float FKerningHeight=1.0f);
-	int						Text3D(const Ref<Texture2D>& pTexture , float FDrawX, float FDrawY, const String& FDrastring, float FDrawAlign=0.0f, int FDrawButton=0, float FDrawAngle=0.0f, float FKerningWidth=0.0f, float FZoom=1.0f, float FZoomY=0, bool fastParse=true, float FKerningHeight=1.0f);
+	int						Text3D(Texture2D* pTexture , float FDrawX, float FDrawY, const String& FDrastring, float FDrawAlign=0.0f, int FDrawButton=0, float FDrawAngle=0.0f, float FKerningWidth=0.0f, float FZoom=1.0f, float FZoomY=0, bool fastParse=true, float FKerningHeight=1.0f);
 	int						Text3D(DrawItem* handle,float FDrawX, float FDrawY, const String& FDrastring, float FDrawAlign=0.0f, int FDrawButton=0, float FDrawAngle=0.0f, float FKerningWidth=0.0f, float FZoom=1.0f, float FZoomY=0, bool fastParse=true, float FKerningHeight=1.0f);
 
-	int						StringWidth3D(const Ref<Texture2D>& pTexture ,const String& FDrastring) ;
+	int						StringWidth3D(Texture2D* pTexture ,const String& FDrastring) ;
 	int						StringWidth3D(const String& drawItemName,const String& FDrastring) ;
 
 protected:
@@ -339,7 +339,7 @@ private:
 	virtual					~Draw3DManager();
 
 	int						getAscAtPos(const String& FDrastring,size_t* IDrawLoop, bool* isComplex);
-	bool					XDrawTT3D(const Ref<Texture2D>& FDrawHandle,int FDrawXT ,int FDrawYT ,int FDrawXP ,int FDrawYP, int&, int& );
+	bool					XDrawTT3D(Texture2D* FDrawHandle,int FDrawXT ,int FDrawYT ,int FDrawXP ,int FDrawYP, int&, int& );
 
 private:
 	static TFontsTilesMap*	m_pFontsSizeMap ;

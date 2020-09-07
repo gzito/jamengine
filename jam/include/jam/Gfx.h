@@ -80,7 +80,7 @@ public:
 	void					drawIndexedPrimitive( IVertexBuffer* pVBuff, Material* pMaterial, int32_t slotID, U16 offset = 0 , GLenum pType = GL_TRIANGLES ) ;
 	void					setRenderLevel( int level ) ;
 
-	Ref<Material>			getMaterial( DrawItem* item ) ;
+	Material*				getMaterial( DrawItem* item ) ;
 
 private:
 							Gfx() ;

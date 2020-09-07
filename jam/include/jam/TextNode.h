@@ -31,7 +31,7 @@
 #define  JAM_TextNode_h
 
 #include <jam/jam.h>
-#include <jam/Bank.h>
+#include <jam/BaseManager.hpp>
 #include <jam/Sprite.h>
 #include <jam/Node.h>
 #include <jam/Draw3dManager.h>
@@ -79,7 +79,7 @@ protected:
 	bool					m_fastParse;
 };
 
-class JAM_API TextNodeManager : public Bank<TextNode>, public jam::Singleton<TextNodeManager>
+class JAM_API TextNodeManager : public NamedTaggedObjectManager<TextNode>, public jam::Singleton<TextNodeManager>
 {
 	friend class jam::Singleton<TextNodeManager> ;
 
@@ -88,8 +88,8 @@ public:
 	TextNode*				addText( const String& text, float _x, float _y, 	Node* parent, const String& fontName,uint64_t _times=1000, float size =0.5f, Draw3DManager::DrawAlign align=Draw3DManager::DrawAlign::DRAW_ALIGN_CENTER, float kerning=0.0f,bool is_complex=false  ) ;
 	TextNode*				addText( const String& text, float _x, float _y, const String& name, Node* parent, const String& fontName, uint64_t _times=1000, float size =0.5f, Draw3DManager::DrawAlign align=Draw3DManager::DrawAlign::DRAW_ALIGN_CENTER, float kerning=0.0f ,bool is_complex=false  ) ;
 	TextNode*				text( const String& text, float _x, float _y,	Node* parent, const String& fontName,uint64_t _times=1000, float size =0.5f, Draw3DManager::DrawAlign align=Draw3DManager::DrawAlign::DRAW_ALIGN_CENTER, float kerning=0.0f ,bool is_complex=false  ) ;
-	TextNode*				destroyByTag(const String& tag);
-	TextNode*				getNode(const String& tag);
+	TextNode*				destroyByName(const String& name);
+	TextNode*				getNode(const String& name);
 	void					destroyAllText();
 private:
 							TextNodeManager() = default ;

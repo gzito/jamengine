@@ -59,16 +59,16 @@ class JAM_API ActionInterval : public FiniteTimeAction
 {
 public:
 	/** how many seconds had elapsed since the actions started to run. */
-	jam::time getElapsed(void) { return m_elapsed; }
+	jam::time				getElapsed(void) { return m_elapsed; }
 
 	/** initializes the action */
-	bool initWithDuration(jam::time d);
+	bool					initWithDuration(jam::time d);
 
 	/** returns true if the action has finished */
-	virtual bool isDone(void);
+	virtual bool			isDone(void);
 
-	virtual void step(jam::time dt);
-	virtual void startWithTarget(Node* pTarget);
+	virtual void			step(jam::time dt);
+	virtual void			startWithTarget(Node* pTarget);
 	/** returns a reversed action */
 	virtual ActionInterval* reverse(void);
 
@@ -78,14 +78,14 @@ public:
 
 public:
 	//extension in CCGridAction 
-	void setAmplitudeRate(float amp);
-	float getAmplitudeRate(void);
+	void					setAmplitudeRate(float amp);
+	float					getAmplitudeRate(void);
 
 protected:
-	ActionInterval() {}
+							ActionInterval() = default;
 
-	jam::time m_elapsed;
-	bool   m_bFirstTick;
+	jam::time				m_elapsed;
+	bool					m_bFirstTick;
 };
 
 /** @brief Runs actions sequentially, one after another
@@ -98,9 +98,9 @@ public:
 	/** initializes the action */
     bool initOneTwo(FiniteTimeAction *pActionOne, FiniteTimeAction *pActionTwo);
 
-	virtual void startWithTarget(Node *pTarget);
-	virtual void stop();
-	virtual void update(jam::time time);
+	virtual void			startWithTarget(Node *pTarget);
+	virtual void			stop();
+	virtual void			update(jam::time time);
 	virtual ActionInterval* reverse();
 
 public:
@@ -108,13 +108,13 @@ public:
 	static FiniteTimeAction* actions( FiniteTimeAction *pAction1, ...) ;
 
 	/** creates the action */
-	static Sequence* actionOneTwo(FiniteTimeAction *pActionOne, FiniteTimeAction *pActionTwo);
+	static Sequence*		actionOneTwo(FiniteTimeAction *pActionOne, FiniteTimeAction *pActionTwo);
 protected:
-	Sequence() ;
+							Sequence() ;
 
-	FiniteTimeAction *m_pActions[2];
-	jam::time m_split;
-	int m_last;
+	FiniteTimeAction*		m_pActions[2];
+	jam::time				m_split;
+	int						m_last;
 };
 
 
@@ -133,18 +133,18 @@ public:
 	virtual void stop(void);
 	virtual void update(jam::time time);
 	virtual bool isDone(void);
-	virtual ActionInterval* reverse(void);
+	virtual ActionInterval*	reverse(void);
 
 public:
 	/** creates a Repeat action. Times is an unsigned integer between 1 and pow(2,30) */
-	static Repeat* actionWithAction(FiniteTimeAction *pAction, unsigned int times);
+	static Repeat* actionWithAction(FiniteTimeAction* pAction, unsigned int times);
 
 protected:
 	Repeat();
 
 	unsigned int m_uTimes;
 	unsigned int m_uTotal;
-	FiniteTimeAction *m_pOther;
+	FiniteTimeAction* m_pOther;
 };
 
 

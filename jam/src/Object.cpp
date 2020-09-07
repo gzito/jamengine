@@ -1,6 +1,6 @@
 /**********************************************************************************
 * 
-* Relation.cpp
+* Object.cpp
 * 
 * This file is part of Jam
 * 
@@ -28,56 +28,65 @@
 **********************************************************************************/
 
 #include "stdafx.h"
-#include "jam/Relation.h"
 
-#include "jam/Node.h"
-
+#include <jam/Object.h>
 
 namespace jam
 {
-
-	Relation::Relation( Node* n1, Node* n2 )
-	{
-		JAM_ASSERT_MSG( n1->getBank() != 0, "Node hasn't bank" ) ;
-		JAM_ASSERT_MSG( n2->getBank() != 0, "Node hasn't bank" ) ;
-
-		m_source = std::make_pair(n1->getId(),(Bank<Node>*)n1->getBank()) ;
-		m_target = std::make_pair(n2->getId(),(Bank<Node>*)n2->getBank()) ;
-	}
-
-	Relation::~Relation()
+/*	
+	Object::Object()
 	{
 	}
-
-	void Relation::removePeer()
+	
+	Object::~Object()
 	{
-		int targetId = m_target.first ;
-		Bank<Node>* b = m_target.second ;
-
-		Node* target = b->findPtrById(targetId) ;
-		if( target ) {
-			RelationsList& relations = target->getRelations() ;
-			for( RelationsList::iterator it = relations.begin(); it!=relations.end(); it++) {
-				Relation* r = *it ;
-				if( r->getTarget().first == m_source.first && r->getTarget().second == m_source.second ) {
-					relations.erase(it);
-					r->removeFromBank() ;
-					break ;
-				}
-			}
-		}
+	}
+*/
+	NamedObject::NamedObject()
+	{
+		m_name = generateID(this) ;
+	}
+	String NamedObject::getName() const
+	{
+		return m_name ;
+	}
+	void NamedObject::setName(const String& name)
+	{
+		m_name = name ;
 	}
 
-	Node* Relation::getNodeTarget()
-	{					
-			std::vector<Node*> res;
+	TaggedObject::TaggedObject() 
+	{
+	}
 
-			RelationMember m=getTarget();
-			Bank<Node>* b=m.second;
-			int id=m.first;
-			
-			Node* n=&(b->getById(id));
-			return n;
-	}	
-				
+	String TaggedObject::getTag() const
+	{
+		return m_tag ;
+	}
+	void TaggedObject::setTag(const String& tag)
+	{
+		m_tag = tag ;
+	}
+
+	NamedTaggedObject::NamedTaggedObject()
+	{
+		m_name = generateID(this) ;
+	}
+
+	String NamedTaggedObject::getName() const
+	{
+		return m_name ;
+	}
+	void NamedTaggedObject::setName(const String& name)
+	{
+		m_name = name ;
+	}
+	String NamedTaggedObject::getTag() const
+	{
+		return m_tag;
+	}
+	void NamedTaggedObject::setTag(const String& tag)
+	{
+		m_tag = tag ;
+	}
 }

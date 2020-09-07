@@ -36,32 +36,30 @@ namespace jam
 
 Sprite* SpritePoolManager::getNew( const String& tag )
 {
-	size_t howMuch=getBankItemsByTag(tag).size();
+	size_t howMuch= countObjectsByTag(tag) ;
 	Sprite* res=0;
 	if( howMuch ) {
-		Sprite* res=(Sprite*)&getBankItemsByTag(tag);
+		Sprite* res=(Sprite*)findObjectByTag(tag);
 		res->setEnabled(true);
 	}
 	else {
-		res=new Sprite();
-		res->addRef();
+		res=new (GC) Sprite();
 		res->setTag(tag);
+		addObject(res) ;
 	}
 	return res;
 }
 
 void SpritePoolManager::dispose( Sprite* spr,const String& tag )
 {
-	//spr->removeFromParentAndCleanup(false);
-	size_t howMuch = getBankItemsByTag(tag).size();
+	size_t howMuch = countObjectsByTag(tag) ;
 	if( howMuch > 100 )	{
 		spr->destroy();
 	}
 	else {
 		spr->stopAllActions();
 		spr->setEnabled(false);
-		add(spr);
-//spr->destroyRelations() ;
+		addObject(spr);
 	}
 }
 

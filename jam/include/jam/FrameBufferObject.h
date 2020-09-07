@@ -56,7 +56,7 @@ public:
 	void					unbind() ;
 
 	void					attachRenderBuffer( RenderBufferObject* rbo, GLenum attachment ) ;
-	void					attachTexture2D( const Ref<Texture2D>& tex, GLenum attachment, GLint level ) ;
+	void					attachTexture2D( Texture2D* tex, GLenum attachment, GLint level ) ;
 
 	bool					isGood() const ;
 	GLenum					checkStatus() const ;

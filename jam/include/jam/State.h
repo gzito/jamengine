@@ -31,7 +31,7 @@
 #define __JAM_STATE_H__
 
 #include <list>
-#include <jam/BankItem.h>
+#include <jam/Object.h>
 
 namespace jam
 {
@@ -44,7 +44,7 @@ class State ;
 /**
 	Define the condition to be tested in order to trigger transition from the current state to a new state
 */
-class ICondition : public RefCountedObject
+class ICondition : public Collectible
 {
 public:
 	virtual					~ICondition() {}
@@ -92,7 +92,7 @@ protected:
 /**
 	Represents a Transition linking two states
 */
-class Transition : public RefCountedObject
+class Transition : public Collectible
 {
 public:
 							Transition( ICondition* pCondition = 0, State* targetState = 0 ) ;
@@ -124,10 +124,10 @@ typedef std::list<Transition*>		TransitionList ;
 /**
 	This class represents a state inside a FSM
 */
-class State : public BankItem
+class State : public NamedObject
 {
 public:
-	virtual					~State() ;
+	virtual					~State() = default ;
 
 	/**
 		Called when this state is entered and only if the previous state is different by the new one

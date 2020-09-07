@@ -75,7 +75,7 @@ StridedVertexBuffer* Draw3DBatch::check( jam::DrawItem* handle, uint16_t numOfVe
 {
 	StridedVertexBuffer* pVBuff = 0 ;
 	if( m_isBatchingInProgress ) {
-		Ref<Material> mat = GetGfx().getMaterial(handle) ;
+		Material* mat = GetGfx().getMaterial(handle) ;
 
 		if( !m_pVertexBuffer->isSpaceAvailable(numOfVertex,numOfIndex) ) {
 			JAM_ERROR( "Batch too small. Increase size" ) ;
@@ -126,7 +126,7 @@ void Draw3DBatch::flush()
 		if( m_pVertexBuffer->isUploaded() ) { 
 			m_pVertexBuffer->update() ;
 		}
-		GetGfx().drawIndexedPrimitive( m_pVertexBuffer, m_pCurrentMaterial.get(), m_currentSlotID, m_pVertexBuffer->getStartIndexCount()*sizeof(U16), (GLenum)m_currentPrimType ) ;
+		GetGfx().drawIndexedPrimitive( m_pVertexBuffer, m_pCurrentMaterial, m_currentSlotID, m_pVertexBuffer->getStartIndexCount()*sizeof(U16), (GLenum)m_currentPrimType ) ;
 	}
 }
 
@@ -136,14 +136,14 @@ void Draw3DBatch::resetState()
 #ifdef JAM_TRACE_BATCH
 	JAM_TRACE( ("Resetting batch...") ) ;
 #endif
-	m_pCurrentMaterial.reset() ;
+	m_pCurrentMaterial = nullptr ;
 	m_currentSlotID = INT32_MAX ;
 	m_currentPrimType = -1 ;
 	m_pVertexBuffer->setNewBlock() ;
 }
 
 
-bool Draw3DBatch::isStateChanged( GLenum primType, const Ref<Material>& pMateral, int32_t slotID ) const
+bool Draw3DBatch::isStateChanged( GLenum primType, Material* pMateral, int32_t slotID ) const
 {
 // 	return (m_currentPrimType != -1 && primType != (IwGxPrimType)m_currentPrimType) ||
 // 		(m_pCurrentMaterial && pMateral != m_pCurrentMaterial) || 

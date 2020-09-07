@@ -15,6 +15,7 @@ set(JAM_core_HDRS
 )
 set(JAM_thirdparty_SRCS
 	src/thirdparty/stb_image.cpp
+	src/thirdparty/HandleManager.cpp
 )
 set(JAM_thirdparty_HDRS
 	include/jam/thirdparty/Delegate.h
@@ -23,6 +24,8 @@ set(JAM_thirdparty_HDRS
 	include/jam/thirdparty/MultiCastDelegate.h
 	include/jam/thirdparty/random.h
 	include/jam/thirdparty/SimpleIni.h
+	include/jam/thirdparty/Handle.h
+	include/jam/thirdparty/HandleManager.h
 )
 set(JAM_main_SRCS
 	src/Achievement.cpp
@@ -31,15 +34,12 @@ set(JAM_main_SRCS
 	src/ActionInstant.cpp
 	src/ActionInterval.cpp
 	src/ActionManager.cpp
-	src/AliveSprite.cpp
 	src/Anim2d.cpp
 	src/Animation2dManager.cpp
 	src/Application.cpp
 	src/AudioManager.cpp
 	src/AutoReleasePool.cpp
 	src/B2Sprite.cpp
-	src/BankItem.cpp
-	src/BankItemHolder.cpp
 	src/Base64.cpp
 	src/Camera.cpp
 	src/Circle2f.cpp
@@ -69,14 +69,13 @@ set(JAM_main_SRCS
 	src/Mesh.cpp
 	src/Model.cpp
 	src/Node.cpp
-	src/ObjectManager.cpp
+	src/Object.cpp
 	src/Pivot2d.cpp
 	src/Polygon2f.cpp
 	src/Primitives.cpp
 	src/Quadtree.cpp
 	src/Randomizer.cpp
 	src/RefCountedObject.cpp
-	src/Relation.cpp
 	src/RenderBufferObject.cpp
 	src/Resource.cpp
 	src/ResourceManager.cpp
@@ -89,7 +88,6 @@ set(JAM_main_SRCS
 	src/SkinnedModel.cpp
 	src/SkyBox.cpp
 	src/Sprite.cpp
-	src/SpriteManager.cpp
 	src/SpriteMesh.cpp
 	src/SpritePoolManager.cpp
 	src/SpriteRenderer.cpp
@@ -101,6 +99,7 @@ set(JAM_main_SRCS
 	src/SysTimer.cpp
 	src/TextNode.cpp
 	src/Texture2D.cpp
+	src/Texture2DResource.cpp
 	src/TextureCubemap.cpp
 	src/TightVertexBuffer.cpp
 	src/Timer.cpp
@@ -108,6 +107,7 @@ set(JAM_main_SRCS
 	src/Transform.cpp
 	src/VertexArrayObject.cpp
 	src/VertexBufferObject.cpp
+	src/XmlResource.cpp
 )
 set(JAM_main_HDRS
 	include/jam/Achievement.h
@@ -116,17 +116,14 @@ set(JAM_main_HDRS
 	include/jam/ActionInstant.h
 	include/jam/ActionInterval.h
 	include/jam/ActionManager.h
-	include/jam/AliveSprite.h
 	include/jam/Anim2d.h
 	include/jam/Animation2dManager.h
 	include/jam/Application.h
 	include/jam/AudioManager.h
 	include/jam/AutoReleasePool.h
 	include/jam/B2Sprite.h
-	include/jam/Bank.h
-	include/jam/BankItem.h
-	include/jam/BankItemHolder.h
 	include/jam/Base64.h
+	include/jam/BaseManager.hpp
 	include/jam/Camera.h
 	include/jam/Circle2f.h
 	include/jam/CollisionManager.h
@@ -158,7 +155,7 @@ set(JAM_main_HDRS
 	include/jam/Mesh.h
 	include/jam/Model.h
 	include/jam/Node.h
-	include/jam/ObjectManager.h
+	include/jam/Object.h
 	include/jam/ObjectPool.hpp
 	include/jam/Pivot2d.h
 	include/jam/Polygon2f.h
@@ -167,7 +164,6 @@ set(JAM_main_HDRS
 	include/jam/Quadtree.h
 	include/jam/Randomizer.h
 	include/jam/RefCountedObject.h
-	include/jam/Relation.h
 	include/jam/RenderBufferObject.h
 	include/jam/Resource.h
 	include/jam/ResourceManager.h
@@ -181,7 +177,6 @@ set(JAM_main_HDRS
 	include/jam/SkinnedModel.h
 	include/jam/SkyBox.h
 	include/jam/Sprite.h
-	include/jam/SpriteManager.h
 	include/jam/SpriteMesh.h
 	include/jam/SpritePoolManager.h
 	include/jam/SpriteRenderer.h
@@ -193,13 +188,15 @@ set(JAM_main_HDRS
 	include/jam/SysTimer.h
 	include/jam/TextNode.h
 	include/jam/Texture2D.h
+	include/jam/Texture2DResource.h
 	include/jam/TextureCubemap.h
 	include/jam/TightVertexBuffer.h
 	include/jam/Timer.h
 	include/jam/TMXLoader.h
 	include/jam/Transform.h
 	include/jam/VertexArrayObject.h
-	include/jam/VertexBufferObject.h	
+	include/jam/VertexBufferObject.h
+	include/jam/XmlResource.h
 )
 set(JAM_precomp_HDRS
 	include/precomph/stdafx.h
@@ -210,15 +207,16 @@ include_directories( include )
 include_directories( include/precomph )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/SDL2 )
+include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/boehmgc )
 
 add_compile_definitions(_USE_MATH_DEFINES)
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 
 set( JAM_THIRDPARTY_LIBRARIES
 	opengl32
-#	debug debug/glfw3 optimized release/glfw3
-	release/SDL2
-	release/SDL2main
+	debug debug/gc optimized release/gc
+	debug debug/SDL2 optimized release/SDL2
+	debug debug/SDL2main optimized release/SDL2main
 	debug debug/OpenAL32 optimized release/OpenAL32
 	debug debug/tinyxml optimized release/tinyxml
 	debug debug/libvorbisfile optimized release/libvorbisfile

@@ -31,11 +31,10 @@
 #define __JAM_TIMER_H__
 
 #include <jam/jam.h>
-#include <jam/Bank.h>
+#include <jam/BaseManager.hpp>
 #include <jam/Event.h>
 
-//#include <s3eTypes.h>
-#include <jam/ObjectManager.h>
+#include <jam/Object.h>
 
 namespace jam
 {
@@ -53,7 +52,7 @@ private:
 /**
 * This class supplies a way for measuring elapsed time
 */
-class JAM_API Timer : public BankItem
+class JAM_API Timer : public NamedObject
 {
 public:
 	friend class TimerManager ;
@@ -129,8 +128,6 @@ public:
 
 	uint64_t				getRemain() const { return m_remain; }
 
-	virtual void			destroy();
-
 private:
 	// Default constructor.
 							Timer() ;
@@ -164,8 +161,9 @@ private:
 	static int				m_timersCount ;
 };
 
-class JAM_API TimerManager : public Bank<Timer>, public jam::Singleton<TimerManager>
+class JAM_API TimerManager : public NamedObjectManager<Timer> , public jam::Singleton<TimerManager>
 {
+
 	friend class jam::Singleton<TimerManager> ;
 
 public:
@@ -175,13 +173,16 @@ public:
 	void					stopAll();
 	void					startAll();
 
-	virtual void			dump(const char* msg) ;
+
 protected:
-	TimerManager() : Bank<Timer>() {}
+	TimerManager() = default ;
+
 private:
 };
 
+
 JAM_INLINE  TimerManager& GetTimerMgr() { return (TimerManager&) TimerManager::getSingleton(); }
+
 
 }
 

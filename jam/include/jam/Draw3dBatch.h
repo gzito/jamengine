@@ -58,11 +58,11 @@ public:
 
 private:
 	void					resetState() ;
-	bool					isStateChanged(GLenum primType, const Ref<Material>& pMateral, int32_t slotID) const ;
+	bool					isStateChanged(GLenum primType, Material* pMateral, int32_t slotID) const ;
 
 private:
 	bool					m_isBatchingInProgress ;
-	Ref<Material>			m_pCurrentMaterial ;
+	Material*				m_pCurrentMaterial ;
 	int32_t					m_currentPrimType ;
 	int32_t					m_currentSlotID ;
 	StridedVertexBuffer*	m_pVertexBuffer ;

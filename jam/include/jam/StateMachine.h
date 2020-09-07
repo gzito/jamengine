@@ -33,7 +33,7 @@
 #include <jam/jam.h>
 #include <jam/State.h>
 #include <jam/Singleton.h>
-#include <jam/Bank.h>
+#include <jam/BaseManager.hpp>
 
 #include <vector>
 
@@ -48,7 +48,7 @@ namespace game
 
 	You are responsible to create and add states to it (via Bank interface)
 */
-class JAM_API StateMachine : public Bank<State>, public Singleton<StateMachine>
+class JAM_API StateMachine : public NamedObjectManager<State>, public Singleton<StateMachine>
 {
 	friend class Singleton<StateMachine> ;
 

@@ -57,7 +57,7 @@ Mesh::Mesh() :
 	m_tangentsDisabled(true),
 	m_needsCalculateTangents(true)
 {
-	m_pMaterial = Ref<Material>(new Material()) ;
+	m_pMaterial = new (GC) Material() ;
 	for( size_t i=0; i<m_vbos.length()-1; i++ ) {
 		m_vbos[i].setTarget(GL_ARRAY_BUFFER) ;
 	}
@@ -68,7 +68,7 @@ Mesh::~Mesh()
 {
 }
 
-void Mesh::setMaterial( const Ref<Material>& pMaterial )
+void Mesh::setMaterial( Material* pMaterial )
 {
 	m_pMaterial = pMaterial ;
 }
@@ -109,7 +109,7 @@ void Mesh::upload()
 		calculateTangents() ;
 	}
 	
-	Ref<Shader> pShader = m_pMaterial->getShader() ;
+	Shader* pShader = m_pMaterial->getShader() ;
 	pShader->use();
 
 	for( size_t i=0; i<m_vbos.length(); i++ ) {
@@ -172,7 +172,7 @@ void Mesh::draw()
 	if( !isUploaded() ) {
 		upload() ;
 	}
-	GetGfx().drawIndexedPrimitive( &m_vao, getElementsArray().length(), m_pMaterial.get() ) ;
+	GetGfx().drawIndexedPrimitive( &m_vao, getElementsArray().length(), m_pMaterial ) ;
 }
 
 void jam::Mesh::disableTangents( bool value )

@@ -48,7 +48,7 @@ SpriteMesh::SpriteMesh() :
 	m_vao(),
 	m_uploaded(false)
 {
-	m_pMaterial = Ref<Material>(new Material()) ;
+	m_pMaterial = new (GC) Material() ;
 	m_verticesVbo.setTarget(GL_ARRAY_BUFFER) ;
 	m_texCoordsVbo.setTarget(GL_ARRAY_BUFFER) ;
 	m_elementsVbo.setTarget(GL_ELEMENT_ARRAY_BUFFER) ;
@@ -58,7 +58,7 @@ SpriteMesh::~SpriteMesh()
 {
 }
 
-void SpriteMesh::setMaterial( const Ref<Material>& pMaterial )
+void SpriteMesh::setMaterial( Material* pMaterial )
 {
 	m_pMaterial = pMaterial ;
 }
@@ -88,7 +88,7 @@ void SpriteMesh::upload()
 		return ;
 	}
 
-	Ref<Shader> pShader = m_pMaterial->getShader() ;
+	Shader* pShader = m_pMaterial->getShader() ;
 	pShader->use();
 
 	// bind vao

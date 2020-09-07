@@ -31,9 +31,10 @@
 #define __JAM_GAME_H__
 
 #include <jam/jam.h>
-#include <jam/Bank.h>
 #include <jam/Singleton.h>
 #include <jam/String.h>
+#include <jam/Object.h>
+#include <jam/BaseManager.hpp>
 
 namespace jam
 {
@@ -44,12 +45,12 @@ class GameGlobals
 {
 public:
 	// null implemented, to be overridden
-	void				newPlayer(uint32_t slot) ;
+	void					newPlayer(uint32_t slot) ;
 
 private:
-	uint32_t			m_slot ;
-	uint32_t			m_level ;
-	uint32_t			m_round ;
+	uint32_t				m_slot ;
+	uint32_t				m_level ;
+	uint32_t				m_round ;
 };
 
 
@@ -57,12 +58,12 @@ class PlayerStats
 {
 public:
 	// null implemented, to be overridden
-	virtual void	load(uint32_t slot) ;
+	virtual void			load(uint32_t slot) ;
 	// null implemented, to be overridden
-	virtual void	save(uint32_t slot) ;
+	virtual void			save(uint32_t slot) ;
 
-	uint32_t			m_bestScore ;
-	float				m_timePlayed ;		// in seconds
+	uint32_t				m_bestScore ;
+	float					m_timePlayed ;		// in seconds
 };
 
 
@@ -81,33 +82,33 @@ public:
 class Player
 {
 public:
-	Player();
-	virtual ~Player();
+							Player();
+	virtual					~Player();
 
-	virtual void	init();
-	virtual void	reset();
+	virtual void			init();
+	virtual void			reset();
 
 	// null implemented, to be overridden
-	virtual void	load(uint32_t slot) ;
+	virtual void			load(uint32_t slot) ;
 	// null implemented, to be overridden
-	virtual void	save(uint32_t slot) ;
+	virtual void			save(uint32_t slot) ;
 	
 	// default implementation calls reset()
-	virtual void	New( String _name, int _slot );
+	virtual void			New( String _name, int _slot );
 
-	void				setScore(uint32_t val) { m_score = val; }
-	virtual void	addScore(uint32_t value) { m_score+=value; }
-	virtual void	resetScore(uint32_t value) { m_score=0; }
+	void					setScore(uint32_t val) { m_score = val; }
+	virtual void			addScore(uint32_t value) { m_score+=value; }
+	virtual void			resetScore(uint32_t value) { m_score=0; }
 
-	String		m_name ;
-	String		m_filename ;
-	uint32_t			m_score ;
+	String					m_name ;
+	String					m_filename ;
+	uint32_t				m_score ;
 	
-	uint32_t			m_level	;
-	uint32_t			m_round ;
-	uint32_t			m_slot ;
+	uint32_t				m_level	;
+	uint32_t				m_round ;
+	uint32_t				m_slot ;
 
-	PlayerStats		m_stats ;
+	PlayerStats				m_stats ;
 
 };
 
@@ -119,29 +120,29 @@ public:
 */
 
 /** Abstract */
-class Objective : public BankItem
+class Objective : public NamedObject
 {
 public:
-	virtual bool	isEarned() const { return false; }
-	virtual void	show() {}
+	virtual bool			isEarned() const { return false; }
+	virtual void			show() {}
 
-	bool			m_earned ;
-	int32_t			m_status ;
+	bool					m_earned ;
+	int32_t					m_status ;
 };
 
 
-class JAM_API ObjectiveManager : public Bank<Objective>, public jam::Singleton<ObjectiveManager>
+class JAM_API ObjectiveManager : public NamedObjectManager<Objective>, public jam::Singleton<ObjectiveManager>
 {
 	friend class jam::Singleton<ObjectiveManager> ;
 
 public:
-	void	updateCheck() {}
-	void	load(uint32_t slot) {}
-	void	save(uint32_t slot) {}
+	void					updateCheck() {}
+	void					load(uint32_t slot) {}
+	void					save(uint32_t slot) {}
 
 
 protected:
-	ObjectiveManager() : Bank<Objective>() {}		
+							ObjectiveManager() = default ;		
 private:
 };
 
@@ -153,11 +154,11 @@ class GameManager : public jam::Singleton<GameManager>
 	friend class jam::Singleton<GameManager> ;
 
 public:
-	void								setGlobals( jam::game::GameGlobals* val) ;
+	void					setGlobals( jam::game::GameGlobals* val) ;
 	jam::game::GameGlobals&	getGlobals() { return *m_globals; }
 
-	void								setPlayer( jam::game::Player* val) ;
-	jam::game::Player&			getPlayer() { return *m_player; }
+	void					setPlayer( jam::game::Player* val) ;
+	jam::game::Player&		getPlayer() { return *m_player; }
 	
 
 private:
@@ -165,7 +166,7 @@ private:
 	virtual ~GameManager() ;
 
 	jam::game::GameGlobals*	m_globals ;
-	jam::game::Player*			m_player ;
+	jam::game::Player*		m_player ;
 	
 	
 	//	jam::game::ILevelLoader*	m_levelLoader ;

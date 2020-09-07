@@ -31,8 +31,7 @@
 #define __JAM_ACTION_H__
 
 #include <jam/jam.h>
-#include <jam/BankItem.h>
-#include <jam/ObjectManager.h>
+#include <jam/Object.h>
 
 #include <vector>
 #include <utility>
@@ -45,15 +44,15 @@ class Node;
 /** 
 @brief Base class for Action objects.
 */
-class JAM_API Action : public BankItem
+class JAM_API Action : public NamedTaggedObject
 {
 public:
 #ifdef JAM_DEBUG
 	// store the total number of allocated nodes
-	static int32_t m_totCount ;
+	static int32_t			m_totCount ;
 #endif
 
-	virtual ~Action();
+	virtual					~Action();
 
 	//! return true if the action has finished
 	virtual bool			isDone();
@@ -94,7 +93,7 @@ public:
 	void					setAttributeOnEnd(const String& key, const String& val) ;
 	
 protected:
-	Action();
+							Action();
 
 	Node*					m_pOriginalTarget ;
 	Node*					m_pTarget ;
@@ -117,7 +116,7 @@ private:
 class JAM_API FiniteTimeAction : public Action
 {
 public:
-	virtual ~FiniteTimeAction() {}
+	virtual					~FiniteTimeAction() {}
     //! get duration in seconds of the action
 	JAM_INLINE jam::time	getDuration(void) { return m_fDuration; }
 	//! set duration in seconds of the action
@@ -127,7 +126,7 @@ public:
 	virtual FiniteTimeAction* reverse(void);
 
 protected:
-	FiniteTimeAction() : m_fDuration(0) {}
+							FiniteTimeAction() : m_fDuration(0) {}
 
 	//! duration in seconds
 	jam::time				m_fDuration;
@@ -145,14 +144,14 @@ class ActionInterval;
 class JAM_API Speed : public Action
 {
 public:
-	virtual ~Speed();
+	virtual					~Speed();
 
 	JAM_INLINE float		getSpeed() { return m_fSpeed; }
 	/** alter the speed of the inner function in runtime */
 	JAM_INLINE void			setSpeed(float fSpeed) { m_fSpeed = fSpeed; }
 
 	/** initializes the action */
-	bool					initWithAction(ActionInterval *pAction, float fRate);
+	bool					initWithAction(ActionInterval* pAction, float fRate);
 
 	//virtual RefCountedObject* clone() ;
 	virtual void			startWithTarget(Node* pTarget);
@@ -163,10 +162,10 @@ public:
 
 public:
 	/** creates the action */
-	static Speed*			actionWithAction(ActionInterval *pAction, float fRate);
+	static Speed*			actionWithAction(ActionInterval* pAction, float fRate);
     
 protected:
-	Speed();
+							Speed();
 
 	float					m_fSpeed;
 	ActionInterval*			m_pOther;

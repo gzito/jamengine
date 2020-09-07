@@ -76,7 +76,7 @@ namespace jam
 		glFramebufferRenderbuffer( m_target, attachment, GL_RENDERBUFFER, rbo->getId() ) ;
 	}
 
-	void FrameBufferObject::attachTexture2D( const Ref<Texture2D>& tex, GLenum attachment, GLint level )
+	void FrameBufferObject::attachTexture2D( Texture2D* tex, GLenum attachment, GLint level )
 	{
 		glFramebufferTexture2D( m_target, attachment, GL_TEXTURE_2D, tex->getId(), level ) ;
 	}

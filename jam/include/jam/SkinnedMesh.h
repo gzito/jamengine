@@ -33,7 +33,8 @@
 #include <GL/glew.h>
 
 #include <jam/jam.h>
-#include <jam/Bank.h>
+#include <jam/Object.h>
+#include <jam/BaseManager.hpp>
 #include <jam/Singleton.h>
 #include <jam/VertexBufferObject.h>
 #include <jam/VertexArrayObject.h>
@@ -48,7 +49,7 @@ namespace jam
 /*!
 	\class SkinnedMesh
 */
-class JAM_API SkinnedMesh : public BankItem
+class JAM_API SkinnedMesh : public NamedTaggedObject
 {
 public:
 							SkinnedMesh() ;
@@ -63,9 +64,9 @@ public:
 
 	bool					isUploaded() const ;
 
-	HeapArray<Vector3>&	getVerticesArray() ;
-	HeapArray<Vector3>&	getNormalsArray() ;
-	HeapArray<Vector2>&	getTexCoordsArray() ;
+	HeapArray<Vector3>&		getVerticesArray() ;
+	HeapArray<Vector3>&		getNormalsArray() ;
+	HeapArray<Vector2>&		getTexCoordsArray() ;
 	HeapArray<glm::ivec4>&	getBonesIdArray() ;
 	HeapArray<glm::vec4>&	getWeightsArray() ;
 	HeapArray<uint16_t>&	getElementsArray() ;
@@ -73,9 +74,9 @@ public:
 private:
 	Material*				m_pMaterial ;
 
-	HeapArray<Vector3>	m_vertices ;
-	HeapArray<Vector3>	m_normals ;
-	HeapArray<Vector2>	m_texCoords ;
+	HeapArray<Vector3>		m_vertices ;
+	HeapArray<Vector3>		m_normals ;
+	HeapArray<Vector2>		m_texCoords ;
 	HeapArray<glm::ivec4>	m_bonesId ;
 	HeapArray<glm::vec4>	m_weights ;
 	HeapArray<uint16_t>		m_elements ;
@@ -86,7 +87,7 @@ private:
 	bool					m_uploaded ;
 };			
 
-JAM_INLINE Material*				SkinnedMesh::getMaterial() { return m_pMaterial; }
+JAM_INLINE Material*			SkinnedMesh::getMaterial() { return m_pMaterial; }
 JAM_INLINE HeapArray<Vector3>&	SkinnedMesh::getVerticesArray() { return m_vertices; }
 JAM_INLINE HeapArray<Vector3>&	SkinnedMesh::getNormalsArray() { return m_normals; }
 JAM_INLINE HeapArray<Vector2>&	SkinnedMesh::getTexCoordsArray() { return m_texCoords; }
@@ -95,14 +96,14 @@ JAM_INLINE HeapArray<glm::vec4>&	SkinnedMesh::getWeightsArray() { return m_weigh
 JAM_INLINE HeapArray<uint16_t>&		SkinnedMesh::getElementsArray() { return m_elements; }
 JAM_INLINE bool						SkinnedMesh::isUploaded() const { return m_uploaded; }
 
-class JAM_API SkinnedMeshManager : public Bank<SkinnedMesh>, public jam::Singleton<SkinnedMeshManager>
+class JAM_API SkinnedMeshManager : public NamedTaggedObjectManager<SkinnedMesh>, public jam::Singleton<SkinnedMeshManager>
 {
 	friend class jam::Singleton<SkinnedMeshManager> ;
 
 public:
 
 protected:
-	SkinnedMeshManager() : Bank<SkinnedMesh>() {}
+							SkinnedMeshManager() = default ;
 private:
 };
 

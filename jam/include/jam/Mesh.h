@@ -33,7 +33,6 @@
 #include <GL/glew.h>
 
 #include <jam/jam.h>
-#include <jam/Bank.h>
 #include <jam/Singleton.h>
 #include <jam/VertexBufferObject.h>
 #include <jam/VertexArrayObject.h>
@@ -47,14 +46,14 @@ namespace jam
 /*!
 	\class Mesh
 */
-class JAM_API Mesh : public RefCountedObject
+class JAM_API Mesh : public Collectible
 {
 public:
 							Mesh() ;
 	virtual					~Mesh() ;
 
-	Ref<Material>			getMaterial() ;
-	void					setMaterial( const Ref<Material>& pMaterial ) ;
+	Material*				getMaterial() ;
+	void					setMaterial( Material* pMaterial ) ;
 
 	void					create(int numOfVertices, int numOfElements) ;
 	void					destroy() ;
@@ -77,7 +76,7 @@ public:
 private:
 	void					calculateTangents() ;
 
-	Ref<Material>			m_pMaterial ;
+	Material*				m_pMaterial ;
 
 	HeapArray<Vector3>		m_vertices ;
 	HeapArray<Vector3>		m_normals ;
@@ -95,7 +94,7 @@ private:
 	bool					m_needsCalculateTangents ;
 };			
 
-JAM_INLINE Ref<Material>			Mesh::getMaterial() { return m_pMaterial; }
+JAM_INLINE Material*				Mesh::getMaterial() { return m_pMaterial; }
 JAM_INLINE HeapArray<Vector3>&		Mesh::getVerticesArray() { return m_vertices; }
 JAM_INLINE HeapArray<Vector3>&		Mesh::getNormalsArray() { return m_normals; }
 JAM_INLINE HeapArray<Vector2>&		Mesh::getTexCoordsArray() { return m_texCoords; }

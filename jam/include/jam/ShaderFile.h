@@ -32,7 +32,6 @@
 
 #include <GL/glew.h>
 #include <jam/jam.h>
-#include <jam/RefCountedObject.h>
 #include <jam/ResourceManager.h>
 
 namespace jam
@@ -41,7 +40,7 @@ namespace jam
 /**
     Represents a compiled OpenGL shader.
 */
-class JAM_API ShaderFile : public RefCountedObject
+class JAM_API ShaderFile : public Collectible
 { 
 public:
 	/**
@@ -64,12 +63,11 @@ public:
          
         @throws std::exception if an error occurs.
     */
-							ShaderFile( const sptr<ResHandle>& resHandle, GLenum shaderType );
+							ShaderFile( ResHandle* resHandle, GLenum shaderType );
 
 	virtual					~ShaderFile() ;
 
 	void					setSource( const String& shaderCode ) ;
-//	void					load( const String& filename ) ;
 	void					compile() ;
 
     /**
@@ -81,7 +79,7 @@ public:
          
         @throws std::exception if an error occurs.
         */
-    static Ref<ShaderFile>	shaderFromFile( const sptr<ResHandle>& resHandle, GLenum shaderType );
+    static ShaderFile* shaderFromFile( ResHandle* resHandle, GLenum shaderType );
         
     /**
         @result The shader's object ID, as returned from glCreateShader
@@ -90,7 +88,7 @@ public:
 
 	bool					isCompiled() const ;
 
-	const sptr<ResHandle>&	getResHandle() const ;
+	ResHandle*              getResHandle() const ;
 
 private:
 							ShaderFile( const ShaderFile& other ) = delete ;
@@ -101,19 +99,19 @@ private:
 	String					m_sourceCode ;
 	GLenum					m_shaderType ;
 	bool					m_compiled ;
-	sptr<ResHandle>			m_resHandle ;	
+	ResHandle*      		m_resHandle ;	
 };
 JAM_INLINE bool				ShaderFile::isCompiled() const { return m_compiled; }
-JAM_INLINE const sptr<ResHandle>& ShaderFile::getResHandle() const { return m_resHandle; }
+JAM_INLINE ResHandle*       ShaderFile::getResHandle() const { return m_resHandle; }
 
 
-class JAM_API ShaderFileResourceLoader : public IResourceLoader
+class JAM_API ShaderFileResourceLoader : public IResourceLoader, public Collectible
 {
 public:
 							ShaderFileResourceLoader() ;
 	bool					useRawFile() const override ;
 	size_t					getLoadedResourceSize( char* rawBuffer, size_t rawSize ) override ;
-	bool					loadResource( char* rawBuffer, size_t rawSize, sptr<ResHandle> handle ) override ;
+	bool					loadResource( char* rawBuffer, size_t rawSize, ResHandle& handle ) override ;
 	bool					discardRawBufferAfterLoad() const override ;
 	bool					addNullZero() const override ;
 };

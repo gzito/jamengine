@@ -36,7 +36,6 @@
 #include <jam/Application.h>		// for Eventargs timestamp
 #include <jam/thirdparty/MultiCastDelegate.h>
 
-#include <list>
 #include <queue>
 
 namespace jam {
@@ -45,13 +44,13 @@ namespace jam {
 * This interface represent a source of event
 * Classes firing events have to implement this interface
 */
-using IEventSource = RefCountedObject ;
+using IEventSource = Collectible ;
 	
 /**
 * This class represent parameters attached to an Event instance
 * You may want to specialize this class to enrich your own event parameters.
 */
-class JAM_API EventArgs : public RefCountedObject
+class JAM_API EventArgs : public Collectible
 {
 public:    
 	virtual					~EventArgs() = default ;
@@ -71,22 +70,21 @@ public:
 	void					setTimestamp(float val) { m_timestamp = val; }
 
 protected:
-	EventArgs() ;
+							EventArgs() : m_isConsumed(false), m_timestamp(0.0f) {}
 
 	bool					m_isConsumed ;
 	float					m_timestamp ;
 };
 
-
 /**
 * Interface IEvent
 * Event class implement it
 */
-class JAM_API IEvent
+class JAM_API IEvent : public Collectible
 {
 public:
-	IEvent() = default ;
-	virtual ~IEvent() = default ;
+							IEvent() = default ;
+	virtual					~IEvent() = default ;
 
 	virtual void			fire( EventArgs* eventArgs, IEventSource* s ) = 0 ;
 	virtual void			enqueue( EventArgs* eventArgs, IEventSource* s ) = 0 ;
@@ -100,7 +98,7 @@ class JAM_API EventDispatcher : public Singleton<EventDispatcher>
 	friend class Singleton<EventDispatcher> ;
 
 public:
-	void					enqueue(IEvent* evt, EventArgs* evtArgs, IEventSource* evtSrc) ;
+	void					enqueue(IEvent* evt, EventArgs* args, IEventSource* evSrc) ;
 	void					dispatch();
 	void					removeAllEnqueuedEvents() ;
 
@@ -109,7 +107,7 @@ private:
 	struct EventEventArgsPair
 	{
 	public:
-		EventEventArgsPair(IEvent* ev,EventArgs* args,IEventSource* evSrc) ;
+		EventEventArgsPair(IEvent* evt, EventArgs* args, IEventSource* evSrc) ;
 		IEvent*				m_event ;
 		EventArgs*			m_eventArgs ;
 		IEventSource*		m_eventSource ;
@@ -119,8 +117,8 @@ private:
 
 	EventEventArgsQueue		m_queue ;
 
-	EventDispatcher() ;
-	virtual ~EventDispatcher() ;
+							EventDispatcher() = default ;
+	virtual					~EventDispatcher() = default ;
 };
 
 
@@ -135,19 +133,19 @@ class Event : public IEvent
 {
 public:
 	/** Constructor */
-	Event() = default ;
+							Event() = default ;
 
 	/** Destructor */
-	virtual ~Event() ;
+	virtual					~Event() ;
 
 	Event&					operator+=( const EventHandler<T>& handler ) ; 
 	Event&					operator-=( const EventHandler<T>& handler ) ; 
 
 	/** Immediatly fires the given event */
-	virtual void			fire( EventArgs* eventArgs, IEventSource* s ) ;
+	virtual void			fire( EventArgs* eventArgs, IEventSource* s ) override ;
 
 	/** Queues an event which will be fired at the next update() invocation */
-	virtual void			enqueue( EventArgs* eventArgs, IEventSource* s ) ;
+	virtual void			enqueue( EventArgs* eventArgs, IEventSource* s ) override ;
 
 	/** Unregisters all the event handlers.
 	 \remark It is automatically called by the destructor
@@ -187,7 +185,7 @@ void Event<T>::fire( EventArgs* eventArgs, IEventSource* s )
 {
 	eventArgs->setTimestamp( GetAppMgr().getTotalElapsed() ) ;
 	std::function<bool (void)> fp = std::bind(&EventArgs::isConsumed,eventArgs) ;
-	m_eventHandlers.invoke_if( fp, (T&)*eventArgs, *s ) ;
+	m_eventHandlers.invoke_if( fp, dynamic_cast<T&>(*eventArgs), *s ) ;
 }
 
 

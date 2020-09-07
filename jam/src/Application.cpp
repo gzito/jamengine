@@ -48,8 +48,6 @@
 #include "jam/AutoReleasePool.h"
 #include "jam/Event.h"
 #include "jam/Scene.h"
-#include "jam/AliveSprite.h"
-#include "jam/Relation.h"
 #include "jam/Achievement.h"
 #include "jam/SysTimer.h"
 #include "jam/Gfx.h"
@@ -71,8 +69,9 @@
 
 namespace jam
 {
-bool Application::m_engineInited = false ;
-SDL_Window* Application::m_pWindow = 0 ;
+bool						Application::m_engineInited = false ;
+SDL_Window*					Application::m_pWindow = 0 ;
+SDL_GLContext				Application::m_GLContext = 0 ;
 
 #ifdef JAM_PHYSIC_ENABLED
 	b2World* Application::m_pPhysWorld = 0 ;
@@ -129,7 +128,7 @@ void Application::start()
 	m_totalElapsedMs = GetSysTimer().getTime() ;
 	refreshTime() ;
 
-	m_sceneNode = JAM_ALLOC(Scene) ;
+	m_sceneNode = new (GC) Scene() ;
 
 //		IwGxLightingOff() ;
 //		IwGxMipMappingOff() ;
@@ -150,17 +149,17 @@ void Application::start()
 #endif
 	// create default resource cache
 	IResourceFile* pResourceFile = new FileSystemResourceFile(ShaderManager::DEFAULT_SHADERS_PATH) ;
-	m_resourceManager.reset( new ResourceManager(10,pResourceFile) ) ;
+	m_resourceManager = new (GC) ResourceManager(10,pResourceFile) ;
 	m_resourceManager->init() ;
-	m_resourceManager->registerLoader( std::make_shared<ShaderFileResourceLoader>() ) ;
+	m_resourceManager->registerLoader( new (GC) ShaderFileResourceLoader() ) ;
 
 	// create default shaders
-	ShaderManager::getSingleton().createDefaultLit() ;
-	ShaderManager::getSingleton().createSkinningLit() ;
-	ShaderManager::getSingleton().createSkyBox() ;
-	ShaderManager::getSingleton().createNormalMapping() ;
-	ShaderManager::getSingleton().createScreen() ;
-	ShaderManager::getSingleton().createDefaultUnlit() ;
+	GetShaderMgr().createDefaultLit() ;
+	GetShaderMgr().createSkinningLit() ;
+	GetShaderMgr().createSkyBox() ;
+	GetShaderMgr().createNormalMapping() ;
+	GetShaderMgr().createScreen() ;
+	GetShaderMgr().createDefaultUnlit() ;
 
 	if( game::GetStateMachine().isStarted() ) {
 		game::GetStateMachine().checkNewState() ;
@@ -182,18 +181,22 @@ void Application::start()
 #ifndef JAM_COLLISIONS_DISABLED
 	GetCollMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_collisionCheckFactor)) ;
 	GetCollMgr().getUpdateTimer().setRepeatSweep(-1) ;
+	GetCollMgr().getUpdateTimer().setName("CollMgr.updateTimer") ;
 	GetCollMgr().getUpdateTimer().start() ;
-	GetTimerMgr().addByName(&GetCollMgr().getUpdateTimer(),"CollMgr.updateTimer") ;
+
+	GetTimerMgr().addObject(&GetCollMgr().getUpdateTimer()) ;
 #endif
 	GetAudioMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_audioCheckFactor)) ;
 	GetAudioMgr().getUpdateTimer().setRepeatSweep(-1) ;
+	GetAudioMgr().getUpdateTimer().setName("AudioMgr.updateTimer") ;
 	GetAudioMgr().getUpdateTimer().start() ;
-	GetTimerMgr().addByName(&GetAudioMgr().getUpdateTimer(),"AudioMgr.updateTimer") ;
+	GetTimerMgr().addObject(&GetAudioMgr().getUpdateTimer()) ;
 
 	GetInputMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_inputCheckFactor)) ;
 	GetInputMgr().getUpdateTimer().setRepeatSweep(-1) ;
+	GetInputMgr().getUpdateTimer().setName("InputMgr.updateTimer") ;
 	GetInputMgr().getUpdateTimer().start() ;
-	GetTimerMgr().addByName(&GetInputMgr().getUpdateTimer(),"InputMgr.updateTimer") ;
+	GetTimerMgr().addObject(&GetInputMgr().getUpdateTimer()) ;
 
 #ifdef JAM_TRACE_ACTIVE_NODES
 	m_traceActiveNodesTimer = Timer::create() ;
@@ -223,7 +226,6 @@ void Application::start()
 	{
 		game::GetStateMachine().getCurrentState()->end();
 		game::GetStateMachine().getCurrentState()->destroy() ;
-		GetAutoReleasePoolMgr().collect(true) ;
 	}
 	destroy() ; // virtual call
 
@@ -246,9 +248,7 @@ void Application::start()
 	m_sceneNode->onExit() ;
 	m_sceneNode->destroy() ;
 
-	GetAutoReleasePoolMgr().collect(true) ;
-
-	JAM_RELEASE(m_sceneNode) ;
+	m_sceneNode = nullptr ;
 }
 
 void Application::gameLoop()
@@ -295,10 +295,6 @@ void Application::gameLoop()
 		}
 
 		doFrame();
-
-		// handle deferred delete due a change state
-		// in case of a change state, collect is forced
-		GetAutoReleasePoolMgr().collect( game::GetStateMachine().stateChanged() ) ;
 
 		// handle machine change state
 		if( game::GetStateMachine().isStarted() ) {
@@ -449,7 +445,7 @@ void Application::doFrame()
 	GetEventDispatcher().dispatch() ;
 
 	// default unlit to draw 2d scene
-	Shader* pCurrentShader = ShaderManager::getSingleton().getDefaultUnlit().get() ;
+	Shader* pCurrentShader = GetShaderMgr().getDefaultUnlit() ;
 	pCurrentShader->use() ;
 
 	// handle render
@@ -752,7 +748,9 @@ void Application::engineInitialize()
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 ) ;
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, 0 ) ;	// ANY_PROFILE
 	// depth buffer is 24-bit by default
-	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 ) ;	// ANY_PROFILE
+	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 ) ;
+	// enable double buffer
+	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
 #ifdef JAM_DEBUG
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG ) ;
@@ -772,18 +770,22 @@ void Application::engineInitialize()
 	m_pWindow = SDL_CreateWindow( "Jam Engine", 
 								 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
 								 JAM_WINDOWS_WIDTH, JAM_WINDOWS_HEIGHT,
-								 SDL_WINDOW_OPENGL );
+								 SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
 	if( m_pWindow == NULL ){
 		SDL_Quit();
 		JAM_ERROR("Failed to create window") ;
 	}
 	
-	if( !SDL_GL_CreateContext( m_pWindow ) ) {
+	if( ! (m_GLContext = SDL_GL_CreateContext( m_pWindow )) ) {
+		SDL_DestroyWindow( m_pWindow );
+		m_pWindow = NULL;
+		SDL_Quit();
 		JAM_ERROR("Failed to create GL context: %s", SDL_GetError() ) ;
 	}
 
 	// Initialize GLEW
 	if (glewInit() != GLEW_OK) {
+		SDL_GL_DeleteContext(m_GLContext);
 		SDL_DestroyWindow( m_pWindow );
 		m_pWindow = NULL;
 		SDL_Quit();
@@ -792,6 +794,10 @@ void Application::engineInitialize()
 
 	//Use Vsync
 	if( SDL_GL_SetSwapInterval( 1 ) < 0 ) {
+		SDL_GL_DeleteContext(m_GLContext);
+		SDL_DestroyWindow( m_pWindow );
+		m_pWindow = NULL;
+		SDL_Quit();
 		JAM_ERROR( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
 	}
 
@@ -808,22 +814,22 @@ void Application::engineTerminate()
 {
 	// Cleanup banks
 	GetActionMgr().removeAllActions() ;
+/*
 	GetAliveSpriteFactoryMgr().removeAllBankItems(true) ;
 	GetTextNodeMgr().removeAllBankItems(true) ;
 	GetAnim2DMgr().removeAllBankItems(true) ;
 	GetDrawItemMgr().removeAllBankItems(true) ;
 	GetAudioMgr().removeAllBankItems(true) ;
 	GetTimerMgr().removeAllBankItems(true) ;
-	GetRelationMgr().removeAllBankItems(true) ;
 	GetAchievementMgr().removeAllBankItems(true) ;
 	GetMaterialMgr().removeAllBankItems(true) ;
 	GetTextureMgr().removeAllBankItems(true) ;
 
 	GetAutoReleasePoolMgr().collect(true) ;
-
+*/
 	// delete singletons
-	AliveSpriteFactoryManager::destroySingleton() ;
-	NodeStateManager::destroySingleton() ;
+//	AliveSpriteFactoryManager::destroySingleton() ;
+//	NodeStateManager::destroySingleton() ;
 	CollisionManager::destroySingleton() ;
 	Animation2DManager::destroySingleton() ;
 	DrawItemManager::destroySingleton() ;
@@ -837,16 +843,15 @@ void Application::engineTerminate()
 	Draw3DManager::destroySingleton() ;
 	TimerManager::destroySingleton() ;
 	EventDispatcher::destroySingleton() ;	
-	RelationManager::destroySingleton() ;
-	AchievementManager::destroySingleton() ;
+//	AchievementManager::destroySingleton() ;
 	SysTimer::destroySingleton() ;
 	Gfx::destroySingleton() ;
 	MaterialManager::destroySingleton() ;
-	TextureManager::destroySingleton() ;
+//	TextureManager::destroySingleton() ;
 
 
 	// cleanup and delete autorelease pool
-	AutoReleasePool::destroySingleton() ;
+//	AutoReleasePool::destroySingleton() ;
 
 #ifdef JAM_PHYSIC_ENABLED
 	JAM_DELETE(m_pPhysWorld) ;
@@ -855,11 +860,17 @@ void Application::engineTerminate()
 #ifdef OLDCODE
 	ObjectManager::destroySingleton() ;
 #endif
+	
+	if( m_GLContext ) {
+		SDL_GL_DeleteContext(m_GLContext);
+		m_GLContext = 0 ;
+	}
 
 	if( m_pWindow ) {
 		SDL_DestroyWindow( m_pWindow );
 		m_pWindow = 0;
 	}
+
 	SDL_Quit();
 }
 

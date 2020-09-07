@@ -30,6 +30,8 @@
 #ifndef __JAM_REFCOUNTEDOBJECT_H__
 #define __JAM_REFCOUNTEDOBJECT_H__
 
+#ifdef JAM_EXCLUDED_BLOCK
+
 #include <jam/jam.h>
 #include <jam/String.h>
 
@@ -43,44 +45,14 @@ namespace jam
 */
 class JAM_API RefCountedObject
 {
-	friend class AutoReleasePool ;
+//	friend class AutoReleasePool ;
+	template<typename> friend class Ref ;
 
 public:
 	virtual ~RefCountedObject();
 
-	/** Increments the reference counter */
-	void					addRef();
-
-	/**
-		Decrements the reference counter
-		\remark The object will be destroyed when its reference counter become 0
-	*/
-	void					release();
-
 	/** Returns the value of reference counter */
 	int32_t					getRefCount() const ;
-
-	/**
-		Registers the object with the AutoReleasePool
-		\remark The object will be automatically destroyed at the end of frame when its reference counter is 1
-	*/
-	RefCountedObject*		autorelease() ;
-
-	/**
-		Marks the object as destroyed.
-		\remark Object destruction will be delayed at the end of current frame
-	*/
-	virtual void			destroy() ;
-
-	/**
-		Do-nothing implementation 
-		Called from AutoReleasePool just before the object is destroyed at the end of frame
-		so that it's possible to override it to provide custom behaviour
-	*/
-	virtual void			destroy_internal() ;
-
-	/** Returns true if the object is marked as destroyed */
-	bool					isMarkedForDestruction() const ;
 
 #ifdef JAM_DEBUG
 	/** Get object debug info */
@@ -93,11 +65,15 @@ protected:
 
 	int32_t					m_refCount ;
 
-	// Signal that this object is managed by AutoReleasePool
-	bool					m_managed ;
+private:
+	/** Increments the reference counter */
+	void					addRef();
 
-	// Signal that this object will be destroyed at the end of frame (do not use it)
-	bool					m_markedAsDestroyed ;
+	/**
+		Decrements the reference counter
+		\remark The object will be destroyed when its reference counter become 0
+	*/
+	void					release();
 
 #ifdef JAM_DEBUG
 private:
@@ -133,7 +109,9 @@ public:
 	T*						operator->() const ;
 	T&						operator*() const ;
 
+	bool					operator==( const T* rawptr ) const ;
 	bool					operator==( const Ref& other ) const ;
+	bool					operator!=( const T* rawptr ) const ;
 	bool					operator!=( const Ref& other ) const ;
 
 	bool					operator!() const ;
@@ -149,9 +127,6 @@ Ref<T>::Ref() : m_pReferenceCountedObject( nullptr ) {
 
 template <typename T>
 Ref<T>::Ref( T* rawptr ) : m_pReferenceCountedObject( rawptr ) {
-	if( m_pReferenceCountedObject != nullptr ) {
-		m_pReferenceCountedObject->addRef() ;
-	}
 }
 
 template <typename T>
@@ -194,9 +169,6 @@ Ref<T>::Ref( Ref&& other ) noexcept {
 template <typename T>
 Ref<T>& Ref<T>::operator=( Ref<T>&& other ) noexcept {
 	if( this != &other ) {
-		//if( m_pReferenceCountedObject != nullptr ) {
-		//	m_pReferenceCountedObject->release() ;
-		//}
 		m_pReferenceCountedObject = other.m_pReferenceCountedObject ;
 		other.m_pReferenceCountedObject = nullptr ;
 	}
@@ -233,8 +205,18 @@ T& Ref<T>::operator*() const {
 }
 
 template <typename T>
+bool Ref<T>::operator==( const T* rawptr ) const {
+	return m_pReferenceCountedObject == rawptr ;
+}
+
+template <typename T>
 bool Ref<T>::operator==( const Ref& other ) const {
 	return m_pReferenceCountedObject == other.m_pReferenceCountedObject ;
+}
+
+template <typename T>
+bool Ref<T>::operator!=( const T* rawptr ) const {
+	return m_pReferenceCountedObject != rawptr ;
 }
 
 template <typename T>
@@ -261,6 +243,31 @@ Ref<S> dynamic_ref_cast( const Ref<T>& r ) {
     }
 }
 
+template <typename S,typename T>
+Ref<S> static_ref_cast( const Ref<T>& r ) {
+    if( auto p = static_cast<S*>(r.get()) ) {
+        return Ref<S>(p);
+    } else {
+        return Ref<S>(nullptr);
+    }
 }
+
+template <typename S,typename T>
+Ref<S> const_ref_cast( const Ref<T>& r ) {
+    if( auto p = const_cast<S*>(r.get()) ) {
+        return Ref<S>(p);
+    } else {
+        return Ref<S>(nullptr);
+    }
+}
+
+template <typename T, typename... Args>
+Ref<T> make_ref(Args&&... args) {
+	return Ref<T>(new T(args...)) ;
+}
+
+}
+
+#endif // JAM_EXCLUDED_BLOCK
 
 #endif // __JAM_REFCOUNTEDOBJECT_H__

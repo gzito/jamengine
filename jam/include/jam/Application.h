@@ -261,8 +261,9 @@ private:
 #endif
 
 	static SDL_Window*		m_pWindow;
+	static SDL_GLContext	m_GLContext ;
 			
-	uptr<ResourceManager>	m_resourceManager ;
+	ResourceManager*		m_resourceManager ;
 };	// class Application
 
 JAM_INLINE Application& GetAppMgr() { return Application::getSingleton(); }

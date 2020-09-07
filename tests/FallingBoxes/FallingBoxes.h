@@ -32,7 +32,6 @@
 
 #include <jam/Application.h>
 #include <jam/Sprite.h>
-#include <jam/SpriteManager.h>
 #include <Box2D/Box2D.h>
 
 class FallingBoxes : public jam::Application
@@ -54,7 +53,7 @@ private:
 	bool						m_gameStarted ;
 
 	// text
-	jam::Ref<jam::Texture2D>	m_pFontTex ;
+	jam::Texture2D*				m_pFontTex ;
 };
 
 

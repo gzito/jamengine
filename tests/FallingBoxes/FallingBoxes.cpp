@@ -64,9 +64,7 @@ bool FallingBoxes::init()
  	glCullFace(GL_BACK) ;
  	glEnable(GL_CULL_FACE) ;
 	
-	DrawItemManager::getSingleton().loadTexture(
-		appendPath(MEDIA_PATH,"images/Box.png"), "sprites", -1, "Box"
-	) ;
+	DrawItemManager::getSingleton().loadTexture( appendPath(MEDIA_PATH,"images/Box.png"), "sprites", "Box" ) ;
 
 	m_pFontTex = GetDraw3DMgr().LoadFont3D( appendPath(MEDIA_PATH,"images/Babylon1.png"),0,0 ) ;
 
@@ -99,8 +97,7 @@ bool FallingBoxes::init()
 	pGroundBody->CreateFixture(&groundBoxDef);
 	
 	// Create box and add it to the layer
-	Sprite* box = new Sprite( GetDrawItemMgr().getPtrByName("Box") );
-	box->autorelease() ;
+	Sprite* box = new Sprite( GetDrawItemMgr().getObject("Box") );
 	box->setPos( Vector2(0, 240) );
 	box->setColor( Color::YELLOW);
 	getScene()->addChild(box);
@@ -114,8 +111,8 @@ bool FallingBoxes::init()
 
 	// Create box shape
 	b2PolygonShape boxShape;
-	boxShape.SetAsBox( GetDrawItemMgr().getByName("Box").getHalfWidth()/PTM_RATIO, 
-		GetDrawItemMgr().getByName("Box").getHalfHeight()/PTM_RATIO );
+	boxShape.SetAsBox( GetDrawItemMgr().getObject("Box")->getHalfWidth()/PTM_RATIO, 
+		GetDrawItemMgr().getObject("Box")->getHalfHeight()/PTM_RATIO );
 
 	// Create shape definition and add to body
 	b2FixtureDef boxShapeDef;
@@ -130,8 +127,7 @@ bool FallingBoxes::init()
 	m_pTimer->start();
 
 	// set camera
-	Camera* pCamera = new Camera() ;
-	pCamera->autorelease() ;
+	Camera* pCamera = new (GC) Camera() ;
 	pCamera->setOrthographicProjection(	-Draw3DManager::VPWidth/2, Draw3DManager::VPWidth/2,
 										-Draw3DManager::VPHeight/2, Draw3DManager::VPHeight/2,
 										1.f, 50.f ) ;
@@ -157,8 +153,7 @@ void FallingBoxes::beforeSceneUpdate()
 	m_pTimer->update() ;
 	if( m_pTimer->isSweep() ) {
 		// Create box and add it to the layer
-		Sprite* box = new Sprite( GetDrawItemMgr().getPtrByName("Box") );
-		box->autorelease() ;
+		Sprite* box = new (GC) Sprite( GetDrawItemMgr().getObject("Box") );
 		float x = (float)RANGERAND(-160,160) ;
 		box->setPos( Vector2(x, 240) );
 		box->setColor( Color(RND(256), RND(256), RND(256), 255) ) ;
@@ -177,8 +172,8 @@ void FallingBoxes::beforeSceneUpdate()
 
 		// Create box shape
 		b2PolygonShape boxShape;
-		boxShape.SetAsBox( GetDrawItemMgr().getByName("Box").getHalfWidth()/PTM_RATIO, 
-			GetDrawItemMgr().getByName("Box").getHalfHeight()/PTM_RATIO );
+		boxShape.SetAsBox( GetDrawItemMgr().getObject("Box")->getHalfWidth()/PTM_RATIO, 
+			GetDrawItemMgr().getObject("Box")->getHalfHeight()/PTM_RATIO );
 
 		// Create shape definition and add to body
 		b2FixtureDef boxShapeDef;
@@ -209,7 +204,7 @@ void FallingBoxes::render()
 	static char fps_str[32] = {0};
 
 	Matrix4 modelMat(1.0f) ;
-	Ref<Shader> pShader = ShaderManager::getSingleton().getDefaultUnlit() ;
+	Shader* pShader = GetShaderMgr().getDefaultUnlit() ;
 	pShader->use() ;
 	pShader->setModelMatrix(modelMat) ;
 	pShader->setViewMatrix( getScene()->getCamera()->getViewMatrix() ) ;
@@ -252,13 +247,12 @@ void FallingBoxes::afterSceneUpdate()
 
 void FallingBoxes::destroy() 
 {
-	JAM_RELEASE(m_pTimer) ;
 	JAM_DELETE(m_pWorld) ;
 }
 
 
 // SDL expects main() to be defined with canonical arguments argc & args
-int main(int argc, char *args[]) 
+int main(int argc, char *argv[]) 
 {
 	jam::runEngine<FallingBoxes>();
 	return 0;

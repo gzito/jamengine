@@ -43,20 +43,18 @@ namespace jam
 		m_pAnimation(0), m_defaultAnimation(0), m_timer(0), m_pIDrawable(pIDrawable), m_lastFrameIndex(0), m_speed(1.0f), m_completeFrameIndex(-100)
 	{
 		m_timer = Timer::create() ;
-		m_timer->setReserved() ;
 		String timeMs = to_string( GetSysTimer().getTime() ) ;
 		m_timer->setName(String("ExtAnimator_")+timeMs);
 		m_defaultAnimation = Animation2D::create() ;
 		m_pAnimation = m_defaultAnimation;
-		m_pAnimation->addRef() ;
 	}
 
 
 	ExtAnimator::~ExtAnimator()
 	{
-		JAM_RELEASE_NULL(m_timer) ;
-		JAM_RELEASE_NULL(m_pAnimation);
-		JAM_RELEASE_NULL(m_defaultAnimation) ;
+		m_timer = nullptr ;
+		m_pAnimation = nullptr ;
+		m_defaultAnimation = nullptr ;
 	}
 		
 	
@@ -64,9 +62,7 @@ namespace jam
 	{
 		assert(pAnimation) ;
 		if(m_pAnimation!=pAnimation) {
-			JAM_RELEASE_NULL(m_pAnimation) ;
 			m_pAnimation = pAnimation ;
-			m_pAnimation->addRef() ;
 			if( m_timer->isRunning() ) {
 				m_timer->stop();
 			}

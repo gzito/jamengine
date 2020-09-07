@@ -33,7 +33,6 @@
 #include <jam/jam.h>
 #include <jam/Anim2d.h>
 #include <jam/Timer.h>
-#include <jam/BankItem.h>
 #include <jam/ExtAnimator.h>
 #include <jam/Node.h>
 #include <jam/DrawItemManager.h>
@@ -50,7 +49,7 @@ public:
 							Sprite() ;
 
 	/** Constructs a sprite with the given frame */
-							Sprite( jam::DrawItem* pFrame ) ;
+							Sprite( DrawItem* pFrame ) ;
 
 	/** Destructor */
 	virtual					~Sprite();
@@ -59,13 +58,13 @@ public:
 	Sets sprite's frame
 	\remark Passing 0 as argument sets a sprite with no frame (i.e. the sprite will not be rendered)
 	*/
-	virtual void			setFrame(jam::DrawItem* pNewFrame) override ;
+	virtual void			setFrame(DrawItem* pNewFrame) override ;
 
 	/** Sets sprite's frame by name */
-	virtual void			setFrameName(const String& name) { setFrame(GetDrawItemMgr().getPtrByName(name));}
+	virtual void			setFrameName(const String& name) { setFrame(GetDrawItemMgr().getObject(name));}
 
 	/** Returns sprite's frame */
-	virtual jam::DrawItem*	getFrame() const override { return m_pFrame; }
+	virtual DrawItem*		getFrame() const override { return m_pFrame; }
 
 	/** Sets sprite's color */
 	virtual void			setColor( const Color& c ) override { m_color = c ; }

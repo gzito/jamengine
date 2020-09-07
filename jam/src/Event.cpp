@@ -30,32 +30,18 @@
 #include "StdAfx.h"
 
 #include "jam/Event.h"
-#include "jam/ObjectManager.h"
 
 namespace jam
 {
-EventArgs::EventArgs() : m_isConsumed(false), m_timestamp(0.0f)
+
+EventDispatcher::EventEventArgsPair::EventEventArgsPair(IEvent* evt, EventArgs* args, IEventSource* evSrc) :
+	m_event(evt), m_eventArgs(args), m_eventSource(evSrc)
 {
 }
 
-EventDispatcher::EventDispatcher()
+void EventDispatcher::enqueue( IEvent* evt, EventArgs* args, IEventSource* evSrc )
 {
-}
-
-EventDispatcher::~EventDispatcher()
-{
-}
-
-EventDispatcher::EventEventArgsPair::EventEventArgsPair(IEvent* ev,EventArgs* args,IEventSource* evSrc) :
-	m_event(ev), m_eventArgs(args), m_eventSource(evSrc)
-{
-}
-
-void EventDispatcher::enqueue( IEvent* evt, EventArgs* evtArgs, IEventSource* evtSrc )
-{
-	evtArgs->addRef() ;
-	evtSrc->addRef() ;
-	EventEventArgsPair p(evt,evtArgs,evtSrc) ;
+	EventEventArgsPair p(evt,args,evSrc) ;
 	m_queue.push(p) ;
 }
 
@@ -64,8 +50,6 @@ void EventDispatcher::dispatch()
 	while( !m_queue.empty() ) {
 		EventEventArgsPair p = m_queue.front() ;
 		p.m_event->fire( p.m_eventArgs, p.m_eventSource ) ;
-		p.m_eventArgs->release() ;
-		p.m_eventSource->release() ;
 		m_queue.pop();
 	}
 }
@@ -74,8 +58,6 @@ void EventDispatcher::removeAllEnqueuedEvents()
 {
 	while( !m_queue.empty() ) {
 		EventEventArgsPair p = m_queue.front() ;
-		p.m_eventArgs->release() ;
-		p.m_eventSource->release() ;
 		m_queue.pop();
 	}
 }

@@ -199,6 +199,8 @@ public:
 	int						getObjAt(int id, int layer) {return  getGroupDataAt(id,layer).gid;	}
 	void					seObjtAt(int id, int v, int layer) { m_map.objlayers[layer].objectItems[id].gid=v;	}
 
+	String					getFilename() const { return m_filename; } ;
+
 
 protected:
 	virtual bool 			VisitEnter  (const TiXmlDocument  &);

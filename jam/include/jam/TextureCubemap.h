@@ -33,9 +33,10 @@
 #include <jam/jam.h>
 
 #include <jam/Color.h>
-#include <jam/Bank.h>
 #include <jam/Singleton.h>
 #include <jam/String.h>
+#include <jam/Object.h>
+#include <jam/BaseManager.hpp>
 
 namespace jam
 {
@@ -44,7 +45,7 @@ namespace jam
 	\class TextureCubemap
 	\brief This class represents a cubemap texture
 */
-class JAM_API TextureCubemap : public BankItem
+class JAM_API TextureCubemap : public NamedObject
 {
 public:
 							// ctors/dtor
@@ -86,14 +87,14 @@ private:
 	TextureCubemap&			operator=( const TextureCubemap& ) = delete ;
 };
 
-class JAM_API TextureCubemapManager : public Bank<TextureCubemap>, public jam::Singleton<TextureCubemapManager>
+class JAM_API TextureCubemapManager : public NamedObjectManager<TextureCubemap>, public jam::Singleton<TextureCubemapManager>
 {
 	friend class jam::Singleton<TextureCubemapManager> ;
 
 public:
 
 protected:
-	TextureCubemapManager() : Bank<TextureCubemap>() {}
+	TextureCubemapManager() = default ;
 private:
 };
 

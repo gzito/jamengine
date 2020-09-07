@@ -144,7 +144,7 @@ ResHandle::ResHandle( Resource& resource, char* buffer, size_t size, ResourceMan
 {
 	m_buffer = buffer ;
 	m_size = size ;
-	m_extra = nullptr ;
+	m_pExtra = nullptr ;
 	m_pResManager = pResManager ;
 }
 
@@ -176,20 +176,20 @@ bool ResourceManager::init()
 {
 	bool retValue = false ;
 	if( m_file->open() ) {
-		registerLoader( std::make_shared<DefaultResourceLoader>() ) ;
+		registerLoader( new (GC) DefaultResourceLoader() ) ;
 		retValue = true ;
 	}
 	return retValue ;
 }
 
-void ResourceManager::registerLoader(sptr<IResourceLoader> loader)
+void ResourceManager::registerLoader(IResourceLoader* loader)
 {
 	m_resourceLoaders.emplace_front(loader);
 }
 
-sptr<ResHandle> ResourceManager::getHandle(Resource* r)
+ResHandle* ResourceManager::getHandle(Resource* r)
 {
-	sptr<ResHandle> handle( find(r) );
+	ResHandle* handle( find(r) );
 	if( !handle ) {
 		handle = load(r) ;
 		JAM_ASSERT( handle != nullptr ) ;
@@ -212,37 +212,37 @@ int ResourceManager::preload(const String& pattern,SA::delegate<void(int,bool&)>
 void ResourceManager::flush()
 {
 	while( !m_lru.empty() )	{
-		sptr<ResHandle> handle = *(m_lru.begin());
+		ResHandle* handle = *(m_lru.begin());
 		free(handle);
 		m_lru.pop_front();
 	}
 }
 
-sptr<ResHandle> ResourceManager::find(Resource* r)
+ResHandle* ResourceManager::find(Resource* r)
 {
 	auto i = m_resources.find(r->getName());
 	if( i == m_resources.end() ) {
-		return sptr<ResHandle>();
+		return nullptr;
 	}
 
 	return i->second;
 }
 
-void ResourceManager::update(sptr<ResHandle> handle)
+void ResourceManager::update(ResHandle* handle)
 {
 	m_lru.remove(handle);
 	m_lru.emplace_front(handle);
 }
 
-sptr<ResHandle> ResourceManager::load(Resource* r)
+ResHandle* ResourceManager::load(Resource* r)
 {
 	// Create a new resource and add it to the lru list and map
 
-	sptr<IResourceLoader> loader;
-	sptr<ResHandle> handle;
+	IResourceLoader*loader = nullptr ;
+	ResHandle* handle = nullptr;
 
 	// find the right loader
-	for( auto testLoader : m_resourceLoaders )
+	for( const auto& testLoader : m_resourceLoaders )
 	{
 		for( auto pattern : testLoader->getPatterns() ) {
 			if( wildcardMatch(pattern.c_str(), r->getName().c_str()) ) {
@@ -264,11 +264,11 @@ sptr<ResHandle> ResourceManager::load(Resource* r)
 
     int allocSize = rawSize + ((loader->addNullZero()) ? (1) : (0));
 	char *rawBuffer = loader->useRawFile() ? allocate(allocSize) : new char[allocSize];
-    memset(rawBuffer, 0, allocSize);
+    if( rawBuffer ) memset(rawBuffer, 0, allocSize);
 
 	if( rawBuffer==nullptr || m_file->getRawResource(*r, rawBuffer)==0 ) {
 		// resource cache out of memory
-		return sptr<ResHandle>();
+		return nullptr;
 	}
 	
 	char *buffer = nullptr ;
@@ -276,17 +276,17 @@ sptr<ResHandle> ResourceManager::load(Resource* r)
 
 	if( loader->useRawFile() ) {
 		buffer = rawBuffer;
-		handle = std::make_shared<ResHandle>(*r, buffer, rawSize, this);
+		handle = new (GC) ResHandle(*r, buffer, rawSize, this);
 	}
 	else {
 		size = loader->getLoadedResourceSize(rawBuffer, rawSize);
         buffer = allocate(size);
 		if( rawBuffer == nullptr || buffer == nullptr ) {
 			// resource cache out of memory
-			return sptr<ResHandle>();
+			return nullptr;
 		}
-		handle = std::make_shared<ResHandle>(*r, buffer, size, this);
-		bool success = loader->loadResource(rawBuffer, rawSize, handle);
+		handle = new (GC) ResHandle(*r, buffer, size, this);
+		bool success = loader->loadResource(rawBuffer, rawSize, *handle);
 		
 		// [mrmike] - This was added after the chapter went to copy edit. It is used for those
 		//            resoruces that are converted to a useable format upon load, such as a compressed
@@ -299,7 +299,7 @@ sptr<ResHandle> ResourceManager::load(Resource* r)
 
 		if( !success ) {
 			// resource cache out of memory
-			return sptr<ResHandle>();
+			return nullptr;
 		}
 	}
 
@@ -312,7 +312,7 @@ sptr<ResHandle> ResourceManager::load(Resource* r)
 	return handle;		// ResCache is out of memory!
 }
 
-void ResourceManager::free(sptr<ResHandle> gonner)
+void ResourceManager::free(ResHandle* gonner)
 {
 	m_lru.remove( gonner );
 	m_resources.erase( gonner->m_resource.getName() );
@@ -361,7 +361,7 @@ void ResourceManager::freeOneResource()
 	ResHandleList::iterator gonner = m_lru.end();
 	gonner--;
 
-	sptr<ResHandle> handle = *gonner;
+	ResHandle* handle = *gonner;
 
 	m_lru.pop_back();							
 	m_resources.erase( handle->m_resource.getName() );
@@ -394,7 +394,7 @@ size_t DefaultResourceLoader::getLoadedResourceSize(char* rawBuffer,size_t rawSi
 	return rawSize;
 }
 
-bool DefaultResourceLoader::loadResource(char* rawBuffer,size_t rawSize,sptr<ResHandle> handle)
+bool DefaultResourceLoader::loadResource(char* rawBuffer,size_t rawSize,ResHandle& handle)
 {
 	return true;
 }

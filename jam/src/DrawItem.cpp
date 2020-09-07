@@ -29,7 +29,6 @@
 
 #include "StdAfx.h"
 #include "jam/DrawItem.h"
-#include "jam/ObjectManager.h"
 
 
 namespace jam
@@ -37,31 +36,31 @@ namespace jam
 
 const BlendMode DrawItem::DEFAULT_BLEND_MODE = BlendMode(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) ;
 
-Ref<Material> DrawItem::getMaterial() const
+Material* DrawItem::getMaterial() const
 {
 	return m_pMaterial ;
 }
 
 
-Ref<Texture2D> DrawItem::getTexture() const
+Texture2D* DrawItem::getTexture() const
 { 
 	return m_pMaterial->getDiffuseTexture();
 }
 
 /** Sets the DrawItem's texture */
-void DrawItem::setTexture( const Ref<Texture2D>& val)
+void DrawItem::setTexture( Texture2D* val)
 {
 	m_pMaterial->setDiffuseTexture( val ) ;
 }
 
 /** Returns the DrawItem's shader, 0 if there isn't a shader */
-Ref<Shader> DrawItem::getShader() const
+Shader* DrawItem::getShader() const
 {
 	return m_pMaterial->getShader();
 }
 
 /** Sets the DrawItem's shader (default is no shader set) */
-void DrawItem::setShader( const Ref<Shader>& pShader )
+void DrawItem::setShader( Shader* pShader )
 {
 	m_pMaterial->setShader( pShader );
 }
@@ -71,19 +70,19 @@ DrawItem::DrawItem() :
 	m_u1(0.0f), m_v1(0.0f), m_u2(1.0f), m_v2(1.0f),
 	m_halfWidth(0), m_halfHeight(0), m_gfxScale(1.0f)
 {
-	m_pMaterial = Ref<Material>( new Material() ) ;
-	Ref<Texture2D> tex ( new Texture2D() ) ;
+	m_pMaterial = new (GC) Material() ;
+	Texture2D* tex = new (GC) Texture2D() ;
 	tex->createDefaultEmpty() ;
 	m_pMaterial->setDiffuseTexture( tex ) ;
 	m_pMaterial->setBlendEnabled(true) ;
 }
 
-DrawItem::DrawItem( const Ref<Texture2D>& pTxtr, jam::Rect* pCut /*= 0*/, float gfxScale /*= 1.0f*/ ) :
+DrawItem::DrawItem( Texture2D* pTxtr, jam::Rect* pCut /*= 0*/, float gfxScale /*= 1.0f*/ ) :
 	m_pMaterial(0), m_rect(), m_offsetX(0.0f), m_offsetY(0.0f),
 	m_u1(0.0f), m_v1(0.0f), m_u2(1.0f), m_v2(1.0f), 
 	m_halfWidth(0), m_halfHeight(0), m_gfxScale(gfxScale)
 {
-	m_pMaterial = Ref<Material>( new Material() ) ;
+	m_pMaterial = new (GC) Material() ;
 	m_pMaterial->setDiffuseTexture( pTxtr ) ;
 	m_pMaterial->setBlendEnabled(true) ;
 
@@ -100,12 +99,12 @@ DrawItem::DrawItem( const Ref<Texture2D>& pTxtr, jam::Rect* pCut /*= 0*/, float 
 	init() ;
 }
 
-DrawItem::DrawItem( const Ref<Texture2D>& pTxtr, const jam::Rect& cut, float gfxScale /*= 1.0f*/ ) :
+DrawItem::DrawItem( Texture2D* pTxtr, const jam::Rect& cut, float gfxScale /*= 1.0f*/ ) :
 	m_pMaterial(0), m_rect(cut), m_offsetX(0.0f), m_offsetY(0.0f),
 	m_u1(0.0f), m_v1(0.0f), m_u2(1.0f), m_v2(1.0f),
 	m_halfWidth(0), m_halfHeight(0), m_gfxScale(gfxScale)
 {
-	m_pMaterial = Ref<Material>( new Material() ) ;
+	m_pMaterial = new (GC) Material() ;
 	m_pMaterial->setDiffuseTexture( pTxtr ) ;
 	m_pMaterial->setBlendEnabled(true) ;
 
@@ -114,7 +113,7 @@ DrawItem::DrawItem( const Ref<Texture2D>& pTxtr, const jam::Rect& cut, float gfx
 
 void DrawItem::init()
 {
-	Ref<Texture2D> pTex = getTexture() ;
+	Texture2D* pTex = getTexture() ;
 	if( pTex ) {
 		m_u1 = m_rect.left / (float)pTex->getWidth() ;
 		m_v1 = 1.0f - m_rect.top / (float)pTex->getHeight() ;
@@ -129,23 +128,23 @@ void DrawItem::init()
 
 DrawItem* DrawItem::create()
 {
-	return JAM_ALLOC(DrawItem);
+	return new (GC) DrawItem();
 }
 
-DrawItem* DrawItem::create( const Ref<Texture2D>& pTxtr, jam::Rect* pCut /*= 0*/, float gfxScale /*= 1.0f*/ )
+DrawItem* DrawItem::create( Texture2D* pTxtr, jam::Rect* pCut /*= 0*/, float gfxScale /*= 1.0f*/ )
 {
-	return JAM_ALLOC_3(DrawItem,pTxtr,pCut,gfxScale) ;
+	return new (GC) DrawItem(pTxtr,pCut,gfxScale) ;
 }
 
-DrawItem* DrawItem::create( const Ref<Texture2D>& pTxtr, int32_t x0, int32_t y0, int32_t x1, int32_t y1, float gfxScale /*= 1.0f*/ )
+DrawItem* DrawItem::create( Texture2D* pTxtr, int32_t x0, int32_t y0, int32_t x1, int32_t y1, float gfxScale /*= 1.0f*/ )
 {
 	jam::Rect c(x0,y0,x1,y1);
-	return JAM_ALLOC_3(DrawItem,pTxtr,c,gfxScale);
+	return new (GC) DrawItem(pTxtr,c,gfxScale);
 }
 
-DrawItem* DrawItem::create( const Ref<Texture2D>& pTxtr, const jam::Rect& cut, float gfxScale /*= 1.0f*/ )
+DrawItem* DrawItem::create( Texture2D* pTxtr, const jam::Rect& cut, float gfxScale /*= 1.0f*/ )
 {
-	return JAM_ALLOC_3(DrawItem,pTxtr,cut,gfxScale);
+	return new (GC) DrawItem(pTxtr,cut,gfxScale);
 }
 
 void DrawItem::setBlendingMode( BlendMode val )

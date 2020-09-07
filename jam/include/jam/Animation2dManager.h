@@ -32,19 +32,19 @@
 
 
 #include <jam/jam.h>
-#include <jam/Bank.h>
+#include <jam/BaseManager.hpp>
 #include <jam/Singleton.h>
 #include <jam/Anim2d.h>
 
 namespace jam
 {
 
-class JAM_API Animation2DManager : public Singleton<Animation2DManager>, public Bank<Animation2D>
+class JAM_API Animation2DManager : public Singleton<Animation2DManager>, public NamedObjectManager<Animation2D>
 {
 	friend class Singleton<Animation2DManager> ;
 private:
 	Animation2DManager() ;
-	virtual ~Animation2DManager() {}
+	virtual ~Animation2DManager() = default ;
 };
 
 /** Returns the singleton instance */

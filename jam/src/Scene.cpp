@@ -60,7 +60,6 @@ namespace jam
 
 		if( !m_pCamera ) {
 			Camera* pCamera = new Camera() ;
-			pCamera->autorelease() ;
 			setCamera( pCamera ) ;
 		}
 	}
@@ -69,7 +68,7 @@ namespace jam
 	void Scene::visitGraph( Draw3DBatch* pBatch )
 	{
 		Matrix4 globalScaleMat = jam::createScaleMatrix3D( Vector3(Draw3DManager::RatioX, Draw3DManager::RatioY, 1.0f) ) ;
-		ShaderManager::getSingleton().getCurrent()->setModelMatrix(globalScaleMat) ;
+		GetShaderMgr().getCurrent()->setModelMatrix(globalScaleMat) ;
 
 #ifdef JAM_TRACE_BATCH
 		JAM_TRACE( ("Draw3DBatch::begin visitGraph") ) ;
@@ -127,9 +126,7 @@ namespace jam
 
 	void Scene::addTouchableNode( Node* pNode )
 	{
-		if( !pNode->isMarkedForDestruction() ) {
-			m_touchableNodes.push_front(pNode) ;
-		}
+		m_touchableNodes.push_front(pNode) ;
 	}
 
 

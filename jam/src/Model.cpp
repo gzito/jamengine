@@ -61,7 +61,7 @@ namespace jam
 		Camera* pCam = GetAppMgr().getScene()->getCamera() ;
 
 		for( auto pMesh : m_meshes ) {
-			Ref<Shader> pShader = pMesh->getMaterial()->getShader() ;
+			Shader* pShader = pMesh->getMaterial()->getShader() ;
 			pShader->use();
 
 			pShader->setModelMatrix(getTransform().getWorldTformMatrix()) ;
@@ -149,7 +149,7 @@ namespace jam
 		pMesh->getTangentsArray().copyFrom( (Vector3*)pAiMesh->mTangents ) ;
 		pMesh->getBitangentsArray().copyFrom( (Vector3*)pAiMesh->mBitangents ) ;
 		pMesh->doNotCalculateTangents() ;
-		pMesh->getMaterial()->setShader( ShaderManager::getSingleton().getNormalMapping() ) ;
+		pMesh->getMaterial()->setShader( GetShaderMgr().getNormalMapping() ) ;
 
 		// process indices
 		unsigned int idx = 0 ;
@@ -168,55 +168,55 @@ namespace jam
 		{
 			aiMaterial *pAiMaterial = scene->mMaterials[pAiMesh->mMaterialIndex];
 
-			Ref<Material> pMaterial = pMesh->getMaterial() ;
+			Material* pMaterial = pMesh->getMaterial() ;
 
 			float matShininess = 0.0f ;
 			if( AI_SUCCESS == (pAiMaterial->Get( AI_MATKEY_SHININESS, matShininess )) ) {
 				pMaterial->setShininess( matShininess ) ;
 			}
 
-			std::vector<Ref<Texture2D>> diffuseMaps ;
+			std::vector<Texture2D*> diffuseMaps ;
 			loadMaterialTextures(pAiMaterial, aiTextureType_DIFFUSE, diffuseMaps);
 			if( diffuseMaps.size() > 0 ) {
 				pMaterial->setDiffuseTexture( diffuseMaps[0] ) ;
 			}
 			else {
-				pMaterial->setDiffuseTexture( Ref<Texture2D>(0) ) ;
+				pMaterial->setDiffuseTexture( nullptr ) ;
 			}
 
-			std::vector<Ref<Texture2D>> specularMaps ;
+			std::vector<Texture2D*> specularMaps ;
 			loadMaterialTextures(pAiMaterial, aiTextureType_SPECULAR, specularMaps);
 			if( specularMaps.size() > 0 ) {
 				pMaterial->setSpecularTexture( specularMaps[0] ) ;
 			}
 			else {
-				pMaterial->setSpecularTexture( Ref<Texture2D>(0) ) ;
+				pMaterial->setSpecularTexture( nullptr ) ;
 			}
 
 			// The wavefront object format (.obj) exports normal maps slightly different 
 			// as Assimp's aiTextureType_NORMAL doesn't load its normal maps
 			// while aiTextureType_HEIGHT does so I often load them.
 			// Of course this is different for each type of loaded model and file format.
-			std::vector<Ref<Texture2D>> normalMaps ;
+			std::vector<Texture2D*> normalMaps ;
 			loadMaterialTextures(pAiMaterial, aiTextureType_HEIGHT, normalMaps);
 			if( normalMaps.size() > 0 ) {
 				pMaterial->setNormalTexture( normalMaps[0] ) ;
 			}
 			else {
-				pMaterial->setNormalTexture( Ref<Texture2D>(0) ) ;
+				pMaterial->setNormalTexture( nullptr ) ;
 			}
 		}
 
 		return pMesh ;
 	}
 	
-	void Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::vector<Ref<Texture2D>>& out )
+	void Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::vector<Texture2D*>& out )
 	{
 		unsigned int textureCountForType = mat->GetTextureCount(type) ;
 		if( textureCountForType > 0 ) {
 			for(unsigned int i = 0; i < textureCountForType; i++)
 			{
-				Ref<Texture2D> texture( new Texture2D() ) ;
+				Texture2D* texture = new (GC) Texture2D() ;
 
 				aiString str;
 				mat->GetTexture(type, i, &str);

@@ -64,9 +64,11 @@
 
 #define JAM_DELETE(x)				if( (x) ) { delete (x); (x)=NULL; }
 #define JAM_DELETE_ARRAY(x)			if( (x) ) { delete[] (x); (x)=NULL; }
+/*
 #define JAM_RELEASE(x)				if( (x) ) { (x)->release(); }
 #define JAM_RELEASE_NULL(x)			if( (x) ) { (x)->release(); (x)=NULL; }
 #define JAM_ADDREF(x)				if( (x) ) { (x)->addRef(); }
+*/
 #define JAM_DESTROY(x)				if( (x) ) { (x)->destroy(); }
 #define JAM_DESTROY_NULL(x)			if( (x) ) { (x)->destroy(); (x)=NULL; }
 
