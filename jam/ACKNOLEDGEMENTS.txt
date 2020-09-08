@@ -13,7 +13,20 @@ https://github.com/tronkko/dirent
 René Nyffenegger - Base64 encode/decode functions
 https://github.com/ReneNyffenegger/cpp-base64
 
-Gianluca Sclano - BmkExtras macros, Utilities & Randomizer classes and many suggestions
+Gianluca Sclano - major contributor to the original project "iwge", the iw game engine
+BmkExtras macros, Utilities, Randomizer, TMXLoader, Achievements classes and many suggestions
 
-SimpleIni
+Brodie Thiesfield - SimpleIni
 https://github.com/brofield/simpleini
+
+The Boehm-Demers-Weiser conservative garbage collector - A garbage collector for C and C++
+https://www.hboehm.info/gc/
+
+Ilya Polishchuk (effolkronium) - Random for modern C++
+https://github.com/effolkronium/random
+
+Sergey A Kryukov - The Impossibly Fast C++ Delegates Fixed
+https://www.codeproject.com/Articles/1170503/The-Impossibly-Fast-Cplusplus-Delegates-Fixed
+
+Noel Llopis’s - Handle & Handle Manager code
+http://gamesfromwithin.com/managing-data-relationships

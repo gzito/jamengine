@@ -73,7 +73,7 @@ NamedObjectManager<T>::NamedObjectManager()
 template<typename T>
 void NamedObjectManager<T>::addObject( T* object )
 {
-	m_objectsMap.emplace( std::make_pair(object->getName(),object) ) ;
+	m_objectsMap.emplace( std::make_pair(jam::makeLower(object->getName()),object) ) ;
 }
 
 template<typename T>
@@ -83,7 +83,7 @@ T* NamedObjectManager<T>::getObject( const String& name ) const
 	// Returns a reference to the mapped value of the element with key k in the unordered_map.
 	// If k does not match the key of any element in the container, the function throws an out_of_range exception.
 	try {
-		return m_objectsMap.at(name);
+		return m_objectsMap.at(jam::makeLower(name));
 	}
 	catch( std::out_of_range& ex ) {
 		JAM_ERROR( "Cannot get managed object named \"%s\"", name.c_str() ) ;
@@ -93,7 +93,7 @@ T* NamedObjectManager<T>::getObject( const String& name ) const
 template<typename T>
 void NamedObjectManager<T>::eraseObject( const String& name )
 {
-	auto it = m_objectsMap.find(name) ;
+	auto it = m_objectsMap.find(jam::makeLower(name)) ;
 	if( it != m_objectsMap.end() ) {
 		m_objectsMap.erase(it) ;
 	}
@@ -161,38 +161,42 @@ NamedTaggedObjectManager<T>::NamedTaggedObjectManager()
 template<typename T>
 void NamedTaggedObjectManager<T>::addObject( T* object )
 {
-	m_objectsMap.emplace( std::make_pair(object->getName(),object) ) ;
+	m_objectsMap.emplace( std::make_pair(jam::makeLower(object->getName()),object) ) ;
 	if( std::is_base_of<ITaggedObject,T>::value ) {
-		m_tagsMap.emplace( std::make_pair(object->getTag(),object) ) ;
+		m_tagsMap.emplace( std::make_pair(jam::makeLower(object->getTag()),object) ) ;
 	}
 }
 
 template<typename T>
 T* NamedTaggedObjectManager<T>::findObjectByTag(const String& tag) const
 {
-	return NULL;
+	auto elem = m_tagsMap.find(jam::makeLower(tag));
+	if( elem == m_tagsMap.end() )
+		return nullptr ;
+
+	return elem->second ;
 }
 
 template<typename T>
 typename NamedTaggedObjectManager<T>::RangeTags NamedTaggedObjectManager<T>::findObjectsByTag(const String& tag)
 {
-	return m_tagsMap.equal_range( tag ) ;
+	return m_tagsMap.equal_range( jam::makeLower(tag) ) ;
 }
 
 template<typename T>
 size_t NamedTaggedObjectManager<T>::countObjectsByTag(const String& tag)
 {
-	return m_tagsMap.count(tag);
+	return m_tagsMap.count(jam::makeLower(tag));
 }
 
 template<typename T>
 void NamedTaggedObjectManager<T>::eraseObject( const String& name )
 {
-	auto it = m_objectsMap.find(name) ;
+	auto it = m_objectsMap.find(jam::makeLower(name)) ;
 	if( it != m_objectsMap.end() ) {
 		ITaggedObject* tObj = (*it).second ;
 		if (std::is_base_of<ITaggedObject,T>::value && !tObj->getTag().empty() ) {
-			auto range = m_tagsMap.equal_range( tObj->getTag() ) ;
+			auto range = m_tagsMap.equal_range( jam::makeLower(tObj->getTag()) ) ;
 			for( auto rIt = range.first; rIt!= range.second; rIt++ ) { 
 				if ( (*rIt).second == tObj ) {
 					m_tagsMap.erase(rIt) ;

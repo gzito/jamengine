@@ -1,3 +1,3 @@
 # jamengine
 
-Simple C++ game engine using OpenGL
+Simple C++ game engine

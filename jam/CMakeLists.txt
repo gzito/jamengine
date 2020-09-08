@@ -40,6 +40,7 @@ set(JAM_main_SRCS
 	src/AudioManager.cpp
 	src/B2Sprite.cpp
 	src/Base64.cpp
+	src/ButtonNode.cpp
 	src/Camera.cpp
 	src/Circle2f.cpp
 	src/CollisionManager.cpp
@@ -122,6 +123,7 @@ set(JAM_main_HDRS
 	include/jam/B2Sprite.h
 	include/jam/Base64.h
 	include/jam/BaseManager.hpp
+	include/jam/ButtonNode.h
 	include/jam/Camera.h
 	include/jam/Circle2f.h
 	include/jam/CollisionManager.h

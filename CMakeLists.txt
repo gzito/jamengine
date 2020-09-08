@@ -14,6 +14,7 @@ option(JAM_BUILD_STATIC "Build JAM static libraries" ON)
 option(JAM_BUILD_EXAMPLES "Build JAM examples" ON)
 
 set(JAM_VERSION 1.0.0)
+set(JAMPSYS_VERSION 1.0.0)
 set(LIB_INSTALL_DIR lib${LIB_SUFFIX})
 
 set(CMAKE_CXX_STANDARD 11)
@@ -35,11 +36,13 @@ add_definitions(-DGC_NOT_DLL)
 
 # The JAM library.
 add_subdirectory(jam)
+add_subdirectory(jampsys)
 
 if(JAM_BUILD_EXAMPLES)
   add_subdirectory(tests/FallingBoxes)
   add_subdirectory(tests/SpritesDemo)
   add_subdirectory(tests/TestPrimitives)
+  add_subdirectory(tests/TestPSys)
 
   if(MSVC)
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT FallingBoxes)

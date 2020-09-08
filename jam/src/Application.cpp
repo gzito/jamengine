@@ -45,7 +45,6 @@
 #include "jam/Draw3dManager.h"
 #include "jam/TextNode.h"
 #include "jam/DeviceManager.h"
-#include "jam/AutoReleasePool.h"
 #include "jam/Event.h"
 #include "jam/Scene.h"
 #include "jam/Achievement.h"
@@ -601,7 +600,7 @@ float Application::getFpsAvg() const
 
 void Application::setAnimationInterval( jam::time interval )
 {
-	setAnimationIntervalMs((uint64_t)(interval * 1000)) ;
+	setAnimationIntervalMs((uint64_t)interval * 1000) ;
 }
 
 
@@ -816,7 +815,6 @@ void Application::engineTerminate()
 	// Cleanup banks
 	GetActionMgr().removeAllActions() ;
 /*
-	GetAliveSpriteFactoryMgr().removeAllBankItems(true) ;
 	GetTextNodeMgr().removeAllBankItems(true) ;
 	GetAnim2DMgr().removeAllBankItems(true) ;
 	GetDrawItemMgr().removeAllBankItems(true) ;
@@ -824,16 +822,9 @@ void Application::engineTerminate()
 */
 	getSysTimerManager().clearAll() ;
 /*
-	GetTimerMgr().removeAllBankItems(true) ;
-	GetAchievementMgr().removeAllBankItems(true) ;
 	GetMaterialMgr().removeAllBankItems(true) ;
-	GetTextureMgr().removeAllBankItems(true) ;
-
-	GetAutoReleasePoolMgr().collect(true) ;
 */
 	// delete singletons
-//	AliveSpriteFactoryManager::destroySingleton() ;
-//	NodeStateManager::destroySingleton() ;
 	CollisionManager::destroySingleton() ;
 	Animation2DManager::destroySingleton() ;
 	DrawItemManager::destroySingleton() ;
@@ -846,24 +837,14 @@ void Application::engineTerminate()
 	ActionManager::destroySingleton() ;
 	Draw3DManager::destroySingleton() ;
 	EventDispatcher::destroySingleton() ;	
-//	AchievementManager::destroySingleton() ;
 	SysTimer::destroySingleton() ;
 	Gfx::destroySingleton() ;
 	MaterialManager::destroySingleton() ;
-//	TextureManager::destroySingleton() ;
-
-
-	// cleanup and delete autorelease pool
-//	AutoReleasePool::destroySingleton() ;
 
 #ifdef JAM_PHYSIC_ENABLED
 	JAM_DELETE(m_pPhysWorld) ;
 #endif
 
-#ifdef OLDCODE
-	ObjectManager::destroySingleton() ;
-#endif
-	
 	if( m_GLContext ) {
 		SDL_GL_DeleteContext(m_GLContext);
 		m_GLContext = 0 ;

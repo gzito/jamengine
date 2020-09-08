@@ -52,7 +52,12 @@ public:
 	GLenum					getBlendFuncSrcFactor() const ;
 	GLenum					getBlendFuncDstFactor() const ;
 	GLenum					getBlendEquation() const ;
-	
+
+	static const BlendMode  Normal ;
+	static const BlendMode  AlphaBlend ;
+	static const BlendMode	Additive ;
+	static const BlendMode	Multiplicative ;
+
 private:
 	GLenum					m_blendFuncSrcFactor ;
 	GLenum					m_blendFuncDstFactor ;

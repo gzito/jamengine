@@ -4,7 +4,7 @@
 * 
 * This file is part of Jam
 * 
-* Copyright (c) 2014-2019 Giovanni Zito.
+* Copyright (c) 2014-2019 Giovanni Zito, Gianluca Sclano
 * Copyright (c) 2014-2019 Jam contributors (cf. AUTHORS.md)
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -34,8 +34,6 @@
 #include <jam/Object.h>
 #include <jam/BaseManager.hpp>
 #include <jam/Event.h>
-
-//#ifdef JAM_EXCLUDED_BLOCK
 
 namespace jam
 {
@@ -104,12 +102,13 @@ private:
 
 
 // ***
-class JAM_API AchievementManager : public NamedTaggedObjectManager<Achievement>, public jam::Singleton<AchievementManager>
+class JAM_API AchievementManager : public NamedTaggedObjectManager<Achievement>
 {
-	friend class jam::Singleton<AchievementManager> ;
-
 public:
 	// implementare timer per scheduling e metodi di start/stop
+
+							AchievementManager() ;
+	virtual					~AchievementManager() = default ;
 
 	void					check( bool force = false ) ;
 
@@ -134,10 +133,6 @@ public:
 	void					resume() ;
 
 protected:
-							AchievementManager() ;
-	virtual					~AchievementManager() ;
-	static void				setInstance( AchievementManager* pInstance ) ;
-
 	Timer*					m_checkTimer ;
 	jam::time				m_checkInterval ;
 	static const jam::time	DefaultCheckinterval ;
@@ -145,10 +140,6 @@ protected:
 private:
 };
 
-JAM_INLINE  AchievementManager& GetAchievementMgr() { return (AchievementManager&) AchievementManager::getSingleton(); }
-
 }
-
-//#endif // JAM_EXCLUDED_BLOCK
 
 #endif // __JAM_ACHIEVEMENT_H__

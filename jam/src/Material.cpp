@@ -33,6 +33,27 @@
 
 namespace jam
 {
+	// Blending
+	// Pixels can be drawn using a function that blends the incoming (source) RGBA values
+	// with the RGBA values that are already in the frame buffer (the destination values).
+	//
+	// By default, here’s what the OpenGL blending equation looks like when glBlendEquation() is set to the default, GL_FUNC_ADD:
+
+	// Normal blending 
+	// output = (source_factor * source_fragment) + (0 * destination fragment) -> output = source_factor * source_fragment ;
+	const BlendMode	BlendMode::Normal(GL_SRC_COLOR, GL_ZERO, GL_FUNC_ADD) ;
+
+	// Alpha Blending, also known as Interpolative Blending
+	// output = (source_alpha * source_fragment) + ((1 – source_alpha) * destination_fragment)
+	const BlendMode	BlendMode::AlphaBlend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_FUNC_ADD) ;
+
+	// Additive Blending
+	// output = (1 * source_fragment) + (1 * destination_fragment) -> output = source_fragment + destination_fragment
+	const BlendMode	BlendMode::Additive(GL_ONE, GL_ONE, GL_FUNC_ADD)  ;
+
+	// Modulation Blending
+	// output = (destination_factor * source_fragment) + (0 * destination fragment) -> output = source_fragment * destination_factor
+	const BlendMode	BlendMode::Multiplicative(GL_DST_COLOR, GL_ZERO, GL_FUNC_ADD)  ;
 
 	BlendMode::BlendMode() : 
 		m_blendFuncSrcFactor(GL_SRC_ALPHA), m_blendFuncDstFactor(GL_ONE_MINUS_SRC_ALPHA), m_blendEquation(GL_FUNC_ADD)

@@ -4,7 +4,7 @@
 * 
 * This file is part of Jam
 * 
-* Copyright (c) 2014-2019 Giovanni Zito.
+* Copyright (c) 2014-2019 Giovanni Zito, Gianluca Sclano
 * Copyright (c) 2014-2019 Jam contributors (cf. AUTHORS.md)
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,8 +35,6 @@
 
 #include <fstream>
 #include <sstream>
-
-//#ifdef JAM_EXCLUDED_BLOCK
 
 namespace jam
 {
@@ -81,11 +79,6 @@ namespace jam
 	{
 		m_checkTimer = Timer::create() ;
 		m_checkTimer ->start();
-	}
-
-
-	AchievementManager::~AchievementManager()
-	{
 	}
 
 	void AchievementManager::check( bool force /*= false */ )
@@ -179,12 +172,6 @@ namespace jam
 		ofs.flush() ;
 	}
 
-	void AchievementManager::setInstance( AchievementManager* pInstance )
-	{
-		destroySingleton() ;
-		m_singleton = pInstance ;
-	}
-
 	void AchievementManager::reset()
 	{
 		Achievement* pAch = nullptr ;		
@@ -212,5 +199,3 @@ namespace jam
 	}
 
 }
-
-//#endif // JAM_EXCLUDED_BLOCK 

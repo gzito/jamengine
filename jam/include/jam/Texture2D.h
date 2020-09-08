@@ -37,6 +37,9 @@
 #include <jam/String.h>
 #include <jam/Object.h>
 
+// GLenum definition
+#include <GL/glew.h>
+
 namespace jam
 {
 
