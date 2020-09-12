@@ -44,6 +44,7 @@ if(JAM_BUILD_EXAMPLES)
   add_subdirectory(tests/TestInputManager)
   add_subdirectory(tests/TestPrimitives)
   add_subdirectory(tests/TestPSys)
+  add_subdirectory(tests/TestImgui)
 
   if(MSVC)
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT FallingBoxes)

@@ -16,6 +16,12 @@ set(JAM_core_HDRS
 set(JAM_thirdparty_SRCS
 	src/thirdparty/stb_image.cpp
 	src/thirdparty/HandleManager.cpp
+	src/thirdparty/imgui/imgui.cpp
+	src/thirdparty/imgui/imgui_demo.cpp
+	src/thirdparty/imgui/imgui_draw.cpp
+	src/thirdparty/imgui/imgui_impl_opengl3.cpp
+	src/thirdparty/imgui/imgui_impl_sdl.cpp
+	src/thirdparty/imgui/imgui_widgets.cpp	
 )
 set(JAM_thirdparty_HDRS
 	include/jam/thirdparty/Delegate.h
@@ -26,6 +32,14 @@ set(JAM_thirdparty_HDRS
 	include/jam/thirdparty/SimpleIni.h
 	include/jam/thirdparty/Handle.h
 	include/jam/thirdparty/HandleManager.h
+	include/jam/thirdparty/imgui/imconfig.h
+	include/jam/thirdparty/imgui/imgui.h
+	include/jam/thirdparty/imgui/imgui_impl_opengl3.h
+	include/jam/thirdparty/imgui/imgui_impl_sdl.h
+	include/jam/thirdparty/imgui/imgui_internal.h
+	include/jam/thirdparty/imgui/imstb_rectpack.h
+	include/jam/thirdparty/imgui/imstb_textedit.h
+	include/jam/thirdparty/imgui/imstb_truetype.h
 )
 set(JAM_main_SRCS
 	src/Achievement.cpp
@@ -207,6 +221,7 @@ set(JAM_precomp_HDRS
 
 include_directories( include )
 include_directories( include/precomph )
+include_directories( include/jam/thirdparty/imgui )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/SDL2 )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/boehmgc )

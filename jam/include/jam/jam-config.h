@@ -34,7 +34,6 @@
 #define JAM_WINDOWS_WIDTH			960
 #define JAM_WINDOWS_HEIGHT			540
 
-
 //#define IW_USE_PROFILE
 //#define JAM_DEBUG_MENU_ENABLED
 

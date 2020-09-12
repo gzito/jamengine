@@ -51,6 +51,7 @@
 #include "jam/SysTimer.h"
 #include "jam/Gfx.h"
 #include "jam/Camera.h"
+#include "imgui_impl_sdl.h"
 
 #ifdef JAM_PHYSIC_ENABLED
 #include <Box2D/Dynamics/b2World.h>
@@ -103,7 +104,8 @@ Application::Application() :
 	m_sysTimerManager(nullptr),
 	m_resourceManager(nullptr),
 	m_pWindow(nullptr),
-	m_GLContext(nullptr)
+	m_GLContext(nullptr),
+	m_imguiEnabled(false)
 {
 	setup() ;
 }
@@ -115,137 +117,150 @@ Application::~Application()
 
 void Application::start()
 {
-	if( !m_engineInited ) {
-		JAM_ERROR( ("jam::initialize() must be called before to start application") ) ;
+	try {
+		engineInitialize() ;
+
+		if( !isEngineInited() ) {
+			JAM_ERROR( ("jam::initialize() must be called before to start application") ) ;
+		}
+
+		// default setting
+		m_animationIntervalMs = SysTimer().getUnitsPerSecond() / 60UL ;
+
+		m_totalElapsedMs = GetSysTimer().getTime() ;
+		refreshTime() ;
+
+		m_sceneNode = new (GC) Scene() ;
+
+		GetGfx().setDepthTest(true) ;
+
+	#ifndef JAM_DRAW3DBATCH_DISABLED
+		Draw3DBatch* batch = new Draw3DBatch();
+		GetGfx().setBatch(batch) ;
+	#endif
+
+	#ifdef JAM_PHYSIC_ENABLED
+		m_ptmRatio = GetDeviceMgr().getNativeDisplayWidth() / 10.0f ;
+	#endif
+		// create default resource cache
+		IResourceFile* pResourceFile = new FileSystemResourceFile(ShaderManager::DEFAULT_SHADERS_PATH) ;
+		m_resourceManager = new (GC) ResourceManager(10,pResourceFile) ;
+		m_resourceManager->init() ;
+		m_resourceManager->registerLoader( new (GC) ShaderFileResourceLoader() ) ;
+
+		// create default shaders
+		GetShaderMgr().createDefaultLit() ;
+		GetShaderMgr().createSkinningLit() ;
+		GetShaderMgr().createSkyBox() ;
+		GetShaderMgr().createNormalMapping() ;
+		GetShaderMgr().createScreen() ;
+		GetShaderMgr().createDefaultUnlit() ;
+
+		if( game::GetStateMachine().isStarted() ) {
+			game::GetStateMachine().checkNewState() ;
+		}
+
+		m_minMsPerFrame = GetSysTimer().getUnitsPerSecond() ;
+		m_maxMsPerFrame = 0 ;
+
+		if( !init() ) // virtual call
+		{
+			return ;
+		}
+
+		m_sceneNode->init() ;
+		m_sceneNode->onEnter() ;
+
+		m_sysTimerManager = new (GC) TimerManager() ;
+
+	#ifndef JAM_COLLISIONS_DISABLED
+		GetCollMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_collisionCheckFactor)) ;
+		GetCollMgr().getUpdateTimer().setRepeatSweep(-1) ;
+		GetCollMgr().getUpdateTimer().setName("CollMgr.updateTimer") ;
+		GetCollMgr().getUpdateTimer().start() ;
+
+		getSysTimerManager().addObject(&GetCollMgr().getUpdateTimer()) ;
+	#endif
+		GetAudioMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_audioCheckFactor)) ;
+		GetAudioMgr().getUpdateTimer().setRepeatSweep(-1) ;
+		GetAudioMgr().getUpdateTimer().setName("AudioMgr.updateTimer") ;
+		GetAudioMgr().getUpdateTimer().start() ;
+		getSysTimerManager().addObject(&GetAudioMgr().getUpdateTimer()) ;
+
+		GetInputMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_inputCheckFactor)) ;
+		GetInputMgr().getUpdateTimer().setRepeatSweep(-1) ;
+		GetInputMgr().getUpdateTimer().setName("InputMgr.updateTimer") ;
+		GetInputMgr().getUpdateTimer().start() ;
+		getSysTimerManager().addObject(&GetInputMgr().getUpdateTimer()) ;
+
+	#ifdef JAM_TRACE_ACTIVE_NODES
+		m_traceActiveNodesTimer = Timer::create() ;
+		m_traceActiveNodesTimer->setReserved() ;
+		m_traceActiveNodesTimer->getTimeExpiredEvent() += JAM_EVT_HANDLER(Application,TimeExpiredEventArgs,this,&Application::traceActiveNodes) ;
+		m_traceActiveNodesTimer->setRepeatSweep(-1) ;
+		m_traceActiveNodesTimer->setRepeatSweepTime(5000) ;
+		m_traceActiveNodesTimer->start() ;
+		GetTimerMgr().addByName(m_traceActiveNodesTimer,"Application::traceActiveNodesTimer") ;
+	#endif
+
+		// ------------------------
+		// end of game initialization sequence
+		// ------------------------
+
+		// enters main game infinite loop, until exit conditions are met
+		gameLoop();
+
+		// ------------------------
+		// game exit sequence
+		// ------------------------
+
+		// ------------------------
+		// game exit sequence
+		// ------------------------
+		if( game::GetStateMachine().isStarted() ) 
+		{
+			game::GetStateMachine().getCurrentState()->end();
+			game::GetStateMachine().getCurrentState()->destroy() ;
+		}
+		destroy() ; // virtual call
+
+	#ifdef JAM_TRACE_ACTIVE_NODES
+		JAM_RELEASE(m_traceActiveNodesTimer) ;
+	#endif
+
+	#ifdef JAM_DEBUG_MENU_ENABLED
+		destroyDebugMenu() ;
+	#endif
+
+	#ifdef IW_USE_PROFILE
+		destroyProfileMgr() ;
+	#endif
+
+	#ifndef JAM_DRAW3DBATCH_DISABLED
+		JAM_DELETE(batch) ;
+	#endif
+
+		m_sceneNode->onExit() ;
+		m_sceneNode->destroy() ;
+
+		m_sceneNode = nullptr ;
+	}
+	catch( std::exception& ex ) {
+		if( isEngineInited() ) {
+			engineTerminate() ;
+		}
+		throw ;
+	}
+	catch( ... ) {
+		if( isEngineInited() ) {
+			engineTerminate() ;
+		}
+		throw ;
 	}
 
-	// default setting
-	m_animationIntervalMs = SysTimer().getUnitsPerSecond() / 60UL ;
-
-	m_totalElapsedMs = GetSysTimer().getTime() ;
-	refreshTime() ;
-
-	m_sceneNode = new (GC) Scene() ;
-
-//		IwGxLightingOff() ;
-//		IwGxMipMappingOff() ;
-//		IwGxSetNormStream(0) ;
-
-	//these are the default IwGx sort mode settings
-	//IwGxSetSortMode(IW_GX_SORT_BY_SLOT) ;
-	//IwGxSetSortModeScreenSpace(IW_GX_SORT_BY_MATERIAL) ;
-	GetGfx().setDepthTest(true) ;
-
-#ifndef JAM_DRAW3DBATCH_DISABLED
-	Draw3DBatch* batch = new Draw3DBatch();
-	GetGfx().setBatch(batch) ;
-#endif
-
-#ifdef JAM_PHYSIC_ENABLED
-	m_ptmRatio = GetDeviceMgr().getNativeDisplayWidth() / 10.0f ;
-#endif
-	// create default resource cache
-	IResourceFile* pResourceFile = new FileSystemResourceFile(ShaderManager::DEFAULT_SHADERS_PATH) ;
-	m_resourceManager = new (GC) ResourceManager(10,pResourceFile) ;
-	m_resourceManager->init() ;
-	m_resourceManager->registerLoader( new (GC) ShaderFileResourceLoader() ) ;
-
-	// create default shaders
-	GetShaderMgr().createDefaultLit() ;
-	GetShaderMgr().createSkinningLit() ;
-	GetShaderMgr().createSkyBox() ;
-	GetShaderMgr().createNormalMapping() ;
-	GetShaderMgr().createScreen() ;
-	GetShaderMgr().createDefaultUnlit() ;
-
-	if( game::GetStateMachine().isStarted() ) {
-		game::GetStateMachine().checkNewState() ;
+	if( isEngineInited() ) {
+		engineTerminate() ;
 	}
-
-	m_minMsPerFrame = GetSysTimer().getUnitsPerSecond() ;
-	m_maxMsPerFrame = 0 ;
-
-	if( !init() ) // virtual call
-	{
-		return ;
-	}
-
-	m_sceneNode->init() ;
-	m_sceneNode->onEnter() ;
-
-	m_sysTimerManager = new (GC) TimerManager() ;
-
-#ifndef JAM_COLLISIONS_DISABLED
-	GetCollMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_collisionCheckFactor)) ;
-	GetCollMgr().getUpdateTimer().setRepeatSweep(-1) ;
-	GetCollMgr().getUpdateTimer().setName("CollMgr.updateTimer") ;
-	GetCollMgr().getUpdateTimer().start() ;
-
-	getSysTimerManager().addObject(&GetCollMgr().getUpdateTimer()) ;
-#endif
-	GetAudioMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_audioCheckFactor)) ;
-	GetAudioMgr().getUpdateTimer().setRepeatSweep(-1) ;
-	GetAudioMgr().getUpdateTimer().setName("AudioMgr.updateTimer") ;
-	GetAudioMgr().getUpdateTimer().start() ;
-	getSysTimerManager().addObject(&GetAudioMgr().getUpdateTimer()) ;
-
-	GetInputMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_inputCheckFactor)) ;
-	GetInputMgr().getUpdateTimer().setRepeatSweep(-1) ;
-	GetInputMgr().getUpdateTimer().setName("InputMgr.updateTimer") ;
-	GetInputMgr().getUpdateTimer().start() ;
-	getSysTimerManager().addObject(&GetInputMgr().getUpdateTimer()) ;
-
-#ifdef JAM_TRACE_ACTIVE_NODES
-	m_traceActiveNodesTimer = Timer::create() ;
-	m_traceActiveNodesTimer->setReserved() ;
-	m_traceActiveNodesTimer->getTimeExpiredEvent() += JAM_EVT_HANDLER(Application,TimeExpiredEventArgs,this,&Application::traceActiveNodes) ;
-	m_traceActiveNodesTimer->setRepeatSweep(-1) ;
-	m_traceActiveNodesTimer->setRepeatSweepTime(5000) ;
-	m_traceActiveNodesTimer->start() ;
-	GetTimerMgr().addByName(m_traceActiveNodesTimer,"Application::traceActiveNodesTimer") ;
-#endif
-
-	// ------------------------
-	// end of game initialization sequence
-	// ------------------------
-
-	// enters main game infinite loop, until exit conditions are met
-	gameLoop();
-
-	// ------------------------
-	// game exit sequence
-	// ------------------------
-
-	// ------------------------
-	// game exit sequence
-	// ------------------------
-	if( game::GetStateMachine().isStarted() ) 
-	{
-		game::GetStateMachine().getCurrentState()->end();
-		game::GetStateMachine().getCurrentState()->destroy() ;
-	}
-	destroy() ; // virtual call
-
-#ifdef JAM_TRACE_ACTIVE_NODES
-	JAM_RELEASE(m_traceActiveNodesTimer) ;
-#endif
-
-#ifdef JAM_DEBUG_MENU_ENABLED
-	destroyDebugMenu() ;
-#endif
-
-#ifdef IW_USE_PROFILE
-	destroyProfileMgr() ;
-#endif
-
-#ifndef JAM_DRAW3DBATCH_DISABLED
-	JAM_DELETE(batch) ;
-#endif
-
-	m_sceneNode->onExit() ;
-	m_sceneNode->destroy() ;
-
-	m_sceneNode = nullptr ;
 }
 
 void Application::gameLoop()
@@ -260,6 +275,11 @@ void Application::gameLoop()
 
 		while( SDL_PollEvent( &e ) != 0 )
 		{
+
+			if( isImguiEnabled() ) {
+				ImGui_ImplSDL2_ProcessEvent(&e);
+			}
+
 			if( e.type == SDL_QUIT ) {
 				m_exitFromMainLoop = true;
 			}
@@ -690,6 +710,28 @@ void Application::togglePause()
 	else getSysTimerManager().resumeAll();
 }
 
+SDL_Window* Application::getWindowPtr()
+{
+	return m_pWindow ;
+}
+
+SDL_GLContext Application::getGLContext()
+{
+	return m_GLContext;
+}
+
+bool Application::isImguiEnabled() const
+{
+	return m_imguiEnabled;
+}
+
+void Application::setImguiEnabled(bool enabled)
+{
+	m_imguiEnabled = true;
+}
+
+
+
 #ifdef JAM_DEBUG
 void APIENTRY glDebugOutput(GLenum source, 
 							GLenum type, 
@@ -776,6 +818,7 @@ void Application::engineInitialize()
 		JAM_ERROR("Failed to create window") ;
 	}
 	
+	// create OpenGL context
 	if( ! (m_GLContext = SDL_GL_CreateContext( m_pWindow )) ) {
 		SDL_DestroyWindow( m_pWindow );
 		m_pWindow = NULL;
@@ -792,7 +835,10 @@ void Application::engineInitialize()
 		JAM_ERROR("Failed to initialize GLEW") ;
 	}
 
-	// Use Vsync
+	// is it really needed with only a window?
+	SDL_GL_MakeCurrent(m_pWindow, m_GLContext);
+
+	// Enable Vsync
 	if( SDL_GL_SetSwapInterval( 1 ) < 0 ) {
 		SDL_GL_DeleteContext(m_GLContext);
 		SDL_DestroyWindow( m_pWindow );

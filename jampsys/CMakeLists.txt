@@ -1,5 +1,4 @@
 set(JAMPSYS_main_SRCS
-	dllmain.cpp
 	PSys.cpp
 	PSys_Emitter.cpp
 	PSys_Particle3D.cpp

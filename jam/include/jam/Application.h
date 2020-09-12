@@ -73,7 +73,6 @@ typedef RefCountedObject IEventSource ;
 */
 class JAM_API Application : public jam::Singleton<Application>
 {
-	template <class T> friend void runEngine() ;
 	friend class Singleton<Application> ;
 	friend class Scene ;
 
@@ -142,6 +141,9 @@ public:
 	void					enableClearingColorBuffer(bool val) { m_clearColorBuffer = val; }
 	void					setClearColor( const Color& val );
 
+	// Starts the application and enters the main loop. It's called from main, so it must be public
+	void					start() ;
+
 	void					pause();
 	void					resume();
 	void					togglePause() ;
@@ -149,6 +151,10 @@ public:
 	bool					isEngineInited() const { return m_engineInited; }
 
 	SDL_Window*				getWindowPtr() ;
+	SDL_GLContext			getGLContext() ;
+
+	bool					isImguiEnabled() const ;
+	void					setImguiEnabled( bool enabled = true ) ;
 
 #ifdef JAM_TRACE_ACTIVE_NODES
 	void					traceActiveNodes(TimeExpiredEventArgs& args, IEventSource& source) ;
@@ -200,8 +206,6 @@ protected:
 	void					setInputCheckFactor(float val);
 
 private:
-	// Starts the application and enters the main loop. It's called from main, so it must be public
-	void					start() ;
 	void					engineInitialize() ;
 	void					engineTerminate() ;
 
@@ -269,52 +273,26 @@ private:
 	SDL_GLContext			m_GLContext ;
 			
 	ResourceManager*		m_resourceManager ;
+
+	bool					m_imguiEnabled ;
 };	// class Application
 
 JAM_INLINE Application& GetAppMgr() { return Application::getSingleton(); }
 
-JAM_INLINE SDL_Window* Application::getWindowPtr() { return m_pWindow ; }
-
-
-
-
 template <class T> void runEngine()
 {
-	T* app = new T() ;
-
-	try
-	{
-		app->engineInitialize() ;
-		app->start();
-	}
-	catch( std::exception& ex )
-	{
-		JAM_TRACE( "Exception thrown:\n%s\n", ex.what() ) ;
-		printf( "Exception thrown:\n%s\n", ex.what() ) ; 
-	}
-	catch(...)
-	{
-		JAM_TRACE( "Unknown exception thrown!\n" ) ;
-		printf( "Unknown exception thrown!\n" ) ; 
-	}
-
 	try {
-		if( app->isEngineInited() ) {
-			app->engineTerminate() ;
-		}
+		T app  ;
+		app.start();
 	}
-	catch( std::exception& ex )
-	{
+	catch( std::exception& ex )	{
 		JAM_TRACE( "Exception thrown:\n%s\n", ex.what() ) ;
 		printf( "Exception thrown:\n%s\n", ex.what() ) ; 
 	}
-	catch(...)
-	{
+	catch(...) {
 		JAM_TRACE( "Unknown exception thrown!\n" ) ;
 		printf( "Unknown exception thrown!\n" ) ; 
 	}
-	
-	JAM_DELETE(app) ;
 };
 
 }	// namespace jam

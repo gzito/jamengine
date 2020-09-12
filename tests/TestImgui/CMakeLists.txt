@@ -1,4 +1,4 @@
-# TestInputManager example
+# TestImgui example
 
 if(JAM_BUILD_SHARED)
 	link_libraries(Jam_shared)
@@ -6,10 +6,11 @@ else()
 	link_libraries(Jam)
 endif()
 
-add_executable(TestInputManager TestInputManager.cpp)
+add_executable(TestImgui TestImgui.cpp)
 
 include_directories( ${PROJECT_SOURCE_DIR}/jam/include )
 include_directories( ${PROJECT_SOURCE_DIR}/jam/include/precomph )
+include_directories( ${PROJECT_SOURCE_DIR}/jam/include/jam/thirdparty/imgui )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/SDL2 )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/boehmgc )
@@ -31,6 +32,6 @@ set( JAM_THIRDPARTY_LIBRARIES
 	release/SDL2_ttf
 )
 
-set_property(TARGET TestInputManager PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${SOURCE_DIR})
+set_property(TARGET TestImgui PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${SOURCE_DIR})
 
-target_link_libraries(TestInputManager ${JAM_THIRDPARTY_LIBRARIES})
+target_link_libraries(TestImgui ${JAM_THIRDPARTY_LIBRARIES})
