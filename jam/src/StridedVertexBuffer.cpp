@@ -106,6 +106,31 @@ void StridedVertexBuffer::addQuad(float x1,float y1,float x2,float y2,uint32_t d
 }
 
 
+void StridedVertexBuffer::addQuad3D(float x1,float y1,float x2,float y2,float depth,uint32_t diffuse,float u1,float v1,float u2,float v2)
+{
+	int16_t vert0 = addVertex3D( x1, y1, depth, diffuse, u1, v1 ) ;
+	int16_t vert1 = addVertex3D( x2, y1, depth, diffuse, u2, v1 ) ;
+	int16_t vert2 = addVertex3D( x2, y2, depth, diffuse, u2, v2 ) ;
+	int16_t vert3 = addVertex3D( x1, y2, depth, diffuse, u1, v2 ) ;
+	addQuadIndices( vert0, vert1, vert2, vert3 ) ;
+}
+
+
+U16 StridedVertexBuffer::addVertex3D( float x, float y, float z, uint32_t c, float tu/*=0.0f*/, float tv/*=0.0f */ )
+{
+	U16 idx = m_startVertexCount + m_vertexCount ;
+	JAM_ASSERT_MSG( (idx<m_maxVertexCount), "StridedVertexBuffer overflow: vertex count: %d", idx+1 ) ;
+
+	m_vertices[idx].vertex.x = x ;
+	m_vertices[idx].vertex.y = y ;
+	m_vertices[idx].vertex.z = z ;
+	m_vertices[idx].color = c ;
+	m_vertices[idx].texCoords.x = tu ;
+	m_vertices[idx].texCoords.y = tv ;
+	m_vertexCount++ ;
+	return idx++ ;
+}
+
 void StridedVertexBuffer::addQuad( const Polygon2f& poly, uint32_t diffuse, float u1, float v1, float u2, float v2 )
 {
 	U16 vert0 = addVertex( poly.getVertex(0).x, poly.getVertex(0).y, diffuse, u1, v1 ) ;
@@ -188,6 +213,11 @@ bool StridedVertexBuffer::isSpaceAvailable( U16 vertexCount, U16 indexCount ) co
 	return ((m_startVertexCount + vertexCount) < m_maxVertexCount) && ((m_startIndexCount + indexCount) < m_maxIndexCount) ;
 }
 
+void StridedVertexBuffer::resize(U16 vertexCount,U16 indexCount)
+{
+	// GZ TODO
+}
+
 void StridedVertexBuffer::upload()
 {
 	JAM_ASSERT(!m_uploaded) ;
@@ -247,6 +277,11 @@ void StridedVertexBuffer::upload()
 
 	void StridedVertexBuffer::update()
 	{
+		// updates a subset of a buffer object's data store
+		// glBufferSubData(	GLenum target, GLintptr offset,	GLsizeiptr size, const void * data)
+		// redefine some or all of the data store for the specified buffer object.
+		// Data starting at byte offset "offset" and extending for "size" bytes is copied to the data store from the memory pointed to by "data".
+		// offset and size must define a range lying entirely within the buffer object's data store
 		glBindBuffer( GL_ARRAY_BUFFER, m_vbo ) ;
 		glBufferSubData( GL_ARRAY_BUFFER, (GLintptr)(m_startVertexCount * sizeof(V3F_C4B_T2F)), getNumOfVertices() * sizeof(V3F_C4B_T2F), getVertexArray() ) ;
 		glBindBuffer( GL_ARRAY_BUFFER, 0 ) ;

@@ -34,6 +34,7 @@
 #include <jam/core/types.h>
 
 #include <cassert>
+#include <stdexcept>
 #include <windows.h>
 
 // When building jam as dll the JAM_EXPORTS symbol is defined in the corresponding dll project

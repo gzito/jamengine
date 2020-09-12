@@ -89,9 +89,7 @@ PsysTestApp::PsysTestApp() :
 
 bool PsysTestApp::init()
 {
-	//Draw3DManager::Origin3D(800,600) ;
-	//Draw3DManager::Origin3D(320*2,480*2) ;
-	Draw3DManager::Origin3D(768,1024) ;
+	Draw3DManager::Origin3D(960,540) ;
 
 	// loaded inside SetupPSysResources
 	//IwGetResManager()->LoadGroup("media/psys.group"); 
@@ -99,14 +97,10 @@ bool PsysTestApp::init()
 	ps->Init();
 	ps->SetupPSysResources("media/psys/");
 
-	// slot 0 is for mouse
-	//m_uiMgr.setSlot(2) ;
-	//m_backMgr.setSlot(-1) ;
-
 	m_pFontTexture = GetDraw3DMgr().LoadFont3D(m_fontname) ;
 
 	// GZ TODO
-//	GetDraw3DMgr().setRenderLevel(1) ;
+	GetGfx().setRenderLevel(1) ;
 
 	GetDrawItemMgr().loadTexture(m_backgroundImageName,"psys") ;		// 50
 	//DrawItemManager::getSingleton().LoadTexture(m_backgroundImageName,"psys",60) ;
@@ -135,10 +129,6 @@ bool PsysTestApp::init()
 	m_partname.push_back("RainbowEmission");
 	m_partname.push_back("StainEmission");
 
-	/*
-	s3eSurfaceRegister(S3E_SURFACE_SCREENSIZE, (s3eCallback) UpdateScreenOrientation, NULL);
-	UpdateScreenOrientation(0);
-	*/
 	GetGfx().setClearColor( Color(0,0,0,0) ) ;
 	lastOptimized=0;
 	m_showtime=true;
@@ -240,26 +230,7 @@ void PsysTestApp::onButtonReleased( TouchEventArgs& args, IEventSource& src )
 
 void PsysTestApp::afterSceneUpdate()
 {
-	/*
-	int32 x = s3eAccelerometerGetX();
-	int32 y = s3eAccelerometerGetY();
-	int32 z = s3eAccelerometerGetZ();
-
-	CIwVec3 r = s_OrientationCompensation.TransposeRotateVec(CIwVec3(x,y,z));
-
-	//dWorldSetGravity (world,r.x/2.0f,-r.y/2.0f,-r.z/2.0f);
-	*/
-
-
 	Draw3DManager::ColorG3D = Color::WHITE ;
-	// GZ TODO
-//	GetDraw3DMgr().setRenderLevel(-4) ;
-	GetDraw3DMgr().DrawImage3D(DrawItemManager::getSingleton().getObject("background1"),0,0);
-
-	//*** Button Print
-
-
-	//m_uiMgr.DrawImage3D(DrawItemManager::getSingleton().getItemById(51),x1,y1, -1, 0) ;
 
 	float size = 1.0f ;
 
@@ -269,11 +240,6 @@ void PsysTestApp::afterSceneUpdate()
 		float x1 = LEFT_SCREEN(16),  y1 = BOTTOM_SCREEN(128) ;
 
 		GetDraw3DMgr().Text3D( m_pFontTexture,x1,y1, name+" "+ std::to_string(m_partType+1)+"/"+std::to_string((int)m_partname.size()) ) ;
-
-		//m_txtMgr.addText(name,CX3D(64),CY3D(448),0,1,1);
-		//m_txtMgr.addText("info1",name+std::string(" ")+toString(m_partType+1)+"/"+toString((int)listsize),LEFT_SCREEN(wi+4),y2,2000,1) ;
-		//m_txtMgr.Text3D(m_pFontTexture,CX3D(0),CY3D(12),std::string("FPS: ") + ftos(getFps(),0), 0,0,0,0,1.5) ;
-		//m_txtMgr.Update();
 
 		if (lastOptimized<GetParticleSystem().getOptimized())
 		{
@@ -313,13 +279,6 @@ void PsysTestApp::afterSceneUpdate()
 		float he=(GetDrawItemMgr().getSingleton().getObject("next-track")->getRect().getHeight())*Draw3DManager::RatioY;
 
 		float x1= LEFT_SCREEN(wi/2); float y1= TOP_SCREEN(he/2);
-
-		//Button3DItem bMenu(m_uiMgr,&DrawItemManager::getSingleton().getById(52),x1,y1,0,size);
-		//if (bMenu.isReleased())
-		//{
-		//	m_showtime=true;
-		//}
-
 	}
 
 	if( !Draw3DManager::MouseDown3DEventDetected ) {
@@ -397,19 +356,15 @@ void PsysTestApp::afterSceneUpdate()
 
 void PsysTestApp::render()
 {
-	/*	CIwMat view;
-	view = s_OrientationCompensation;
-	view.t.z = -200;
-	IwGxSetViewMatrix(&view);*/
+	//if (UpdateScreenOrientation())
+	//{
+	//	Draw3DManager::Origin3D(Draw3DManager::Original3DWidth,Draw3DManager::Original3DHeight) ;
+	//}
 
-	if (UpdateScreenOrientation())
-	{
-		Draw3DManager::Origin3D(Draw3DManager::Original3DWidth,Draw3DManager::Original3DHeight) ;
-	}
+	GetGfx().setRenderLevel( 1 ) ;
+	GetDraw3DMgr().DrawImage3D(DrawItemManager::getSingleton().getObject("background1"),0,0);
 
-	// GZ TODO
-//	GetDraw3DMgr().setRenderLevel( 0 ) ;
-	
+	GetGfx().setRenderLevel( 0 ) ;
 	Draw3DBatch* pBatch = GetGfx().getBatch() ;
 	if( pBatch ) pBatch->begin() ;
 	GetParticleSystem().updateRender();
@@ -443,20 +398,6 @@ float PsysTestApp::getFps( float rate /*= 1.0f*/ )
 //*************************************************************************
 bool PsysTestApp::UpdateScreenOrientation()
 {
-#ifdef GZ_DISABLED_CODE
-	//IwGxGetScreenOrient
-	if (IwGxGetScreenOrient() != lastScreenOrient)
-	{
-		lastScreenOrient=IwGxGetScreenOrient() ;
-		return true;
-	}
-	else
-	{
-		lastScreenOrient=IwGxGetScreenOrient() ;
-		return false;
-	}
-#endif
-
 	return false ;
 }
 
@@ -470,31 +411,6 @@ void PsysTestApp::onBatchPressed( TouchEventArgs& args, IEventSource& src )
 		GetGfx().setBatch(m_pBatch) ;
 	}
 }
-
-/*
-//... On initialization:
-
-s3eSurfaceRegister(S3E_SURFACE_SCREENSIZE, (s3eCallback) UpdateScreenOrientation, NULL);
-UpdateScreenOrientation(0,0);
-
-//... On render:
-
-CIwMat view;
-view = s_OrientationCompensation;
-view.t.z = -200;
-IwGxSetViewMatrix(&view);
-
-//... On each frame:
-
-int32 x = s3eAccelerometerGetX();
-int32 y = s3eAccelerometerGetY();
-int32 z = s3eAccelerometerGetZ();
-
-CIwVec3 r = s_OrientationCompensation.TransposeRotateVec(CIwVec3(x,y,z));
-
-dWorldSetGravity (world,r.x/2.0f,-r.y/2.0f,-r.z/2.0f);
-
-*/
 
 
 //*************************************************************************

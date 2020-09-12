@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include <jam/Draw3dManager.h>
+#include <jam/Gfx.h>
 
 using namespace jam ;
 
@@ -38,38 +39,6 @@ void Particle3D::update()
 		if (alpha!=NULL)	alpha->update();
 		if (angle!=NULL)	angle->update();
 		if (color!=NULL)	color->update();
-
-#ifdef _DEBUG
-		if (entity) 
-#endif
-		{
-#ifdef _RENDER
-			//Draw3DAlpha(entity,alpha->alpha);
-			//DrawImage3D(entity,pos->x,pos->y,0,angle->alfa,scale->Scale,frame);
-
-			//this->emitter->quad->setTexture(entity);
-
-			/*
-			Draw3DImageManager* quad = this->emitter->drawingObject.get() ;			
-			quad->DrawImage3D(entity->getName() ,0,pos->x,pos->y,0,0,scale->Scale) ; 
-			*/
-			//Draw3DImageManager* quad = this->emitter->drawingObject.get() ;			
-			if (alpha->alpha>0.2f || scale->Scale>0.2f  )
-			{
-				item.setSceneBlend(blendMode);
-				quad->ColorG3D=Ogre::ColourValue(color->R,color->G,color->B, alpha->alpha);
-				quad->DrawImage3D(item,pos->x,pos->y,0,angle->alfa,scale->Scale) ; 
-				quad->ColorG3D=Ogre::ColourValue();
-			}
-			else
-			{
-				if ((alpha->stepAlpha<=0) || (scale->dScale<=0))
-				{
-					SetRemovable();
-				}
-			}
-#endif
-		}
 	} 
 }
 
@@ -195,10 +164,11 @@ void Particle3D::updateRender()
 				}
 			}
 			item->setBlendingMode(blendMode);
+			item->getMaterial()->setBlendEnabled(true) ;
 			Draw3DManager::ColorG3D = Color(color->R,color->G,color->B,alpha->alpha) ;
 
 			// TODO GZ
-//			GetDraw3DMgr().setRenderLevel( PARENT_PSYS->getLevel() ) ;
+			GetGfx().setRenderLevel( PARENT_PSYS->getLevel() ) ;
 			GetDraw3DMgr().DrawImage3D(item,pos->x + emitter->GetPivotX() ,pos->y + emitter->GetPivotY(),0,angle->alfa,scale->Scale) ; 
 			Draw3DManager::ColorG3D = Color::WHITE;
 

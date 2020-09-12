@@ -32,13 +32,15 @@
 
 #include <jam/jam.h>
 #include <jam/Singleton.h>
+#include <jam/String.h>
 
 #include <SDL.h>
+#include <map>
 
 // todo : method to choose the maximum number of handled touches
 #define JAM_MAX_TOUCHES   1
 
-namespace jam\
+namespace jam
 {
 class Timer ;
 
@@ -60,14 +62,10 @@ public:
 public:
 	static const uint64_t	DefaultDoubleTapMaxDelayMs ;
 
-	KeyStatus				m_keyMap[SDL_NUM_SCANCODES+1] ;
-	KeyStatus				m_mouseButtonsMap[SDL_BUTTON_X2+1] ;
-	double					m_pointerX ;
-	double					m_pointerY ;
-	double					m_pointerScrollX ;
-	double					m_pointerScrollY ;
-	
 public:
+	/** Returns true if the given key is currently down. */
+	KeyStatus				getKeyState(jam::key key) const ;
+
 	/** Returns true if the given key is currently down. */
 	bool					keyDown(jam::key key) const ;
 
@@ -84,11 +82,11 @@ public:
 	bool					isPointerAvailable() const ;
 
 	/** Return the pointer state.
-	 \param pb One of GLFW_MOUSE_BUTTON_LEFT, GLFW_MOUSE_BUTTON_MIDDLE, GLFW_MOUSE_BUTTON_RIGHT
+	 \param pb One of SDL_BUTTON_LEFT, SDL_BUTTON_MIDDLE, SDL_BUTTON_RIGHT
 	 \remark Pointer state can be one of UP, DOWN, PRESSED, RELEASED
 	 \sa s3ePointerState
 	*/
-	int						getPointerState(int pb) const ;
+	KeyStatus				getPointerState(int pb) const ;
 
 	/** Returns pointer's x-coordinate (piv-centered). */
 	float					getPointerX() const;
@@ -119,7 +117,7 @@ public:
 	 Calling this with touchID 0 is the equivalent of calling getPointerState(S3E_POINTER_BUTTON_SELECT), even if multitouch is not supported.
 	 \sa getPointerState
 	*/
-	int						getTouchState(uint32_t touchId) const ;
+	KeyStatus				getTouchState(uint32_t touchId) const ;
 	
 	/** Returns touch's x-coordinate (piv-centered) for a given touchId. */
 	float					getTouchX(uint32_t touchId) const ;
@@ -156,6 +154,8 @@ public:
 	Timer&					getUpdateTimer() ;
 	const Timer&			getUpdateTimer() const ;
 
+	static String			keyStatusString(KeyStatus ks) ;
+
 protected:
 	void					update() ;
 	void					touchUpdate() ;
@@ -169,6 +169,17 @@ private:
 	void					mouseScrollCallback( SDL_MouseWheelEvent& e );
 
 private:
+	KeyStatus				m_keyMap[SDL_NUM_SCANCODES+1] ;
+	std::map<U32,bool>		m_keyChange ;
+
+	KeyStatus				m_mouseButtonsMap[SDL_BUTTON_X2+1] ;
+	bool					m_mouseButtonsChange[SDL_BUTTON_X2+1] ;
+
+	double					m_pointerX ;
+	double					m_pointerY ;
+	double					m_pointerScrollX ;
+	double					m_pointerScrollY ;
+	
 	int32_t					m_maxNumberOfTouches ;
 
 	float					m_touchX[JAM_MAX_TOUCHES] ;
@@ -179,6 +190,8 @@ private:
 	bool					m_doubleTap[JAM_MAX_TOUCHES] ;
 	uint64_t				m_lastTapTime[JAM_MAX_TOUCHES] ;
 	uint64_t				m_doubleTapDelay ;
+
+	uint16_t				m_frame ;
 
 	InputManager() ;
 	virtual ~InputManager() ;

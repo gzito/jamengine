@@ -139,9 +139,8 @@ void PSYS::update()
 }
 void PSYS::updateRender()
 {
-
-
 	//DbgPrintf("PSYS::update Remove");
+
 	for (idEm=0; idEm<emitters.size(); idEm++)
 	{
 		if (emitters[idEm]->status==PSYS_GO  )	
@@ -156,11 +155,10 @@ void PSYS::updateRender()
 }
 
 
-PSYS::PSYS():idEm(0), alives(0), zombies(0), optimized(0), slot(1)
+PSYS::PSYS():idEm(0), alives(0), zombies(0), optimized(0), slot(0)
 {
 	emitters.reserve(MAX_EMITTERS_POOL);
 	groups.clear();
-	//eremoved.reserve(MAX_EMITTERS_POOL);
 }
 
 // ******************************************************************************
@@ -191,13 +189,6 @@ Particle3D* PSysSetAlpha(Particle3D* pDest,float alpha, float endAlpha, float au
 		else
 		{
 			pDest->alpha->stepAlpha = Sgn(pDest->alpha->endAlpha - pDest->alpha->startAlpha) * 0.1f;
-			/*
-			if ( autoFadeNext<>PSYS_NULL && autoFadeFar<>PSYS_NULL )  
-			{
-			pDest->alpha.fadeNext = autoFadeNext;
-			pDest->alpha.fadeFar = autoFadeFar;
-			}	
-			*/
 		}
 	}
 	else

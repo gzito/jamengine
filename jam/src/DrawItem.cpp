@@ -34,7 +34,7 @@
 namespace jam
 {
 
-const BlendMode DrawItem::DEFAULT_BLEND_MODE = BlendMode(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) ;
+const BlendMode DrawItem::DEFAULT_BLEND_MODE = BlendMode::Normal ;
 
 Material* DrawItem::getMaterial() const
 {

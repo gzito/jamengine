@@ -36,86 +36,218 @@
 namespace jam
 {
 
-	/*!
-		\class Array
+/*!
+	\class Array
 
-		Wraps statically-allocated native arrays
-	*/
-	template<typename T, size_t numOfElements> class Array
-	{
-	public:
-		Array() {}
-		~Array() {}
+	Wraps statically-allocated native arrays
+*/
+template<typename T, size_t numOfElements> class Array
+{
+public:
+							Array() {}
+							~Array() {}
 
-		// the number of elements into the array
-		size_t length() const { return numOfElements; }
+	// the number of elements into the array
+	size_t					length() const { return numOfElements; }
 
-		// zeroes the array
-		void setZero() { memset( m_data, 0, byteSize() ) ; }
+	// zeroes the array
+	void					setZero() { memset( m_data, 0, byteSize() ) ; }
 
-		// sets with given value
-		void set( const T& fill ) { for(int i=0; i<length(); i++) { m_data[i] = fill ; } }
+	// sets with given value
+	void					set( const T& fill ) { for(int i=0; i<length(); i++) { m_data[i] = fill ; } }
 
-		void copyFrom( const T* buff ) { memcpy( m_data, buff, byteSize() ) ; }
-		void copyFrom( const T* buff, size_t bytesCount ) { memcpy( m_data, buff, bytesCount ) ; }
+	void					copyFrom( const T* buff ) { memcpy( m_data, buff, byteSize() ) ; }
+	void					copyFrom( const T* buff, size_t bytesCount ) { memcpy( m_data, buff, bytesCount ) ; }
 
-		// the number of bytes occupied by the array
-		size_t byteSize() const { return sizeof(T)*numOfElements; }
+	// the number of bytes occupied by the array
+	size_t					byteSize() const { return sizeof(T)*numOfElements; }
 
-		// array operators
-		const T&		operator[]( size_t idx ) const { JAM_ASSERT( idx < numOfElements ); return m_data[idx]; }
-		T&				operator[]( size_t idx ) { JAM_ASSERT( idx < numOfElements ); return m_data[idx]; }
+	// array operators
+	const T&				operator[]( size_t idx ) const { JAM_ASSERT( idx < numOfElements ); return m_data[idx]; }
+	T&						operator[]( size_t idx ) { JAM_ASSERT( idx < numOfElements ); return m_data[idx]; }
 
-		// returns a pointer to the underlying native array
-		const T*		data() const { return m_data; }
-		T*				data() { return m_data; }
+	// returns a pointer to the underlying native array
+	const T*				data() const { return m_data; }
+	T*						data() { return m_data; }
 
-	private:
-		T				m_data[numOfElements] ;
-	};			
+private:
+	T						m_data[numOfElements] ;
+};			
 
 
-	/*!
-		\class HeapArray
+/*!
+	\class HeapArray
 
-		Wraps dynamically-allocated native array
-	*/
-	template<typename T> class HeapArray
-	{
-	public:
-		HeapArray(int size = 0 ) : m_numOfElements(0), m_data(0) { if(size) { create(size); } }
-		~HeapArray() { destroy(); }
+	Wraps dynamically-allocated native array
+*/
+template<typename T> class HeapArray
+{
+public:
+							HeapArray(int size = 0 ) ;
+							~HeapArray() { destroy(); }
 
-		void create(size_t size) { if(m_data) { destroy(); } m_numOfElements = size; m_data = new T[size]; }
-		void destroy() { JAM_DELETE(m_data); }
+							HeapArray( const HeapArray<T>& other ) ;
+	HeapArray<T>&			operator=( const HeapArray<T>& other ) ;
 
-		// the number of elements into the array
-		size_t length() const { return m_numOfElements; }
+							HeapArray( HeapArray<T>&& other ) ;
+	HeapArray<T>&			operator=( HeapArray<T>&& other ) ;
 
-		// zeroes the array
-		void setZero() { memset( m_data, 0, byteSize() ) ; }
+	void					create(size_t size) ;
+	void					destroy() ;
 
-		// sets with given value
-		void set( const T& fill ) { for(int i=0; i<length(); i++) { m_data[i] = fill ; } }
+	// the number of elements into the array
+	size_t					length() const { return m_numOfElements; }
 
-		void copyFrom( const T* buff ) { memcpy( m_data, buff, byteSize() ) ; }
-		void copyFrom( const T* buff, size_t bytesCount ) { memcpy( m_data, buff, bytesCount ) ; }
+	// the number of bytes occupied by the array
+	size_t					byteSize() const { return sizeof(T)*m_numOfElements; }
 
-		// the number of bytes occupied by the array
-		size_t byteSize() const { return sizeof(T)*m_numOfElements; }
+	// zeroes the array
+	void					setZero() ;
 
-		// array operators
-		const T&		operator[]( size_t idx ) const { JAM_ASSERT( idx < m_numOfElements ); return m_data[idx]; }
-		T&				operator[]( size_t idx ) { JAM_ASSERT( idx < m_numOfElements ); return m_data[idx]; }
+	// resize the array, trying to keep the existing content
+	void					resize( int newSize ) ;
 
-		// returns a pointer to the underlying native array
-		const T*		data() const { return m_data; }
-		T*				data() { return m_data; }
+	// sets with given value
+	void					set( const T& fill ) ;
 
-	private:
-		T*				m_data ;
-		size_t			m_numOfElements ;
-	};			
+	static void				copy( const HeapArray<T>& sourceArray, HeapArray<T>& destinationArray, long length ) ;
+
+	// Copies all the elements of the current array to the specified array starting at the specified destination array index. 
+	void					copyTo( HeapArray<T>& array, size_t index ) ;
+
+	void					copyFrom( const T* buff ) ;
+	void					copyFrom( const T* buff, size_t bytesCount ) ;
+
+	// array operators
+	const T&				operator[]( size_t idx ) const { JAM_ASSERT( idx < m_numOfElements ); return m_data[idx]; }
+	T&						operator[]( size_t idx ) { JAM_ASSERT( idx < m_numOfElements ); return m_data[idx]; }
+
+	// returns a pointer to the underlying native array
+	const T*				data() const { return m_data; }
+	T*						data() { return m_data; }
+
+private:
+	T*						m_data ;
+	size_t					m_numOfElements ;
+};			
+
+template<typename T>
+inline HeapArray<T>::HeapArray(int size /* = 0 */ )
+	: m_numOfElements(0), m_data(0)
+{
+	if( size ) { 
+		create(size);
+	}
+}
+
+template<typename T>
+inline HeapArray<T>::HeapArray(const HeapArray<T>& other)
+{
+	*this = other ;
+}
+
+template<typename T>
+inline HeapArray<T>& HeapArray<T>::operator=(const HeapArray<T>& other)
+{
+	if( this != &other ) {
+		create(other.length()) ;
+		copy( other, *this, other.length() ) ;
+		m_numOfElements = other.m_numOfElements ;
+	}
+
+	return *this ;
+}
+
+template<typename T>
+inline HeapArray<T>::HeapArray(HeapArray<T>&& other) : m_data(nullptr), m_numOfElements(0)
+{
+	m_data = other.m_data ;
+	m_numOfElements = other.m_numOfElements ;
+	other.m_data = nullptr ;
+	other-m_numOfElements = 0 ;
+}
+
+template<typename T>
+inline HeapArray<T>& HeapArray<T>::operator=(HeapArray<T>&& other)
+{
+	if( this != &other ) {
+		JAM_DELETE_ARRAY(m_data) ;
+		m_data = other.m_data ;
+		m_numOfElements = other.m_numOfElements ;
+		other.m_data = nullptr ;
+		other-m_numOfElements = 0 ;
+	}
+
+	return *this ;
+}
+
+template<typename T>
+inline void HeapArray<T>::create(size_t size)
+{
+	if(m_data) { 
+		destroy();
+	} 
+	m_numOfElements = size; 
+	m_data = new T[size];
+}
+
+template<typename T>
+inline void HeapArray<T>::destroy()
+{
+	JAM_DELETE_ARRAY(m_data);
+	m_data = nullptr ;
+	m_numOfElements = 0 ;
+}
+
+template<typename T>
+inline void HeapArray<T>::setZero()
+{
+	memset( m_data, 0, byteSize() ) ;
+}
+
+template<typename T>
+inline void HeapArray<T>::resize(int newSize)
+{
+	T* newArray = new T[newSize] ;
+	memcpy( newArray, m_data, byteSize() ) ;
+	destroy() ;
+
+	m_data = newArray ;
+	m_numOfElements = newSize ;
+}
+
+template<typename T>
+inline void HeapArray<T>::set(const T& fill)
+{
+	for(int i=0; i<length(); i++) { 
+		m_data[i] = fill ;
+	}
+}
+
+template<typename T>
+inline void HeapArray<T>::copy(const HeapArray<T>& sourceArray,HeapArray<T>& destinationArray,long length)
+{
+	memcpy( destinationArray.data(), sourceArray.data(), length*sizeof(T) );
+}
+
+template<typename T>
+inline void HeapArray<T>::copyTo(HeapArray<T>& array,size_t index)
+{
+	memcpy( &array[index], m_data, sizeof(T)*(array.length() - index) ) ;
+}
+
+template<typename T>
+inline void HeapArray<T>::copyFrom(const T* buff)
+{
+	copyFrom( buff, byteSize() ) ;
+}
+
+template<typename T>
+inline void HeapArray<T>::copyFrom(const T* buff,size_t bytesCount)
+{
+	memcpy( m_data, buff, bytesCount ) ;
+}
+
 }
 
 #endif // __JAM_ARRAY_H__

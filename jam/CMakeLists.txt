@@ -88,6 +88,7 @@ set(JAM_main_SRCS
 	src/SkinnedModel.cpp
 	src/SkyBox.cpp
 	src/Sprite.cpp
+	src/SpriteBatch.cpp
 	src/SpriteMesh.cpp
 	src/SpritePoolManager.cpp
 	src/SpriteRenderer.cpp
@@ -177,6 +178,7 @@ set(JAM_main_HDRS
 	include/jam/SkinnedModel.h
 	include/jam/SkyBox.h
 	include/jam/Sprite.h
+	include/jam/SpriteBatch.h
 	include/jam/SpriteMesh.h
 	include/jam/SpritePoolManager.h
 	include/jam/SpriteRenderer.h

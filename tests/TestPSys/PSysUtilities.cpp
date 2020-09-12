@@ -2,6 +2,7 @@
 #include <jam/Draw3dManager.h>
 #include <jam/DrawItemManager.h>
 #include <jam/core/bmkextras.hpp>
+#include <jam/Gfx.h>
 #include <PSys.h>
 
 #define PIGRECO			3.14159265358979323846
@@ -25,7 +26,7 @@ void PSysHelper::Init()
 	SparklePoolIndex=0;
 
 	// GZ TODO
-//	GetDraw3DMgr().setRenderLevel(0);
+	GetGfx().setRenderLevel(0);
 }
 
 //***********************************************************************************************
@@ -36,13 +37,13 @@ void PSysHelper::SetupPSysResources( const String& path )
 	if (!BubbleParticleImage) BubbleParticleImage=GetDrawItemMgr().loadTexture(path + "bubble.png","psys")->getTexture();		// 501
 	if (!IceParticleImage) IceParticleImage=GetDrawItemMgr().loadTexture(path + "ice.png","psys")->getTexture();				// 502
 	if (!SparkleParticleImage) SparkleParticleImage=GetDrawItemMgr().loadTexture(path + "Sparkle.bmp","psys")->getTexture();	// 503
-	if (!GlowParticleImage) GlowParticleImage=GetDrawItemMgr().loadTexture(path + "glow.bmp","psys")->getTexture();				// 504
+	if (!GlowParticleImage) GlowParticleImage=GetDrawItemMgr().loadTexture(path + "glow.png","psys")->getTexture();				// 504
 	if (!BlastParticleImage) BlastParticleImage=GetDrawItemMgr().loadTexture(path + "Blast.png","psys")->getTexture();			// 505
 	if (!DustParticleImage) DustParticleImage=GetDrawItemMgr().loadTexture(path + "Debris.png","psys")->getTexture();			// 506
 	if (!RippleParticleImage) RippleParticleImage=GetDrawItemMgr().loadTexture(path + "ripple2.png","psys")->getTexture();		// 507
 	if (!RainParticleImage) RainParticleImage=GetDrawItemMgr().loadTexture(path + "rain.png","psys")->getTexture();				// 508
 	if (!ThunderParticleImage) ThunderParticleImage=GetDrawItemMgr().loadTexture(path + "thunder.png","psys")->getTexture();	// 509
-	if (!StarSparkleParticleImage) StarSparkleParticleImage=GetDrawItemMgr().loadTexture(path + "star.bmp","psys")->getTexture();	// 510
+	if (!StarSparkleParticleImage) StarSparkleParticleImage=GetDrawItemMgr().loadTexture(path + "star.png","psys")->getTexture();	// 510
 	if (!BigDustParticleImage) BigDustParticleImage=GetDrawItemMgr().loadTexture(path + "Smoke2.png","psys")->getTexture();		// 511
 	if (!JellySprite) JellySprite=GetDrawItemMgr().loadTexture(path + "jelly.png","psys")->getTexture();						// 512
 	if (!StainParticleImage) StainParticleImage=GetDrawItemMgr().loadTexture(path + "stain.png","psys")->getTexture();			// 513

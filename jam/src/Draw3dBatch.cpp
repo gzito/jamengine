@@ -126,7 +126,7 @@ void Draw3DBatch::flush()
 		if( m_pVertexBuffer->isUploaded() ) { 
 			m_pVertexBuffer->update() ;
 		}
-		GetGfx().drawIndexedPrimitive( m_pVertexBuffer, m_pCurrentMaterial, m_currentSlotID, m_pVertexBuffer->getStartIndexCount()*sizeof(U16), (GLenum)m_currentPrimType ) ;
+		GetGfx().drawIndexedPrimitive( m_pVertexBuffer, m_pCurrentMaterial, m_pVertexBuffer->getStartIndexCount()*sizeof(U16), (GLenum)m_currentPrimType ) ;
 	}
 }
 
@@ -145,9 +145,6 @@ void Draw3DBatch::resetState()
 
 bool Draw3DBatch::isStateChanged( GLenum primType, Material* pMateral, int32_t slotID ) const
 {
-// 	return (m_currentPrimType != -1 && primType != (IwGxPrimType)m_currentPrimType) ||
-// 		(m_pCurrentMaterial && pMateral != m_pCurrentMaterial) || 
-// 		(m_currentSlotID != INT32_MAX && m_currentSlotID != slotID ) ;
 	if (m_currentPrimType != -1 && primType != (GLenum)m_currentPrimType)
 	{
 #ifdef JAM_TRACE_BATCH
@@ -163,7 +160,7 @@ bool Draw3DBatch::isStateChanged( GLenum primType, Material* pMateral, int32_t s
 #endif
 		return true ;
 	}
-	
+/*	
 	if (m_currentSlotID != INT32_MAX && m_currentSlotID != slotID )
 	{
 #ifdef JAM_TRACE_BATCH
@@ -171,7 +168,7 @@ bool Draw3DBatch::isStateChanged( GLenum primType, Material* pMateral, int32_t s
 #endif
 		return true ;
 	}
-
+*/
 	return false ;
 }
 

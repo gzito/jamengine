@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <jam/Draw3dManager.h>
+#include <jam/Gfx.h>
 
 using namespace jam ;
 
@@ -113,7 +114,7 @@ void ParticleSprite3D::updateRender()
 		if (render)
 		{
 			// TODO GZ
-//			GetDraw3DMgr().setRenderLevel( PARENT_PSYS->getLevel() ) ;
+			GetGfx().setRenderLevel( PARENT_PSYS->getLevel() ) ;
 			if (PARENT_PSYS->totalParticles()>emitter->m_optimize_max_particles_emitted)
 			{
 				SetRemovable();
@@ -147,6 +148,7 @@ void ParticleSprite3D::updateRender()
 				}
 			}
 			item->setBlendingMode(blendMode);
+			item->getMaterial()->setBlendEnabled(true) ;
 			Draw3DManager::ColorG3D = Color(color->R,color->G,color->B,alpha->alpha) ;
 			GetDraw3DMgr().DrawImage3D(item,pos->x + emitter->GetPivotX() ,pos->y + emitter->GetPivotY(),0,angle->alfa,scale->Scale) ; 			
 		} 

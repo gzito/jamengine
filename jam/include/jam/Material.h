@@ -44,13 +44,13 @@ class JAM_API BlendMode
 {
 public:
 	BlendMode() ;
-	BlendMode( GLenum srcFactor, GLenum destFactor, GLenum blendEquation = GL_FUNC_ADD ) ;
+	BlendMode( GLenum srcFactor, GLenum dstFactor, GLenum blendEquation = GL_FUNC_ADD ) ;
 
-	void					setBlendFunc( GLenum srcFactor, GLenum destFactor ) ;
-	void					setBlendEquation(GLenum val) ;
+	void					setBlendFunc( GLenum srcFactor, GLenum dstFactor ) ;
+	void					setBlendEquation(GLenum modeRGB) ;
 
-	GLenum					getBlendFuncSrcFactor() const ;
-	GLenum					getBlendFuncDstFactor() const ;
+	GLenum					getBlendFuncSrc() const ;
+	GLenum					getBlendFuncDst() const ;
 	GLenum					getBlendEquation() const ;
 
 	static const BlendMode  Normal ;
@@ -59,8 +59,8 @@ public:
 	static const BlendMode	Multiplicative ;
 
 private:
-	GLenum					m_blendFuncSrcFactor ;
-	GLenum					m_blendFuncDstFactor ;
+	GLenum					m_blendFuncSrc ;
+	GLenum					m_blendFuncDst ;
 	GLenum					m_blendEquation ;
 };
 
@@ -127,6 +127,10 @@ private:
 	Shader*					m_pShader ;
 };
 
+JAM_INLINE GLenum			BlendMode::getBlendFuncSrc() const { return m_blendFuncSrc; }
+JAM_INLINE GLenum			BlendMode::getBlendFuncDst() const { return m_blendFuncDst; }
+JAM_INLINE GLenum			BlendMode::getBlendEquation() const { return m_blendEquation; }
+
 JAM_INLINE Color			Material::getAmbientColor() const { return m_ambient; }
 JAM_INLINE Color			Material::getDiffuseColor() const { return m_diffuse; }
 JAM_INLINE Color			Material::getSpecularColor() const { return m_specular; }
@@ -134,12 +138,6 @@ JAM_INLINE float			Material::getShininess() const { return m_shininess; }
 JAM_INLINE bool				Material::getBlendEnabled() const { return m_blendEnabled; }
 JAM_INLINE BlendMode		Material::getBlendMode() const { return m_blendMode; }
 JAM_INLINE void				Material::setBlendEnabled(bool fval) { m_blendEnabled = fval; }
-
-JAM_INLINE GLenum			BlendMode::getBlendFuncSrcFactor() const { return m_blendFuncSrcFactor; }
-JAM_INLINE GLenum			BlendMode::getBlendFuncDstFactor() const { return m_blendFuncDstFactor; }
-
-JAM_INLINE GLenum			BlendMode::getBlendEquation() const { return m_blendEquation; }
-JAM_INLINE void				BlendMode::setBlendEquation(GLenum val) { m_blendEquation = val; }
 
 
 class JAM_API MaterialManager : public NamedObjectManager<Material>, public jam::Singleton<MaterialManager>

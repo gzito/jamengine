@@ -34,7 +34,7 @@
 namespace jam
 {
 
-	VertexBufferObject::VertexBufferObject( GLenum target /*= GL_ARRAY_BUFFER*/ ) : m_vbo(0), m_type(0)
+	VertexBufferObject::VertexBufferObject( GLenum target /*= GL_ARRAY_BUFFER*/ ) : m_vbo(0), m_type(target)
 	{
 	}
 
@@ -72,7 +72,14 @@ namespace jam
 
 	void VertexBufferObject::bufferData( GLsizeiptr size, const GLvoid * data, GLenum usage /*= GL_STATIC_DRAW*/ )
 	{
+		// creates and initializes a buffer object's data store
 		glBufferData( m_type, size, data, usage) ;
+	}
+
+	void VertexBufferObject::bufferSubData( GLintptr offset, GLsizeiptr size, const GLvoid * data )
+	{
+		// updates a subset of a buffer object's data store
+		glBufferSubData( m_type, offset, size, data ) ;
 	}
 
 }

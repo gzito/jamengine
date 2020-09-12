@@ -41,6 +41,7 @@ add_subdirectory(jampsys)
 if(JAM_BUILD_EXAMPLES)
   add_subdirectory(tests/FallingBoxes)
   add_subdirectory(tests/SpritesDemo)
+  add_subdirectory(tests/TestInputManager)
   add_subdirectory(tests/TestPrimitives)
   add_subdirectory(tests/TestPSys)
 

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <jam/Application.h>
+#include <jam/Gfx.h>
 
 using namespace jam ;
 
@@ -124,8 +125,7 @@ bool PSysEmitter::updateRender()
 {
 	PARTICLE *p;
 	bool ret=false;
-//  Originally commented 
-//	GetDraw3DMgr().setRenderLevel( PARENT_PSYS->getLevel() ) ;
+
 	for (idPa=0; idPa<particles.size(); idPa++) 
 	{
 		p=particles[idPa];

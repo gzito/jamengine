@@ -42,7 +42,7 @@ using namespace std ;
 namespace jam
 {
 
-Gfx::Gfx() : m_batch(0), m_renderLevel(0), m_pVBuff(0), m_handle(0), m_pType(GL_TRIANGLES)
+Gfx::Gfx() : m_batch(0), m_renderLevel(0), m_pVBuff(0), m_handle(0), m_pType(GL_TRIANGLES), m_lastSlotID(0)
 {
 }
 
@@ -147,26 +147,22 @@ void Gfx::clear( GLbitfield mask )
 void Gfx::drawPrimitive( VertexArrayObject * pVao, size_t numOfVertices, Material * pMaterial, GLenum pType)
 {
 	pVao->bind() ;
-
 	pMaterial->bind() ;
 	glDrawArrays( pType, 0, (GLsizei)numOfVertices );
 	pMaterial->unbind() ;
-
 	pVao->unbind() ;
 }
 
 void Gfx::drawIndexedPrimitive( VertexArrayObject* pVao, size_t numOfElements, Material* pMaterial, U16 offset /*= 0*/, GLenum pType /*= GL_TRIANGLES */ )
 {
 	pVao->bind() ;
-
 	pMaterial->bind() ;
 	glDrawElements( pType, (GLsizei)numOfElements, GL_UNSIGNED_SHORT, (const void*)offset );
 	pMaterial->unbind() ;
-
 	pVao->unbind() ;
 }
 
-void Gfx::drawIndexedPrimitive( IVertexBuffer* pVBuff, Material* pMaterial, int32_t slotID, U16 offset /*= 0*/, GLenum pType /*= GL_TRIANGLES */ )
+void Gfx::drawIndexedPrimitive( IVertexBuffer* pVBuff, Material* pMaterial, U16 offset /*= 0*/, GLenum pType /*= GL_TRIANGLES */ )
 {
 	pVBuff->bindVao() ;
 	pMaterial->bind() ;
@@ -177,7 +173,7 @@ void Gfx::drawIndexedPrimitive( IVertexBuffer* pVBuff, Material* pMaterial, int3
 
 void Gfx::setRenderLevel(int level)
 {
-	// TODO
+	m_renderLevel = level ;
 }
 
 void Gfx::draw( IVertexBuffer* pVBuff, DrawItem* item, GLenum pType /*= GL_TRIANGLES*/ )
@@ -189,7 +185,7 @@ void Gfx::draw( IVertexBuffer* pVBuff, DrawItem* item, GLenum pType /*= GL_TRIAN
 void Gfx::draw( IVertexBuffer* pVBuff, Material* pMaterial, GLenum pType /*= GL_TRIANGLES*/ )
 {
 	if( !isBatchingInProgress() && pVBuff->getNumOfVertices() > 0 ) {
-		drawIndexedPrimitive(pVBuff, pMaterial, 0, 0U, pType) ;
+		drawIndexedPrimitive(pVBuff, pMaterial, 0, pType) ;
 	}
 }
 
@@ -204,14 +200,14 @@ bool Gfx::isBatchingInProgress() const
 }
 
 
-StridedVertexBuffer& Gfx::getVertexBuffer( DrawItem* handle, uint16_t vCount, uint16_t iCount, int32_t slotID /*= 0*/ , GLenum pType /*= GL_TRIANGLES */ )
+StridedVertexBuffer& Gfx::getVertexBuffer( DrawItem* handle, uint16_t vCount, uint16_t iCount, GLenum pType /*= GL_TRIANGLES */ )
 {
 	m_handle = handle ;
 	m_pType = pType ;
-	m_lastSlotID = slotID ;
+	m_lastSlotID = m_renderLevel ;
 
 	if( isBatchingInProgress() ) {
-		m_pVBuff = getBatch()->check(handle,vCount,iCount,slotID,pType);
+		m_pVBuff = getBatch()->check(handle,vCount,iCount,m_renderLevel,pType);
 	}
 	else {
 		m_pVBuff = new StridedVertexBuffer( vCount, iCount );

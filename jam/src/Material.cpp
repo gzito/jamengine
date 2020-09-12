@@ -41,35 +41,44 @@ namespace jam
 
 	// Normal blending 
 	// output = (source_factor * source_fragment) + (0 * destination fragment) -> output = source_factor * source_fragment ;
-	const BlendMode	BlendMode::Normal(GL_SRC_COLOR, GL_ZERO, GL_FUNC_ADD) ;
+	const BlendMode	BlendMode::Normal(GL_SRC_COLOR, GL_DST_COLOR) ;
 
 	// Alpha Blending, also known as Interpolative Blending
 	// output = (source_alpha * source_fragment) + ((1 – source_alpha) * destination_fragment)
-	const BlendMode	BlendMode::AlphaBlend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_FUNC_ADD) ;
+	const BlendMode	BlendMode::AlphaBlend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) ;
 
 	// Additive Blending
 	// output = (1 * source_fragment) + (1 * destination_fragment) -> output = source_fragment + destination_fragment
-	const BlendMode	BlendMode::Additive(GL_ONE, GL_ONE, GL_FUNC_ADD)  ;
+	const BlendMode	BlendMode::Additive(GL_SRC_ALPHA, GL_ONE)  ;
 
 	// Modulation Blending
 	// output = (destination_factor * source_fragment) + (0 * destination fragment) -> output = source_fragment * destination_factor
-	const BlendMode	BlendMode::Multiplicative(GL_DST_COLOR, GL_ZERO, GL_FUNC_ADD)  ;
+	const BlendMode	BlendMode::Multiplicative(GL_DST_COLOR, GL_ZERO)  ;
 
 	BlendMode::BlendMode() : 
-		m_blendFuncSrcFactor(GL_SRC_ALPHA), m_blendFuncDstFactor(GL_ONE_MINUS_SRC_ALPHA), m_blendEquation(GL_FUNC_ADD)
+		m_blendFuncSrc(GL_SRC_ALPHA),
+		m_blendFuncDst(GL_ONE_MINUS_SRC_ALPHA),
+		m_blendEquation(GL_FUNC_ADD)
 	{
 	}
 	
-	BlendMode::BlendMode(GLenum srcFactor,GLenum destFactor,GLenum blendEquation /* = GL_FUNC_ADD */) :
-		m_blendFuncSrcFactor(srcFactor), m_blendFuncDstFactor(destFactor), m_blendEquation(blendEquation)
+	BlendMode::	BlendMode( GLenum srcFactor, GLenum dstFactor, GLenum blendEquation /*= GL_FUNC_ADD*/ ) :
+		m_blendFuncSrc(srcFactor),
+		m_blendFuncDst(dstFactor),
+		m_blendEquation(blendEquation)
 	{
 
 	}
 
-	void BlendMode::setBlendFunc(GLenum srcFactor,GLenum destFactor)
+	void BlendMode::setBlendFunc( GLenum srcFactor, GLenum dstFactor )
 	{
-		m_blendFuncSrcFactor = srcFactor ;
-		m_blendFuncDstFactor = destFactor ;
+		m_blendFuncSrc = srcFactor ;
+		m_blendFuncDst = dstFactor ;
+	}
+
+	void BlendMode::setBlendEquation(GLenum modeRGB )
+	{
+		m_blendEquation = modeRGB ;
 	}
 
 	//*******************
@@ -254,7 +263,7 @@ namespace jam
 		if( this->getBlendEnabled() ) {
 			glEnable(GL_BLEND) ;
 			BlendMode bm = this->getBlendMode() ;
-			glBlendFunc( bm.getBlendFuncSrcFactor(), bm.getBlendFuncDstFactor());
+			glBlendFunc( bm.getBlendFuncSrc(), bm.getBlendFuncDst() );
 			glBlendEquation( bm.getBlendEquation() ) ;
 			glDisable(GL_DEPTH_TEST) ;
 		}

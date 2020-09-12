@@ -73,12 +73,13 @@ public:
 	Draw3DBatch*			getBatch() ;
 	bool					isBatchingInProgress() const ;
 
-	StridedVertexBuffer&	getVertexBuffer( DrawItem* handle, uint16_t vCount, uint16_t iCount, int32_t slotID = 0, GLenum pType = GL_TRIANGLES ) ;
+	StridedVertexBuffer&	getVertexBuffer( DrawItem* handle, uint16_t vCount, uint16_t iCount, GLenum pType = GL_TRIANGLES ) ;
 	void					appendOrDraw();
 	void					drawPrimitive( VertexArrayObject* pVao, size_t numOfVertices, Material* pMaterial, GLenum pType = GL_TRIANGLES ) ;
 	void					drawIndexedPrimitive( VertexArrayObject* pVao, size_t numOfElements, Material* pMaterial, U16 offset = 0 , GLenum pType = GL_TRIANGLES ) ;
-	void					drawIndexedPrimitive( IVertexBuffer* pVBuff, Material* pMaterial, int32_t slotID, U16 offset = 0 , GLenum pType = GL_TRIANGLES ) ;
+	void					drawIndexedPrimitive( IVertexBuffer* pVBuff, Material* pMaterial, U16 offset = 0 , GLenum pType = GL_TRIANGLES ) ;
 	void					setRenderLevel( int level ) ;
+	int						getRenderLevel() const { return m_renderLevel; } ;
 
 	Material*				getMaterial( DrawItem* item ) ;
 

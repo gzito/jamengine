@@ -40,6 +40,9 @@
 // GLenum definition
 #include <GL/glew.h>
 
+// SDL_Surface definition
+#include <SDL.h>
+
 namespace jam
 {
 
@@ -57,6 +60,7 @@ public:
 	// load methods
 	void					create( U32 width, U32 height, GLenum format, const void* data = 0, bool fUpload = true ) ;
 	void					createDefaultEmpty( Color color = Color::WHITE, bool fUpload = true ) ;
+	void					createFromSDLSurface( SDL_Surface* pSurface ) ;
 	void					load( const String& filename, bool flipV = true, bool fUpload = true );
 
 	/// Returns the width of texture
@@ -72,6 +76,8 @@ public:
 
 	U8						bitcountFromFormat( GLenum fmt ) ;
 
+	int						getSortingKey() const ;
+
 private:
 	void					initGL() ;
 	void					destroy() ;
@@ -85,6 +91,9 @@ protected:
 
 private:
 	bool					m_freeClientMemoryWithStbi ;
+    int						_sortingKey ;
+
+	static std::atomic_int	_lastSortingKey;
 
 // to prevent the use
 private:

@@ -671,7 +671,6 @@ void Draw3DManager::DrawImage3D(DrawItem* handle,
 	bool SwapU /*= false*/,
 	bool SwapV /*= false*/)
 {
-/*
 	float LDrawU1Map = handle->getU1() ;
 	float LDrawV1Map = handle->getV1() ;
 	float LDrawU2Map = handle->getU2() ;
@@ -724,15 +723,9 @@ void Draw3DManager::DrawImage3D(DrawItem* handle,
 	uint32_t diffuse = (!color) ? Draw3DManager::ColorG3D.getRgba() : color->getRgba() ;
 
 	// add vertices in clockwise order
-	Draw3DVertexBuffer& surface = getVertexBuffer(handle,4,4,this->getSlotID(),IW_GX_QUAD_LIST) ;
-
-	int16_t v0 = surface.addVertex( FDrawX-IDrawXPos1,FDrawY+IDrawYPos1, diffuse, LDrawU1Map, LDrawV1Map ) ;
-	int16_t v1 = surface.addVertex( FDrawX+IDrawXPos2,FDrawY+IDrawYPos2, diffuse, LDrawU2Map, LDrawV1Map ) ;
-	int16_t v2 = surface.addVertex( FDrawX+IDrawXPos1,FDrawY-IDrawYPos1, diffuse, LDrawU2Map, LDrawV2Map ) ;
-	int16_t v3 = surface.addVertex( FDrawX-IDrawXPos2,FDrawY-IDrawYPos2, diffuse, LDrawU1Map, LDrawV2Map ) ;
-	surface.addQuadIndices(v0,v1,v2,v3) ;
-
-	appendOrDraw() ;
+	StridedVertexBuffer&	pVBuff = GetGfx().getVertexBuffer(handle,4,6,GL_TRIANGLES) ;
+	pVBuff.addQuad3D( FDrawX-IDrawXPos1,FDrawY+IDrawYPos1, FDrawX+IDrawXPos2, FDrawY-IDrawYPos2, GetGfx().getRenderLevel(), diffuse, LDrawU1Map, LDrawV1Map, LDrawU2Map, LDrawV2Map ) ;
+	GetGfx().appendOrDraw() ;
 
 	if (FDrawButton != 0) // ** Can be -1 if no glow effect is needed
 	{
@@ -742,7 +735,6 @@ void Draw3DManager::DrawImage3D(DrawItem* handle,
 			FDrawX-IDrawXPos2,FDrawY-IDrawYPos2,
 			FDrawButton);
 	}
-*/
 }
 
 // optimized version, specially used for drawing particles - also take in account for non-uniform scaling
@@ -752,6 +744,7 @@ void Draw3DManager::DrawImage3D(DrawItem* handle,
 	const Vector2& scale,
 	const Color& color )
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 	float LDrawU1Map = handle->getU1() ;
 	float LDrawV1Map = handle->getV1() ;
@@ -820,6 +813,7 @@ void Draw3DManager::DrawImageTransform3D(DrawItem* handle,
 	bool SwapU /*= false*/,
 	bool SwapV /*= false*/)
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 	float LDrawU1Map = handle->getU1() ;
 	float LDrawV1Map = handle->getV1() ;
@@ -897,7 +891,7 @@ void Draw3DManager::DrawTransformedQuad3D(DrawItem* handle,
 
 	uint32_t diffuse = (!color) ? Draw3DManager::ColorG3D.getRgba() : color->getRgba() ;
 
-	StridedVertexBuffer&	pVBuff = GetGfx().getVertexBuffer(handle,6,6,GL_TRIANGLES) ;
+	StridedVertexBuffer&	pVBuff = GetGfx().getVertexBuffer(handle,4,6,GL_TRIANGLES) ;
 
 	// Note: polygon points are in clockwise order
 	pVBuff.addQuad( poly, diffuse, LDrawU1Map, LDrawV1Map, LDrawU2Map, LDrawV2Map ) ;
@@ -906,6 +900,7 @@ void Draw3DManager::DrawTransformedQuad3D(DrawItem* handle,
 
 void Draw3DManager::ImageLine3D( DrawItem* handle,float FDrawX1,float FDrawY1,float FDrawX2,float FDrawY2,float FDrawSize,int FDrawMode )
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 #ifndef JAM_IMAGELINE3D_DISABLED
 	if (FDrawX1 != FDrawX2 || FDrawY1 != FDrawY2)
@@ -969,6 +964,7 @@ void Draw3DManager::ImageLine3D( DrawItem* handle,float FDrawX1,float FDrawY1,fl
 
 void Draw3DManager::DrawQuad3D(  const Polygon2f& poly, Color* color /*= 0*/ )
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 	uint32_t diffuse = (!color) ? Draw3DManager::ColorG3D.getRgba() : color->getRgba() ;
 
@@ -990,6 +986,7 @@ void Draw3DManager::DrawQuad3D(  const Polygon2f& poly, Color* color /*= 0*/ )
 // not batched, use own private vertex buffer
 void Draw3DManager::DrawQuad3D( Material* pMat, const jam::Rect& dstRect, Color* color /*= 0*/ )
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 	uint32_t diffuse = (!color) ? Draw3DManager::ColorG3D.getRgba() : color->getRgba() ;
 
@@ -1013,6 +1010,7 @@ void Draw3DManager::DrawQuad3D( Material* pMat, const jam::Rect& dstRect, Color*
 
 void Draw3DManager::DrawTexture( Texture2D* pTexture, const jam::Rect& dstRect, Color* color /*= 0*/, Shader* shader /*=0*/)
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 	uint32_t diffuse = (!color) ? Draw3DManager::ColorG3D.getRgba() : color->getRgba() ;
 
@@ -1085,6 +1083,7 @@ void Draw3DManager::VerifyQuad3D( DrawItem* handle, float FDrawX, float FDrawY, 
 
 void Draw3DManager::DrawTiledMapRow( DrawItem** items, unsigned int count, float FDrawX, float FDrawY, int tileXSize )
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 	float LDrawU1Map=0;
 	float LDrawV1Map=0;
@@ -1130,6 +1129,7 @@ void Draw3DManager::DrawTiledMapRow( DrawItem** items, unsigned int count, float
 
 void Draw3DManager::DrawTiledMap( DrawItem** items, int rows, int cols, float FDrawX, float FDrawY, int tileXSize, int tileYSize )
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 	float LDrawU1Map=0;
 	float LDrawV1Map=0;
@@ -1194,6 +1194,7 @@ void Draw3DManager::Line3D( DrawItem* pItem, const Vector2& FDraw1, const Vector
 //Line3D( Handle, X-Start, Y-Start, X-End, Y-End, IDrawing-Size )
 void Draw3DManager::Line3D( DrawItem* pItem, float FDrawX1,float FDrawY1,float FDrawX2,float FDrawY2,float FDrawSize /*= 2*/ )
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 #ifndef JAM_LINE3D_DISABLED
 	if (FDrawX1 != FDrawX2 || FDrawY1 != FDrawY2)
@@ -1228,6 +1229,7 @@ void Draw3DManager::Line3D( DrawItem* pItem, float FDrawX1,float FDrawY1,float F
 //Plot3D( Handle, X-Center, Y-Center, IDrawing-Size )
 void Draw3DManager::Plot3D( Texture2D* pTexture, float FDrawX, float FDrawY, float FDrawSize /*= 1*/ )
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 	if (FDrawSize==0) FDrawSize=1;
 
@@ -1495,6 +1497,7 @@ void Draw3DManager::Oval3D( Texture2D* pTexture, float FDrawX, float FDrawY, flo
 
 void Draw3DManager::DrawPoly(const Polygon2f& poly)
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 	int n = poly.getCount() ;
 	CIwSVec2* vertices = IW_GX_ALLOC(CIwSVec2,n+1) ;
@@ -1520,6 +1523,7 @@ void Draw3DManager::DrawPoly(const Polygon2f& poly)
 
 void Draw3DManager::DrawCircle(const Circle2f& c, float a, int segs, bool drawLineToCenter/*=false*/)
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 	int additionalSegment = 1;
 	if (drawLineToCenter) {
@@ -1564,6 +1568,7 @@ void Draw3DManager::DrawCircle(const Circle2f& c, float a, int segs, bool drawLi
 //GZ TODO: optimize using triangle-strips
 void Draw3DManager::renderAppendLine3D( DrawItem* handle,std::vector<jam::Pivot2D*> & trails, size_t first, size_t last, float FDrawSize, bool firsttime/*=false*/, float x/*=0.0f*/, float y/*=0.0f*/ )
 {
+	JAM_ERROR("Unimplemented") ;
 /*
 	//std::vector<jam::Pivot2D*> ;
 	Texture2D* pTexture = handle->getTexture();

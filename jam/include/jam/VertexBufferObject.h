@@ -57,7 +57,8 @@ public:
 	void					unbind() ;
 
 	void					bufferData( GLsizeiptr size, const GLvoid * data, GLenum usage = GL_STATIC_DRAW ) ;
-		
+	void					bufferSubData( GLintptr offset, GLsizeiptr size, const GLvoid * data ) ;
+
 private:
 
 private:

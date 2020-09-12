@@ -42,7 +42,7 @@ namespace jam
 
 /**
 	Represent interleaved vertex buffer
-	Vertex attributes are interleaved in array of struct
+	Vertex attributes, position, color and texture coordinates, are interleaved in array of struct
 */
 class JAM_API StridedVertexBuffer : public IVertexBuffer
 {
@@ -63,6 +63,9 @@ public:
 	void					addQuad( float x1, float y1, float x2, float y2, uint32_t diffuse, float u1, float v1, float u2, float v2 );
 	void					addQuad( const Polygon2f& poly, uint32_t diffuse, float u1, float v1, float u2, float v2 );
 
+	void					addQuad3D(float x1,float y1,float x2,float y2,float depth,uint32_t diffuse,float u1,float v1,float u2,float v2) ;
+	U16						addVertex3D( float x, float y, float z, uint32_t c, float tu=0.0f, float tv=0.0f ) ;
+
 	void					addIndex( U16 v ) ;
 	void					addTriIndices( U16 v0, U16 v1, U16 v2 );
 	void					addQuadIndices( U16 v0, U16 v1, U16 v2, int16_t v3 );
@@ -70,7 +73,15 @@ public:
 	void					setNewBlock() ;
 	void					reset() ;
 
+	/// <summary>
+	/// Check if space is available in the buffer to add vertices and indices
+	/// </summary>
+	/// <param name="vertexCount"></param>
+	/// <param name="indexCount"></param>
+	/// <returns>Returns true if space is available in the buffer to add additional "vertexCount" vertices and "indexCount" indices</returns>
 	bool					isSpaceAvailable( U16 vertexCount, U16 indexCount ) const ;
+
+	void					resize( U16 vertexCount, U16 indexCount = 0 ) ;
 
 	void					upload() override ;
 	void					bindVao() override ;

@@ -37,7 +37,8 @@
 
 namespace jam
 {
-	
+	std::atomic_int Texture2D::_lastSortingKey = 0 ;
+
 	/*!
 		\brief Create a Texture object
 	*/
@@ -48,6 +49,7 @@ namespace jam
 		m_data(nullptr),
 		m_freeClientMemoryWithStbi(true)
 	{
+		_sortingKey = ++_lastSortingKey ;
 	}
 	
 	
@@ -78,7 +80,7 @@ namespace jam
 
 	void Texture2D::createDefaultEmpty( Color color /*= Color::WHITE*/, bool fUpload /*= true*/ )
 	{
-		if( m_data && m_GLid ) { destroy(); }
+		if( m_data || m_GLid ) { destroy(); }
 
 		GLulong data = color.getRgba() ;
 
@@ -92,6 +94,39 @@ namespace jam
 		if( fUpload ) {
 			initGL() ;
 		}
+	}
+
+	void Texture2D::createFromSDLSurface(SDL_Surface* pSurface)
+	{
+		if( m_data || m_GLid ) { destroy(); }
+
+		m_width = pSurface->w ;
+		m_height = pSurface->h ;
+		m_bitCount = pSurface->format->BitsPerPixel ;
+		m_data = 0 ;
+		m_freeClientMemoryWithStbi = false ;
+
+		GLenum texture_format ;
+		Uint8 bytes_per_pixel = pSurface->format->BytesPerPixel;
+
+		if( bytes_per_pixel == 4 ) {
+			if( pSurface->format->Rmask == 0x000000ff )
+				texture_format = GL_RGBA ;
+			else
+				texture_format = GL_BGRA ;
+		}
+		else { // no_alpha
+			if (pSurface->format->Rmask == 0x000000ff)
+				texture_format = GL_RGB;
+			else
+				texture_format = GL_BGR;
+		}
+		
+		glGenTextures(1, &m_GLid);
+		glBindTexture(GL_TEXTURE_2D, m_GLid);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pSurface->w, pSurface->h, 0, texture_format, GL_UNSIGNED_BYTE, pSurface->pixels);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
 	void Texture2D::load( const String& filename, bool flipV /*= true*/, bool fUpload /*= true*/ )
@@ -170,6 +205,11 @@ namespace jam
 		return bitcount ;
 	}
 
+	int Texture2D::getSortingKey() const
+	{
+		return _sortingKey ;
+	}
+
 	void Texture2D::initGL()
 	{
 		glGenTextures(1, &m_GLid);
@@ -179,15 +219,15 @@ namespace jam
 
 		glTexImage2D( GL_TEXTURE_2D,
 			0,
-			format,				// internal format
+			GL_RGBA,			// internal format
 			(GLsizei)m_width, (GLsizei)m_height,
 			0,
 			format,				// format
 			GL_UNSIGNED_BYTE,	// data type of the pixel data
 			m_data);
 
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}

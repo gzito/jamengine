@@ -61,6 +61,7 @@ void InputManager::keyboardCallback( SDL_KeyboardEvent& e )
 		}
 		else if( action == SDL_RELEASED && !repeat) {
 			m_keyMap[key] = RELEASED ;
+			m_keyChange[key] = true ;
 		}
 		else if( repeat ) {
 			m_keyMap[key] = DOWN ;
@@ -73,10 +74,12 @@ void InputManager::mouseButtonCallback( SDL_MouseButtonEvent& e )
 	Uint8 action = e.state;
 	Uint8 button = e.button ;
 	if( action == SDL_PRESSED ) {
-		m_mouseButtonsMap[button] = DOWN ;
+		m_mouseButtonsChange[button] = true ;
+		m_mouseButtonsMap[button] = PRESSED ;
 	}
 	else if( action == SDL_RELEASED ) {
-		m_mouseButtonsMap[button] = UP ;
+		m_mouseButtonsChange[button] = true ;
+		m_mouseButtonsMap[button] = RELEASED ;
 	}
 }
 
@@ -108,12 +111,25 @@ InputManager::InputManager():
 		m_doubleTap[touchId] = false ;
 	}
 
-	memset( m_keyMap, 0, sizeof(m_keyMap) ) ;
-	memset( m_mouseButtonsMap, 0, sizeof(m_mouseButtonsMap) ) ;
+	for( int i=0; i<=SDL_NUM_SCANCODES; i++ ) {
+		m_keyMap[i] = UP ;
+	}
+	m_keyChange.clear();
+
+	for( int i=SDL_BUTTON_LEFT; i<=SDL_BUTTON_X2; i++ ) {
+		m_mouseButtonsMap[i] = UP ;
+		m_mouseButtonsChange[i] = false ;
+	}
+		 
 }
 
 InputManager::~InputManager()
 {
+}
+
+InputManager::KeyStatus InputManager::getKeyState(jam::key key) const
+{
+	return m_keyMap[key] ;
 }
 
 bool InputManager::keyUp(jam::key key) const
@@ -141,7 +157,7 @@ bool InputManager::isPointerAvailable() const
 	return true ;
 }
 
-int InputManager::getPointerState(int pb) const
+InputManager::KeyStatus InputManager::getPointerState(int pb) const
 {
 	return m_mouseButtonsMap[pb] ;
 }
@@ -188,7 +204,7 @@ bool InputManager::isMultiTouchAvailable() const
 }
 
 
-int InputManager::getTouchState(uint32_t touchId) const
+InputManager::KeyStatus InputManager::getTouchState(uint32_t touchId) const
 {
 	// ignore touchId on PC
 	return getPointerState(SDL_BUTTON_LEFT) ;
@@ -217,6 +233,43 @@ void InputManager::touchUpdate()
 			m_lastTapTime[touchId] = GetSysTimer().getTime() ;
 		}
 	}
+
+	for( int i = SDL_BUTTON_LEFT; i <= SDL_BUTTON_X2; i++ ) {
+		if( m_mouseButtonsMap[i] == PRESSED ) {
+			if( m_mouseButtonsChange[i] ) {
+				m_mouseButtonsChange[i] = false ;
+			}
+			else {
+				m_mouseButtonsMap[i] = DOWN ;
+			}
+		}
+		else if( m_mouseButtonsMap[i] == RELEASED ) {
+			if( m_mouseButtonsChange[i] ) {
+				m_mouseButtonsChange[i] = false ;
+			}
+			else {
+				m_mouseButtonsMap[i] = UP ;
+			}
+		}
+	}
+
+	if( !m_keyChange.empty() ) {
+		for( auto it = m_keyChange.begin(); it != m_keyChange.end(); ) {
+			if( m_keyMap[it->first] == RELEASED ) {
+				if( it->second == true ) {
+					it->second = false ;
+				}
+				else {
+					m_keyMap[it->first] = UP ;
+					it = m_keyChange.erase(it) ;
+					continue ;
+				}
+			}
+
+			it++ ;
+		}
+	}
+
 }
 
 float InputManager::getTouchSpeedX( uint32_t touchId ) const
@@ -256,6 +309,30 @@ void InputManager::keyUpdate()
 void InputManager::update()
 {
 	touchUpdate() ;
+}
+
+String InputManager::keyStatusString(KeyStatus ks)
+{
+	String kss ;
+	switch( ks )
+	{
+	case UP:
+		kss = "UP" ;
+		break ;
+	case DOWN:
+		kss = "DOWN" ;
+		break ;
+	case PRESSED:
+		kss = "PRESSED" ;
+		break ;
+	case RELEASED:
+		kss = "RELEASED" ;
+		break ;
+	default:
+		kss = "UNKNOWN" ;
+		break ;
+	}
+	return kss;
 }
 
 }
