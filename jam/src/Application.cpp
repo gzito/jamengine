@@ -52,6 +52,7 @@
 #include "jam/Gfx.h"
 #include "jam/Camera.h"
 #include "imgui_impl_sdl.h"
+#include "imgui_impl_opengl3.h"
 
 #ifdef JAM_PHYSIC_ENABLED
 #include <Box2D/Dynamics/b2World.h>
@@ -783,6 +784,8 @@ void APIENTRY glDebugOutput(GLenum source,
 
 void Application::engineInitialize()
 {
+	const char* glsl_version = "#version 140";
+
 	if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 ) {
 		JAM_ERROR( "Failed to initialize SDL" );
 	}		
@@ -847,6 +850,22 @@ void Application::engineInitialize()
 		JAM_ERROR( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
 	}
 
+	if( isImguiEnabled() ) {
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+		// Setup Dear ImGui style
+		ImGui::StyleColorsDark();
+		//ImGui::StyleColorsClassic();
+
+		// Setup Platform/Renderer bindings
+		ImGui_ImplSDL2_InitForOpenGL(GetAppMgr().getWindowPtr(), GetAppMgr().getGLContext());
+		ImGui_ImplOpenGL3_Init(glsl_version);
+	}
+
 	glViewport( 0, 0, JAM_WINDOWS_WIDTH, JAM_WINDOWS_HEIGHT ) ;
 
 #ifdef JAM_PHYSIC_ENABLED
@@ -858,6 +877,12 @@ void Application::engineInitialize()
 
 void Application::engineTerminate()
 {
+	if( isImguiEnabled() ) {
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplSDL2_Shutdown();
+		ImGui::DestroyContext();
+	}
+
 	// Cleanup banks
 	GetActionMgr().removeAllActions() ;
 /*

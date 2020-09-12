@@ -46,8 +46,8 @@ using namespace jam;
 class TestInputManagerApp : public jam::Application
 {
 public:
-							TestInputManagerApp() {} ;
-	virtual					~TestInputManagerApp() {} ;
+							TestInputManagerApp() = default ;
+	virtual					~TestInputManagerApp() = default ;
 
 protected:
 	virtual bool			init() ;
@@ -57,12 +57,12 @@ protected:
 private:
 	void					loadFont() ;
 
-	TTF_Font*				m_pFont = nullptr;
-	Texture2D*				m_pTexture ;
-	Texture2D*				m_pFontTex ;
-	SpriteBatch*			m_pSpriteBatch ;
-
 private:
+	TTF_Font*				m_pFont = nullptr;
+	Texture2D*				m_pTexture = nullptr;
+	Texture2D*				m_pFontTex = nullptr ;
+	SpriteBatch*			m_pSpriteBatch = nullptr ;
+
 };
 
 

@@ -4,7 +4,7 @@ https://github.com/cocos2d/cocos2d-x
 Tom Dalling - Program and Shader classes
 https://github.com/tomdalling/opengl-series
 
-Sean Barret - image stb library
+Sean Barret - Image stb library
 https://github.com/nothings/stb
 
 Toni Ronkko - Dirent interface for Microsoft Visual Studio
@@ -30,3 +30,6 @@ https://www.codeproject.com/Articles/1170503/The-Impossibly-Fast-Cplusplus-Deleg
 
 Noel Llopis’s - Handle & Handle Manager code
 http://gamesfromwithin.com/managing-data-relationships
+
+Omar Cornut - Dear ImGui - Bloat-free Graphical User interface for C++ with minimal dependencies
+https://github.com/ocornut/imgui

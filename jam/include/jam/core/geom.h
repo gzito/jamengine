@@ -52,6 +52,7 @@ using Matrix3 = glm::mat3 ;
 using Matrix4 = glm::mat4 ;
 using Quaternion = glm::quat ;
 
+JAM_API Vector2				fromPolar(float angle, float magnitude) ;
 JAM_API Vector2				transform(const Matrix3& m, const Vector2& v) ;
 JAM_API Vector2				transformNormal(const Matrix3& m, const Vector2& v) ;
 

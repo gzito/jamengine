@@ -53,16 +53,12 @@ struct Entity : public Collectible
 	float					m_direction ;
 	bool					m_directionInited = false ;
 	int						m_count = 0;
-	AABB					m_bounds ;
+	static AABB				m_bounds ;
 
 	void					moveRandomly() ;
-	static Vector2			fromPolar(float angle, float magnitude) ;
 };
 
-Vector2 Entity::fromPolar(float angle, float magnitude)
-{
-    return magnitude * Vector2((float)cosf(angle), sinf(angle));
-}
+AABB Entity::m_bounds ;
 
 void Entity::moveRandomly()
 {
@@ -82,7 +78,7 @@ void Entity::moveRandomly()
 		}
 	}
 
-	m_velocity = m_velocity + Entity::fromPolar( ToDegree(m_direction),0.4f) ;
+	m_velocity = m_velocity + fromPolar( ToDegree(m_direction),0.4f) ;
 	
 	m_position += m_velocity ;
 
@@ -96,8 +92,8 @@ void Entity::moveRandomly()
 class TestImguiApp : public jam::Application
 {
 public:
-							TestImguiApp() {} ;
-	virtual					~TestImguiApp() {} ;
+							TestImguiApp() = default ;
+	virtual					~TestImguiApp() = default ;
 
 protected:
 	virtual bool			init() ;
@@ -105,9 +101,9 @@ protected:
 	virtual void			destroy() ;
 
 private:
-	Texture2D*				m_pTexture ;
-	Texture2D*				m_pFontTex ;
-	SpriteBatch*			m_pSpriteBatch ;
+	Texture2D*				m_pTexture = nullptr ;
+	Texture2D*				m_pFontTex= nullptr ;
+	SpriteBatch*			m_pSpriteBatch= nullptr ;
 
     bool					m_show_demo_window = true;
 	bool					m_show_another_window = true ;
@@ -120,23 +116,6 @@ private:
 //*************************************************************************
 bool TestImguiApp::init()
 {
-	const char* glsl_version = "#version 140";
-
-	setImguiEnabled() ;
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-    // Setup Platform/Renderer bindings
-    ImGui_ImplSDL2_InitForOpenGL(GetAppMgr().getWindowPtr(), GetAppMgr().getGLContext());
-    ImGui_ImplOpenGL3_Init(glsl_version);
-
 	Draw3DManager::Origin3D(960,540);
 
 	//m_pFontTex = GetDraw3DMgr().LoadFont3D( "media/Babylon1.png" ) ;
@@ -152,14 +131,15 @@ bool TestImguiApp::init()
 	pCamera->lookAt( Vector3(0,0,30), Vector3(0,0,0), Vector3(0,1,0) ) ;
 	getScene()->setCamera(pCamera) ;
 	
-	for( int i=0; i<200; i++ ) {
+		Entity::m_bounds = AABB(0,0,Draw3DManager::VPWidth/2,Draw3DManager::VPHeight/2) ;
+		for( int i=0; i<200; i++ ) {
 		Vector2 position( RANGERAND(-Draw3DManager::VPWidth/2, Draw3DManager::VPWidth/2) , RANGERAND(-Draw3DManager::VPHeight/2, Draw3DManager::VPHeight/2) ) ;
 		Color color( RND(256), RND(256), RND(256) ) ;
 
 		Entity* entity = new (GC) Entity() ;
 		entity->m_position = position ;
 		entity->m_color = color ;
-		entity->m_bounds = AABB(0,0,Draw3DManager::VPWidth/2,Draw3DManager::VPHeight/2) ;
+	
 		m_entities.emplace_back(entity) ;
 	}
 	
@@ -169,10 +149,11 @@ bool TestImguiApp::init()
 
 void TestImguiApp::render()
 {
-    ImGui_ImplOpenGL3_NewFrame();
+	// draw imgui
+
+	ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(GetAppMgr().getWindowPtr());
     ImGui::NewFrame();
-    
 	
 	ImGui::ShowDemoWindow(&m_show_demo_window);
 
@@ -189,6 +170,8 @@ void TestImguiApp::render()
 	ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+	// draw sprites
+
 	m_pSpriteBatch->Begin() ;
 
 	for( int i=0; i<m_entities.size(); i++ ) {
@@ -203,9 +186,6 @@ void TestImguiApp::render()
 
 void TestImguiApp::destroy()
 {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
-    ImGui::DestroyContext();
 }
 
 
@@ -213,6 +193,18 @@ void TestImguiApp::destroy()
 
 int main( int argc, char* argv[])
 {
-	jam::runEngine<TestImguiApp>() ;
+	try {
+		TestImguiApp app  ;
+		app.setImguiEnabled() ;
+		app.start();
+	}
+	catch( std::exception& ex )	{
+		JAM_TRACE( "Exception thrown:\n%s\n", ex.what() ) ;
+		printf( "Exception thrown:\n%s\n", ex.what() ) ; 
+	}
+	catch(...) {
+		JAM_TRACE( "Unknown exception thrown!\n" ) ;
+		printf( "Unknown exception thrown!\n" ) ; 
+	}
 	return 0 ;
 }

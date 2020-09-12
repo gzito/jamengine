@@ -38,6 +38,11 @@
 namespace jam
 {
 
+Vector2 fromPolar(float angle, float magnitude)
+{
+    return magnitude * Vector2((float)cosf(angle), sinf(angle));
+}
+
 Vector2 transform(const Matrix3& m,const Vector2& v)
 {
 	Vector3 tform = m * Vector3(v,1.0f) ;
