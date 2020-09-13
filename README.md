@@ -1,6 +1,7 @@
 # jamengine
 
-Simple C++ game engine
+## What is jamengine
+A simple C++ game engine built on OpenGL 3.2 and SDL 2
 
 ## How to build
 
