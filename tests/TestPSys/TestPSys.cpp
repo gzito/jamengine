@@ -259,14 +259,16 @@ void PsysTestApp::onButtonReleased( TouchEventArgs& args, IEventSource& src )
 
 void PsysTestApp::afterSceneUpdate()
 {
+	char buffer[256];
 	Draw3DManager::ColorG3D = Color::WHITE ;
 
 	float size = 1.0f ;
 
 	if (m_showtime)
 	{
-		std::string name=m_partname[m_partType];
-		float x1 = LEFT_SCREEN(16),  y1 = BOTTOM_SCREEN(128) ;
+		const std::string name=m_partname[m_partType];
+		const float x1 = LEFT_SCREEN(16);
+		const float y1 = BOTTOM_SCREEN(128) ;
 
 		GetDraw3DMgr().Text3D( m_pFontTexture,x1,y1, name+" "+ std::to_string(m_partType+1)+"/"+std::to_string((int)m_partname.size()) ) ;
 
@@ -278,20 +280,24 @@ void PsysTestApp::afterSceneUpdate()
 
 		GetDraw3DMgr().ColorT3D = Color::WHITE;
 		int sy = 16 ;
-		GetDraw3DMgr().Text3D( m_pFontTexture,CX3D(0),CY3D(sy),"FPS: " + std::to_string(GetAppMgr().getFps()) ) ;
+		sprintf(buffer, "FPS: %0.2f", GetAppMgr().getFps());
+		GetDraw3DMgr().Text3D( m_pFontTexture,CX3D(0),CY3D(sy),buffer) ;
 		sy += 24 ;
 		//IwGxPrintFrameRate(0,0) ;
-		GetDraw3DMgr().Text3D(m_pFontTexture,CX3D(0),CY3D(sy),"Particles: " + std::to_string( GetParticleSystem().totalParticles() ), 0,0,0,0) ;
-		sy += 24 ;
-		GetDraw3DMgr().Text3D(m_pFontTexture,CX3D(0),CY3D(sy),"Emitters: " + std::to_string( GetParticleSystem().totalEmitters() ), 0,0,0,0) ;
-		sy += 24 ;
-
-		char coors[256] = {0} ;
-		sprintf(coors,"Coords: %d,%d",Draw3DManager::MouseX3D,Draw3DManager::MouseY3D) ;
-		GetDraw3DMgr().Text3D(m_pFontTexture,CX3D(0),CY3D(sy), coors, 0,0,0,0) ;
+		sprintf(buffer, "Particles: %d", GetParticleSystem().totalParticles());
+		GetDraw3DMgr().Text3D(m_pFontTexture,CX3D(0),CY3D(sy),buffer, 0,0,0,0) ;
 		sy += 24 ;
 
-		GetDraw3DMgr().Text3D(m_pFontTexture,CX3D(0),CY3D(sy), std::string("Batching: ") + ((GetGfx().getBatch()!=0) ?"ON":"OFF" ), 0,0,0,0) ;
+		sprintf(buffer, "Emitters: %d" , GetParticleSystem().totalEmitters());
+		GetDraw3DMgr().Text3D(m_pFontTexture,CX3D(0),CY3D(sy),buffer, 0,0,0,0) ;
+		sy += 24 ;
+
+		sprintf(buffer,"Coords: %d,%d",Draw3DManager::MouseX3D,Draw3DManager::MouseY3D) ;
+		GetDraw3DMgr().Text3D(m_pFontTexture,CX3D(0),CY3D(sy), buffer, 0,0,0,0) ;
+		sy += 24 ;
+
+		sprintf(buffer, "Batching: %s", GetGfx().getBatch() != nullptr ? "ON" : "OFF");
+		GetDraw3DMgr().Text3D(m_pFontTexture,CX3D(0),CY3D(sy), buffer, 0,0,0,0) ;
 		sy += 24 ;
 
 		//float x3= CX3D_RIGHT_SCREEN(wi/2); float y3= TOP_SCREEN(he/2);
@@ -304,8 +310,8 @@ void PsysTestApp::afterSceneUpdate()
 	}
 	else
 	{
-		float wi=(GetDrawItemMgr().getObject("next-track")->getRect().getWidth())*Draw3DManager::RatioX;
-		float he=(GetDrawItemMgr().getSingleton().getObject("next-track")->getRect().getHeight())*Draw3DManager::RatioY;
+		const float wi=(GetDrawItemMgr().getObject("next-track")->getRect().getWidth())*Draw3DManager::RatioX;
+		const float he=(GetDrawItemMgr().getSingleton().getObject("next-track")->getRect().getHeight())*Draw3DManager::RatioY;
 
 		float x1= LEFT_SCREEN(wi/2); float y1= TOP_SCREEN(he/2);
 	}
