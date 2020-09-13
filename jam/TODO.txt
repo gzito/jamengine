@@ -3,7 +3,6 @@
 -	RTTR integration
 -	JSON integration
 - Lua integration
-- Truetype fonts support
 - Terrain
 - Bullet integration
 - UI support
