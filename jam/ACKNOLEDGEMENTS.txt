@@ -14,7 +14,7 @@ René Nyffenegger - Base64 encode/decode functions
 https://github.com/ReneNyffenegger/cpp-base64
 
 Gianluca Sclano - major contributor to the original project "iwge", the iw game engine
-BmkExtras macros, Utilities, Randomizer, TMXLoader, Achievements classes and many suggestions
+PSys, BmkExtras macros, Utilities, Randomizer, TMXLoader, Achievements classes and many suggestions
 
 Brodie Thiesfield - SimpleIni
 https://github.com/brofield/simpleini
