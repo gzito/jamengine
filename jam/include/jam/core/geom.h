@@ -52,6 +52,7 @@ using Matrix3 = glm::mat3 ;
 using Matrix4 = glm::mat4 ;
 using Quaternion = glm::quat ;
 
+// angle in degrees
 JAM_API Vector2				fromPolar(float angle, float magnitude) ;
 JAM_API Vector2				transform(const Matrix3& m, const Vector2& v) ;
 JAM_API Vector2				transformNormal(const Matrix3& m, const Vector2& v) ;
@@ -63,6 +64,7 @@ JAM_API Vector2				getTranslate(const Matrix3& m) ;
 JAM_API void				setTranslate(Matrix3& m, const Vector2& t) ;
 
 JAM_API Matrix3				createScaleMatrix2D(const Vector2& v) ;
+// angle in degrees
 JAM_API Matrix3				createRotationMatrix2D(float angle) ;
 JAM_API Matrix3				createTranslationMatrix2D(const Vector2& v) ;
 
@@ -70,6 +72,7 @@ JAM_API Vector3				transform(const Matrix4& m, const Vector3& v) ;
 JAM_API void				setTranslate(Matrix4& m, const Vector3& t) ;
 JAM_API Vector3				getTranslate(const Matrix4& m) ;
 JAM_API Matrix4				createScaleMatrix3D(const Vector3& v) ;
+// angle in degrees
 JAM_API Matrix4				createRotationMatrix3D( float yaw, float pitch, float roll ) ;
 JAM_API Matrix4				createTranslationMatrix3D(const Vector3& v) ;
 

@@ -33,8 +33,8 @@
 #include <jam/jam.h>
 #include <jam/Sprite.h>
 
-namespace jam
-{
+namespace jam {
+namespace experimental {
 
 class JAM_API SpriteRenderer
 {
@@ -96,7 +96,7 @@ JAM_INLINE void SpriteRenderer::setColor(const Color& color) {
 	m_color = color ;
 }
 
-}
+}}
 
 
 #endif // __JAM_SPRITERENDERER_H__

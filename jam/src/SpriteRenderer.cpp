@@ -32,8 +32,8 @@
 #include "jam/SpriteRenderer.h"
 
 
-namespace jam
-{
+namespace jam {
+namespace experimental {
 
 SpriteRenderer::SpriteRenderer() :
 	m_flipX(false),
@@ -43,4 +43,4 @@ SpriteRenderer::SpriteRenderer() :
 {
 }
 
-}
+}}

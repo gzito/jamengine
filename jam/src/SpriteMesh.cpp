@@ -34,8 +34,8 @@
 using namespace std ;
 
 
-namespace jam
-{
+namespace jam {
+namespace experimental {
 
 SpriteMesh::SpriteMesh() :
 	m_pMaterial(0),
@@ -150,4 +150,4 @@ void SpriteMesh::set( float hw, float hh )
 	m_elements[5] = 3 ;
 }
 
-}
+}}

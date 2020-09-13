@@ -38,8 +38,8 @@
 #include <jam/core/array.hpp>
 #include <jam/Draw2d.h>
 
-namespace jam
-{
+namespace jam {
+namespace experimental {
 
 /**
 	Represents a sprite vertex buffer in which each vertex attribute is tight packed in its dedicated array
@@ -86,6 +86,6 @@ JAM_INLINE HeapArray<Vector2>&		SpriteMesh::getTexCoordsArray() { return m_texCo
 JAM_INLINE HeapArray<uint16_t>&		SpriteMesh::getElementsArray() { return m_elements; }
 JAM_INLINE bool						SpriteMesh::isUploaded() const { return m_uploaded; }
 
-}
+}}
 
 #endif // __JAM_SPRITEMESH_H__ 

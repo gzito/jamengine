@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Jam)
 
-if(UNIX)
-	set(JAM_INSTALL_BY_DEFAULT ON)
-else(UNIX)
-	set(JAM_INSTALL_BY_DEFAULT OFF)
-endif(UNIX)
+#if(UNIX)
+#	set(JAM_INSTALL_BY_DEFAULT ON)
+#else(UNIX)
+#	set(JAM_INSTALL_BY_DEFAULT OFF)
+#endif(UNIX)
 
-option(JAM_INSTALL "Install JAM libs, includes, and CMake scripts" ${JAM_INSTALL_BY_DEFAULT})
-option(JAM_BUILD_SHARED "Build JAM shared libraries" OFF)
+#option(JAM_INSTALL "Install JAM libs, includes, and CMake scripts" ${JAM_INSTALL_BY_DEFAULT})
+#option(JAM_BUILD_SHARED "Build JAM shared libraries" OFF)
 option(JAM_BUILD_STATIC "Build JAM static libraries" ON)
 option(JAM_BUILD_EXAMPLES "Build JAM examples" ON)
 
@@ -20,10 +20,22 @@ set(LIB_INSTALL_DIR lib${LIB_SUFFIX})
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(JAM_THIRDPARTY_LIBRARIES
+	opengl32
+	debug debug/gc optimized release/gc
+	debug debug/SDL2 optimized release/SDL2
+	debug debug/SDL2main optimized release/SDL2main
+	debug debug/OpenAL32 optimized release/OpenAL32
+	debug debug/tinyxml optimized release/tinyxml
+	debug debug/libvorbisfile optimized release/libvorbisfile
+	debug debug/glew32d optimized release/glew32
+	debug debug/Box2D optimized release/Box2D
+	debug debug/assimp-vc140-mt optimized release/assimp-vc140-mt )
+
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(JAM_thirdPartyLibs_PATH ${PROJECT_SOURCE_DIR}/dependencies/lib/x64)
+  set(JAM_THIRDPARTY_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/dependencies/lib/x64)
 else()
-  set(JAM_thirdPartyLibs_PATH ${PROJECT_SOURCE_DIR}/dependencies/lib/win32)
+  set(JAM_THIRDPARTY_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/dependencies/lib/win32)
 endif()
 
 # force Unicode over Multi-byte

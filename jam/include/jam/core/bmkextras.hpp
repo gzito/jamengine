@@ -56,6 +56,8 @@
 #define Wrapf(x,low,up)			jam::wrapf((x),(low),(up))
 #define WrapAngle(x)			jam::wrapf((x),0.0f,360.0f)
 #define WrapAngleRadian(x)		jam::wrapf((x),0.0f,JAM_TWOPI)
+#define WrapAngleSigned(x)		jam::wrapf((x),-180.0f,180.0f)
+#define WrapAngleSignedRadian(x)	jam::wrapf((x),-JAM_PI,JAM_PI)
 #define Near(x,low,up)			((Abs((x)-(low)) > Abs((up)-(x))) ? (up) : (low))
 #define Far(x,low,up)			((Abs((x)-(low)) < Abs((up)-(x))) ? (up) : (low))
 #define Same(x,y,p)				((Abs((x)-(y)))<=(p) ? (1) : (0))
