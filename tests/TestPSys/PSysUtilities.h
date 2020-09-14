@@ -1,13 +1,13 @@
-#ifndef __PsysUtilities_h__
-#define __PsysUtilities_h__
+#pragma once
 
-#include <jam/DrawItem.h>
 #include <PSys.h>
 
 #define MAX_MARKED	128
 #define MAX_BUBBLES	264
 #define MAX_ICES	64
 #define MAX_SPARKLES 256
+
+class Particle3DConfigurator;
 
 class PSysHelper
 {
@@ -75,5 +75,3 @@ protected:
 	Particle3DConfigurator *SparklePartEmitter[MAX_SPARKLES+1];
 
 };
-
-#endif

@@ -4,6 +4,7 @@
 #include <jam/core/bmkextras.hpp>
 #include <jam/Gfx.h>
 #include <PSys.h>
+#include <PSys_ParticleConfigurator.h>
 
 #define PIGRECO			3.14159265358979323846
 #define RADK			0.017453292519943295769222222222222f
