@@ -92,6 +92,8 @@ include_directories( include )
 include_directories( include/precomph )
 include_directories( include/jam/thirdparty/imgui )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include )
+include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/AL )
+include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/vorbis )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/SDL2 )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/boehmgc )
 

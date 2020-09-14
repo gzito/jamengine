@@ -1,7 +1,7 @@
 # jamengine
 
 ## What is jamengine
-A simple C++ game engine built on OpenGL 3.2 and SDL 2
+A simple-to-use C++ game engine built upon OpenGL 3.2 and SDL 2
 
 ## How to build
 
@@ -17,10 +17,10 @@ Run **cmake-gui**:
 
 Leave default settings as they are and click **Configure**.
 
-Choose your Visual Studio toolchain and select Win32 as platform. Then click **Generate**. Lastly open Visual Studio Project and you are done.
+Choose your Visual Studio toolchain and select Win32 or x64 as platform. Then click **Generate**. Lastly open Visual Studio Project and you are done.
 
 
 ## Tests
-The project has been tested as static win32 library on Windows 10.  The x64 build hasn't been tested yet.
+The project has been tested as static library on Windows 10.
 
 Also library wasn't tested on other platforms, but should work on Linux.

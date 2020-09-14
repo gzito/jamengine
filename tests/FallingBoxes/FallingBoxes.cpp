@@ -59,7 +59,8 @@ bool FallingBoxes::init()
 	Draw3DManager::Origin3D(960,540) ;
 	setClearColor( Color::MIDNIGHTBLUE ) ;
 
-	setAnimationIntervalMs(13) ;
+	setAnimationIntervalMs(0) ;
+	SDL_GL_SetSwapInterval(0) ;
 
 	//	front face is clockwise
  	glFrontFace(GL_CW) ;

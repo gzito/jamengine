@@ -20,22 +20,36 @@ set(LIB_INSTALL_DIR lib${LIB_SUFFIX})
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(JAM_THIRDPARTY_LIBRARIES
-	opengl32
-	debug debug/gc optimized release/gc
-	debug debug/SDL2 optimized release/SDL2
-	debug debug/SDL2main optimized release/SDL2main
-	debug debug/OpenAL32 optimized release/OpenAL32
-	debug debug/tinyxml optimized release/tinyxml
-	debug debug/libvorbisfile optimized release/libvorbisfile
-	debug debug/glew32d optimized release/glew32
-	debug debug/Box2D optimized release/Box2D
-	debug debug/assimp-vc140-mt optimized release/assimp-vc140-mt )
-
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(JAM_THIRDPARTY_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/dependencies/lib/x64)
+	set(JAM_THIRDPARTY_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/dependencies/lib/x64)
+	set(JAM_THIRDPARTY_BINARY_PATH  ${PROJECT_SOURCE_DIR}/dependencies/bin/x64)
+
+	set(JAM_THIRDPARTY_LIBRARIES
+		opengl32
+		debug debug/gc optimized release/gc
+		SDL2
+		SDL2main
+		OpenAL32
+		debug debug/tinyxml optimized release/tinyxml
+		debug debug/vorbisfile optimized release/vorbisfile
+		release/glew32
+		debug debug/Box2D optimized release/Box2D
+		debug debug/assimp-vc142-mtd optimized release/assimp-vc142-mt )
 else()
-  set(JAM_THIRDPARTY_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/dependencies/lib/win32)
+	set(JAM_THIRDPARTY_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/dependencies/lib/win32)
+	set(JAM_THIRDPARTY_BINARY_PATH  ${PROJECT_SOURCE_DIR}/dependencies/bin/win32)
+
+	set(JAM_THIRDPARTY_LIBRARIES
+		opengl32
+		debug debug/gc optimized release/gc
+		SDL2
+		SDL2main
+		OpenAL32
+		debug debug/tinyxml optimized release/tinyxml
+		debug debug/vorbisfile optimized release/vorbisfile
+		debug debug/glew32d optimized release/glew32
+		debug debug/Box2D optimized release/Box2D
+		debug debug/assimp-vc140-mt optimized release/assimp-vc140-mt )
 endif()
 
 # force Unicode over Multi-byte
