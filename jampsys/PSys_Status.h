@@ -1,6 +1,6 @@
 /**********************************************************************************
 *
-* PSys_ParticleConfigurator.cpp
+* PSys.h
 *
 * This file is part of Jam
 *
@@ -26,5 +26,13 @@
 * SOFTWARE.
 *
 **********************************************************************************/
+#pragma once
 
-#include "StdAfx.h"
+enum class PSysStatus
+{
+	PSYS_REMOVE = -2,
+	PSYS_END = -1,
+	PSYS_STOP = 0,
+	PSYS_GO = 1,
+	
+};
