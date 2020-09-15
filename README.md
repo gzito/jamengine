@@ -25,6 +25,7 @@ You have to download dependencies yourself and build them from sources.
  -  SDL_ttf 2.0.15
  -  tinyxml 2.6.2
 
+Prebuilt win32 and win64 binaries dependencies are provided for your convenience at https://github.com/gzito/jamengine-dependencies
 
 ## How to build
 
