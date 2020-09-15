@@ -7,8 +7,11 @@ A simple-to-use C++ game engine built upon OpenGL 3.2 and SDL 2
 
  - Uses Boehm-Demers-Weiser conservative garbage collector 
  - Spritesheets support from Zwoptex or TexturePacker
+ - SpriteBatch class available ported from XNA/Monogame
  - Tilemaps created with Tiled
- - Many formats supported for 3D model loading
+ - Many formats supported for 3D model loading via assimp
+ - Loads BMP, JPG, and PNG files via stb-image
+ - Audio support via openal-soft
 
 ## Dependencies
 You have to download dependencies yourself and build them from sources.
