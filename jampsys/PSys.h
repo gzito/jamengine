@@ -68,7 +68,7 @@ public:
 	bool clearAll();
 	PSysEmitter* CreateEmitter(IParticleConfigurator* starterModel, std::string name = "");
 
-	std::queue<PSysEmitter*> eremoved;
+	std::queue<PSysEmitter*> emitremoved;
 	std::list<PSysEmitter*> emitters;
 	std::unordered_map<std::string, emitterGroup> groups;
 
