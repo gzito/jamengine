@@ -8,7 +8,7 @@ else()
 	link_libraries(JamPSys)
 endif()
 
-add_executable(TestPSys TestPSys.cpp PSysUtilities.cpp PSysUtilities.h)
+add_executable(TestPSys TestPSys.cpp PSysUtilities.cpp PSysUtilities.h PerformanceWindow.cpp PerformanceWindow.h)
 
 include_directories( ${PROJECT_SOURCE_DIR}/jam/include )
 include_directories( ${PROJECT_SOURCE_DIR}/jam/include/precomph )

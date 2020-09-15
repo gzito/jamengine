@@ -410,22 +410,21 @@ void PsysTestApp::render()
 	//	Draw3DManager::Origin3D(Draw3DManager::Original3DWidth,Draw3DManager::Original3DHeight) ;
 	//}
 	//GetGfx().setRenderLevel(5);
+
+	GetGfx().setRenderLevel( -1 ) ;
+	GetDraw3DMgr().DrawImage3D(DrawItemManager::getSingleton().getObject("background1"),0,0);
+
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(GetAppMgr().getWindowPtr());
 	ImGui::NewFrame();
 	
 	//ImGui::ShowDemoWindow(&m_show_demo_window);
 	PerformanceWindow::DrawContent();
-	
-	
+
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 	
-	//GetGfx().setRenderLevel( 2 ) ;
-	//GetDraw3DMgr().DrawImage3D(DrawItemManager::getSingleton().getObject("background1"),0,0);
-
-	GetGfx().setRenderLevel( 0 ) ;
+	GetGfx().setRenderLevel( 1 ) ;
 	Draw3DBatch* pBatch = GetGfx().getBatch() ;
 	if( pBatch ) pBatch->begin() ;
 	GetParticleSystem().updateRender();
