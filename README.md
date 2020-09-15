@@ -11,9 +11,9 @@ A simple-to-use C++ game engine built upon OpenGL 3.2 and SDL 2
  - Many formats supported for 3D model loading
 
 ## Dependencies
-It is recommended to download dependencies yourself and build them from sources.
+You have to download dependencies yourself and build them from sources.
 
- -  gc 8.0.4
+ -  gc 8.0.4 (The Boehm-Demers-Weiser conservative garbage collector)
  -  glm 0.9.9.6
  -  Box2D 2.3.0
  -  assimp 5
@@ -25,7 +25,6 @@ It is recommended to download dependencies yourself and build them from sources.
  -  SDL_ttf 2.0.15
  -  tinyxml 2.6.2
 
-Precompiled win32 and win64 binary dependencies are provided for your convenience.
 
 ## How to build
 
