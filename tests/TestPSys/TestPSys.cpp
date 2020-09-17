@@ -59,7 +59,7 @@
 
 using namespace jam;
 
-
+#define USEIMGUI
 
 
 class PsysTestApp : public Application
@@ -240,7 +240,7 @@ void PsysTestApp::destroy()
 
 void PsysTestApp::handleInput()
 {
-	if( GetInputMgr().keyPressed(SDL_SCANCODE_SPACE) ) {
+	if( GetInputMgr().keyReleased(SDL_SCANCODE_SPACE) ) {
 		Draw3DBatch* batch = GetGfx().getBatch() ;
 		if( batch ) {
 			GetGfx().setBatch(nullptr) ;
@@ -269,7 +269,7 @@ void PsysTestApp::onButtonReleased( TouchEventArgs& args, IEventSource& src )
 
 void PsysTestApp::afterSceneUpdate()
 {
-#ifdef USEIMGUI
+#ifndef USEIMGUI
 	char buffer[256];
 	Draw3DManager::ColorG3D = Color::WHITE ;
 
@@ -414,6 +414,7 @@ void PsysTestApp::render()
 	GetGfx().setRenderLevel( -1 ) ;
 	GetDraw3DMgr().DrawImage3D(DrawItemManager::getSingleton().getObject("background1"),0,0);
 
+#ifdef USEIMGUI
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(GetAppMgr().getWindowPtr());
 	ImGui::NewFrame();
@@ -423,7 +424,8 @@ void PsysTestApp::render()
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	
+#endif
+
 	GetGfx().setRenderLevel( 1 ) ;
 	Draw3DBatch* pBatch = GetGfx().getBatch() ;
 	if( pBatch ) pBatch->begin() ;
@@ -481,7 +483,9 @@ int main(int argc, char* argv[] )
 
 	try {
 		PsysTestApp app;
+#ifdef USEIMGUI
 		app.setImguiEnabled();
+#endif
 		app.start();
 	}
 	catch (std::exception& ex) {
