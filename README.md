@@ -5,7 +5,7 @@ A simple-to-use C++ game engine built upon OpenGL 3.2 and SDL 2
 
 ## Features
 
- - Uses Boehm-Demers-Weiser conservative garbage collector 
+ - Uses intrusive reference counted pointers for managing memory
  - Spritesheets support from Zwoptex or TexturePacker
  - SpriteBatch class available ported from XNA/Monogame
  - Tilemaps created with Tiled
@@ -16,7 +16,6 @@ A simple-to-use C++ game engine built upon OpenGL 3.2 and SDL 2
 ## Dependencies
 You have to download dependencies yourself and build them from sources.
 
- -  gc 8.0.4 (The Boehm-Demers-Weiser conservative garbage collector)
  -  glm 0.9.9.6
  -  Box2D 2.3.0
  -  assimp 5
