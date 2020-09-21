@@ -257,11 +257,13 @@ void PsysTestApp::onButtonReleased( TouchEventArgs& args, IEventSource& src )
 	
 	if( n.getTag() == "left" )
 	{
+		ps->ClearPSys();
 		m_partType-- ; 
 		if (m_partType<0) m_partType=m_partname.size()-1 ;
 	}
 	else if( n.getTag() == "right" )
 	{
+		ps->ClearPSys();
 		m_partType++ ; 
 		if (m_partType>(m_partname.size()-1)) m_partType=0 ;	
 	}
@@ -418,9 +420,13 @@ void PsysTestApp::render()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(GetAppMgr().getWindowPtr());
 	ImGui::NewFrame();
-	
+	ImGui::Begin("PSYS Info Window",&showImguiWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+
+
 	//ImGui::ShowDemoWindow(&m_show_demo_window);
 	PerformanceWindow::DrawContent();
+	PerformanceWindow::ShowOtherInfo(m_partType,m_partname);
+	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
