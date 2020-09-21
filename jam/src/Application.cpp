@@ -131,7 +131,7 @@ void Application::start()
 		m_totalElapsedMs = GetSysTimer().getTime() ;
 		refreshTime() ;
 
-		m_sceneNode = new (GC) Scene() ;
+		m_sceneNode = new Scene() ;
 
 		GetGfx().setDepthTest(true) ;
 
@@ -145,9 +145,9 @@ void Application::start()
 	#endif
 		// create default resource cache
 		IResourceFile* pResourceFile = new FileSystemResourceFile(ShaderManager::DEFAULT_SHADERS_PATH) ;
-		m_resourceManager = new (GC) ResourceManager(10,pResourceFile) ;
+		m_resourceManager = new ResourceManager(10,pResourceFile) ;
 		m_resourceManager->init() ;
-		m_resourceManager->registerLoader( new (GC) ShaderFileResourceLoader() ) ;
+		m_resourceManager->registerLoader( new ShaderFileResourceLoader() ) ;
 
 		// create default shaders
 		GetShaderMgr().createDefaultLit() ;
@@ -172,7 +172,7 @@ void Application::start()
 		m_sceneNode->init() ;
 		m_sceneNode->onEnter() ;
 
-		m_sysTimerManager = new (GC) TimerManager() ;
+		m_sysTimerManager = new TimerManager() ;
 
 	#ifndef JAM_COLLISIONS_DISABLED
 		GetCollMgr().getUpdateTimer().setSweep((uint64_t)(m_animationIntervalMs*m_collisionCheckFactor)) ;
@@ -243,7 +243,7 @@ void Application::start()
 
 		m_sceneNode->onExit() ;
 		m_sceneNode->destroy() ;
-
+		m_sceneNode->release() ;
 		m_sceneNode = nullptr ;
 	}
 	catch( std::exception& ex ) {

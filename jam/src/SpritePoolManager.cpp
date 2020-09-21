@@ -39,11 +39,11 @@ Sprite* SpritePoolManager::getNew( const String& tag )
 	size_t howMuch= countObjectsByTag(tag) ;
 	Sprite* res=0;
 	if( howMuch ) {
-		Sprite* res=(Sprite*)findObjectByTag(tag);
+		Sprite* res = (Sprite*)findObjectByTag(tag);
 		res->setEnabled(true);
 	}
 	else {
-		res=new (GC) Sprite();
+		res = new Sprite();
 		res->setTag(tag);
 		addObject(res) ;
 	}

@@ -39,6 +39,7 @@
 #include <jam/CollisionManager.h>
 #include <jam/Event.h>
 #include <jam/InputManager.h>
+#include <jam/Ref.hpp>
 
 #include <list>
 #include <map>
@@ -83,7 +84,7 @@ struct JAM_API ObjCollision {
 //	Collision collision;
 };
 
-typedef std::list<Node*>					NodesList ;
+typedef std::list<Ref<Node>>	NodesList ;
 
 /**
 	This is the core class Node
@@ -139,7 +140,7 @@ public:
 	*/
 	virtual void			destroy() ;
 
-	virtual void			destroy_internal() ;
+//	virtual void			destroy_internal() ;
 
 	/** Returns the list of children nodes. */
 	const NodesList&		getChildren() const { return m_children; } ;
@@ -168,10 +169,10 @@ public:
 	virtual Node*			addChild(Node* child, int zOrder, bool global = true);
 
 	/** Gets a child from the container given its tag */
-	Node*					getFirstChildByTag(const TagType& tag) const ;
+	const Node*				getFirstChildByTag(const TagType& tag) const ;
 
 	/** Gets a child from the container given its name */
-	Node*					getChildByName(const String& name) const ;
+	const Node*				getChildByName(const String& name) const ;
 
 	/**
 		Remove itself from its parent node. If cleanup is YES, then also remove all actions. If the node orphan, then nothing happens

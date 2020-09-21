@@ -87,6 +87,8 @@ void ParticleSprite3D::destroy()
 	JAM_DELETE(angle);
 	JAM_DELETE(color);*/
 
+	JAM_RELEASE_NULL(item);
+
 	DbgPrintf("ParticleSprite3D::destroy-end");
 }
 

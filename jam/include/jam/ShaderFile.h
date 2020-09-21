@@ -40,7 +40,7 @@ namespace jam
 /**
     Represents a compiled OpenGL shader.
 */
-class JAM_API ShaderFile : public Collectible
+class JAM_API ShaderFile : public RefCountedObject
 { 
 public:
 	/**
@@ -105,7 +105,7 @@ JAM_INLINE bool				ShaderFile::isCompiled() const { return m_compiled; }
 JAM_INLINE ResHandle*       ShaderFile::getResHandle() const { return m_resHandle; }
 
 
-class JAM_API ShaderFileResourceLoader : public IResourceLoader, public Collectible
+class JAM_API ShaderFileResourceLoader : public IResourceLoader
 {
 public:
 							ShaderFileResourceLoader() ;

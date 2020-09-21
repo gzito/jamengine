@@ -35,6 +35,7 @@
 #include <jam/Action.h>
 #include <jam/Node.h>
 #include <jam/BaseManager.hpp>
+#include <jam/Ref.hpp>
 
 #include <vector>
 #include <list>
@@ -46,7 +47,7 @@ namespace jam
 // forward reference, struct declared in implementation file
 struct ActionMgrMapElement ;
 
-typedef std::vector<Action*>					ActionsList ;
+typedef std::vector<Ref<Action>>				ActionsList ;
 typedef std::map<Node*,ActionMgrMapElement*>	TargetsMap ;
 
 /**

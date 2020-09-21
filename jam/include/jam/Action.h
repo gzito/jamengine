@@ -32,6 +32,7 @@
 
 #include <jam/jam.h>
 #include <jam/Object.h>
+#include <jam/Ref.hpp>
 
 #include <vector>
 #include <utility>
@@ -168,7 +169,7 @@ protected:
 							Speed();
 
 	float					m_fSpeed;
-	ActionInterval*			m_pOther;
+	Ref<ActionInterval>		m_pOther;
 };
 
 }

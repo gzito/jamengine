@@ -44,13 +44,13 @@ namespace jam {
 * This interface represent a source of event
 * Classes firing events have to implement this interface
 */
-using IEventSource = Collectible ;
+using IEventSource = RefCountedObject ;
 	
 /**
 * This class represent parameters attached to an Event instance
 * You may want to specialize this class to enrich your own event parameters.
 */
-class JAM_API EventArgs : public Collectible
+class JAM_API EventArgs : public RefCountedObject
 {
 public:    
 	virtual					~EventArgs() = default ;
@@ -80,7 +80,7 @@ protected:
 * Interface IEvent
 * Event class implement it
 */
-class JAM_API IEvent : public Collectible
+class JAM_API IEvent : public RefCountedObject
 {
 public:
 							IEvent() = default ;
@@ -109,7 +109,7 @@ private:
 	public:
 		EventEventArgsPair(IEvent* evt, EventArgs* args, IEventSource* evSrc) ;
 		IEvent*				m_event ;
-		EventArgs*			m_eventArgs ;
+		Ref<EventArgs>		m_eventArgs ;
 		IEventSource*		m_eventSource ;
 	} ;
 

@@ -32,7 +32,9 @@
 
 #include <jam/jam.h>
 #include <jam/ResourceManager.h>
-#include <tinyxml.h>
+
+class TiXmlElement ;
+class TiXmlDocument ;
 
 namespace jam
 {
@@ -40,7 +42,7 @@ namespace jam
 /***************************************************************************
 * XmlResourceExtraData
 */
-class JAM_API XmlResourceExtraData : public IResourceExtraData, public Collectible
+class JAM_API XmlResourceExtraData : public IResourceExtraData
 {
 public:
 	virtual String			toString() override ;
@@ -51,13 +53,11 @@ private:
 	TiXmlDocument*			m_pXmlDocument ;
 };
 
-JAM_INLINE TiXmlElement* XmlResourceExtraData::getRoot() { return m_pXmlDocument->RootElement(); }
-
 
 /***************************************************************************
 * XmlResourceLoader
 */
-class JAM_API XmlResourceLoader : public IResourceLoader, public Collectible
+class JAM_API XmlResourceLoader : public IResourceLoader
 {
 public:
 							XmlResourceLoader() ;

@@ -73,7 +73,7 @@ void TestInputManagerApp::loadFont()
 
 	SDL_Color text_color = { 255, 255, 255, 255 };
 	SDL_Surface* pSurface = TTF_RenderText_Blended( m_pFont, "Hello World!", text_color );	// ARGB8888
-	m_pTexture = new (GC) Texture2D() ;
+	m_pTexture = new Texture2D() ;
 	m_pTexture->createFromSDLSurface(pSurface) ;
 	SDL_FreeSurface(pSurface) ;
 }
@@ -86,10 +86,10 @@ bool TestInputManagerApp::init()
 	m_pFontTex = GetDraw3DMgr().LoadFont3D( "media/Babylon1.png" ) ;
 
 	m_pTexture = GetDrawItemMgr().loadTexture("media/star.bmp","psys")->getTexture() ;
-	m_pSpriteBatch = new (GC) SpriteBatch(10) ;
+	m_pSpriteBatch = new SpriteBatch(10) ;
 
 	// set camera
-	Camera* pCamera = new (GC) Camera() ;
+	Camera* pCamera = new Camera() ;
 	pCamera->setOrthographicProjection(	-Draw3DManager::VPWidth/2, Draw3DManager::VPWidth/2,
 										-Draw3DManager::VPHeight/2, Draw3DManager::VPHeight/2,
 										1.f, 50.f ) ;
@@ -185,6 +185,9 @@ void TestInputManagerApp::render()
 
 void TestInputManagerApp::destroy()
 {
+	JAM_RELEASE( m_pSpriteBatch ) ;
+	JAM_RELEASE( m_pTexture ) ;
+
 	if( m_pFont ) 
 		TTF_CloseFont( m_pFont ); m_pFont = NULL;
 

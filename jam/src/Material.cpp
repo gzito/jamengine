@@ -212,17 +212,17 @@ namespace jam
 
 	void Material::setDiffuseTexture( Texture2D* tex )
 	{
-		m_diffuseTexture = tex ;
+		m_diffuseTexture = Ref<Texture2D>(tex,true) ;
 	}
 
 	void Material::setSpecularTexture( Texture2D* tex )
 	{
-		m_specularTexture = tex ;
+		m_specularTexture = Ref<Texture2D>(tex,true) ;
 	}
 
 	void Material::setNormalTexture( Texture2D* tex )
 	{
-		m_normalTexture = tex ;
+		m_normalTexture = Ref<Texture2D>(tex,true) ;
 	}
 
 	void Material::setBlendMode(const BlendMode& blendMode)
@@ -232,7 +232,7 @@ namespace jam
 
 	void Material::setShader(Shader* val)
 	{
-		m_pShader = val;
+		m_pShader = Ref<Shader>(val,true);
 	}
 
 	Texture2D* Material::getDiffuseTexture()
@@ -252,7 +252,7 @@ namespace jam
 
 	Shader* Material::getShader() const
 	{
-		return m_pShader;
+		return const_cast<Shader*>(m_pShader.get());
 	}
 	
 	void Material::bind()

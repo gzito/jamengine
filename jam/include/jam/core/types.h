@@ -32,7 +32,6 @@
 
 #include <cstdint>
 #include <memory>
-#include <gc_cpp.h>
 
 namespace jam
 {
@@ -53,8 +52,6 @@ using 		F64 = double;
 //template<class T> using sptr = std::shared_ptr<T> ;
 //template<class T> using wptr = std::weak_ptr<T> ;
 //template<class T> using uptr = std::unique_ptr<T> ;
-//using Collectible = gc ;
-using Collectible = gc_cleanup ;
 
 // jam::time
 using time = float ;

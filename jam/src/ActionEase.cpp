@@ -43,7 +43,7 @@ namespace jam
 //
 ActionEase* ActionEase::actionWithAction(ActionInterval *pAction)
 {
-	ActionEase *pRet = new (GC) ActionEase();
+	ActionEase *pRet = new ActionEase();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr ;
@@ -103,7 +103,7 @@ ActionEase::ActionEase()
 //
 EaseRateAction* EaseRateAction::actionWithAction(ActionInterval *pAction, float fRate)
 {
-	EaseRateAction *pRet = new (GC) EaseRateAction();
+	EaseRateAction *pRet = new EaseRateAction();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction,fRate) ) {
 			pRet = nullptr ;
@@ -139,7 +139,7 @@ EaseRateAction::EaseRateAction()
 //
 EaseIn* EaseIn::actionWithAction(ActionInterval *pAction, float fRate)
 {
-	EaseIn *pRet = new (GC) EaseIn();
+	EaseIn *pRet = new EaseIn();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction,fRate)) {
 			pRet = nullptr ;
@@ -164,7 +164,7 @@ EaseIn::EaseIn()
 //
 EaseOut* EaseOut::actionWithAction(ActionInterval *pAction, float fRate)
 {
-	EaseOut *pRet = new (GC) EaseOut();
+	EaseOut *pRet = new EaseOut();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction,fRate)) {
 			pRet = nullptr ;
@@ -189,7 +189,7 @@ EaseOut::EaseOut()
 //
 EaseInOut* EaseInOut::actionWithAction(ActionInterval *pAction, float fRate)
 {
-	EaseInOut *pRet = new (GC) EaseInOut();
+	EaseInOut *pRet = new EaseInOut();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction,fRate)) {
 			pRet = nullptr;
@@ -234,7 +234,7 @@ EaseInOut::EaseInOut()
 //
 EaseExponentialIn* EaseExponentialIn::actionWithAction(ActionInterval* pAction)
 {
-	EaseExponentialIn *pRet = new (GC) EaseExponentialIn();
+	EaseExponentialIn *pRet = new EaseExponentialIn();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr;
@@ -264,7 +264,7 @@ EaseExponentialIn::EaseExponentialIn()
 //
 EaseExponentialOut* EaseExponentialOut::actionWithAction(ActionInterval* pAction)
 {
-	EaseExponentialOut *pRet = new (GC) EaseExponentialOut();
+	EaseExponentialOut *pRet = new EaseExponentialOut();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr;
@@ -294,7 +294,7 @@ EaseExponentialOut::EaseExponentialOut()
 //
 EaseExponentialInOut* EaseExponentialInOut::actionWithAction(ActionInterval *pAction)
 {
-	EaseExponentialInOut *pRet = new (GC) EaseExponentialInOut();
+	EaseExponentialInOut *pRet = new EaseExponentialInOut();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr;
@@ -327,7 +327,7 @@ EaseExponentialInOut::EaseExponentialInOut()
 //
 EaseElastic* EaseElastic::actionWithAction(ActionInterval *pAction)
 {
-	EaseElastic *pRet = new (GC) EaseElastic();
+	EaseElastic *pRet = new EaseElastic();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr ;
@@ -339,7 +339,7 @@ EaseElastic* EaseElastic::actionWithAction(ActionInterval *pAction)
 
 EaseElastic* EaseElastic::actionWithAction(ActionInterval *pAction, float fPeriod)
 {
-	EaseElastic *pRet = new (GC) EaseElastic();
+	EaseElastic *pRet = new EaseElastic();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction, fPeriod)) {
 			pRet = nullptr ;
@@ -382,7 +382,7 @@ EaseElastic::EaseElastic()
 //
 EaseElasticIn* EaseElasticIn::actionWithAction(ActionInterval *pAction, float fPeriod)
 {
-	EaseElasticIn *pRet = new (GC) EaseElasticIn();
+	EaseElasticIn *pRet = new EaseElasticIn();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction, fPeriod)) {
 			pRet = nullptr ;
@@ -394,7 +394,7 @@ EaseElasticIn* EaseElasticIn::actionWithAction(ActionInterval *pAction, float fP
 
 EaseElasticIn* EaseElasticIn::actionWithAction(ActionInterval *pAction)
 {
-	EaseElasticIn *pRet = new (GC) EaseElasticIn();
+	EaseElasticIn *pRet = new EaseElasticIn();
 	if( pRet ) {
 		if( !pRet->initWithAction(pAction) ) {
 			pRet = nullptr ;
@@ -436,7 +436,7 @@ EaseElasticIn::EaseElasticIn()
 //
 EaseElasticOut* EaseElasticOut::actionWithAction(ActionInterval *pAction)
 {
-	EaseElasticOut *pRet = new (GC) EaseElasticOut();
+	EaseElasticOut *pRet = new EaseElasticOut();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr ;
@@ -448,7 +448,7 @@ EaseElasticOut* EaseElasticOut::actionWithAction(ActionInterval *pAction)
 
 EaseElasticOut* EaseElasticOut::actionWithAction(ActionInterval *pAction, float fPeriod)
 {
-	EaseElasticOut *pRet = new (GC) EaseElasticOut();
+	EaseElasticOut *pRet = new EaseElasticOut();
 	if( pRet ) {
 		if( !pRet->initWithAction(pAction, fPeriod) ) {
 			pRet = nullptr ;
@@ -489,7 +489,7 @@ EaseElasticOut::EaseElasticOut()
 //
 EaseElasticInOut* EaseElasticInOut::actionWithAction(ActionInterval *pAction)
 {
-	EaseElasticInOut *pRet = new (GC) EaseElasticInOut();
+	EaseElasticInOut *pRet = new EaseElasticInOut();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr ;
@@ -501,7 +501,7 @@ EaseElasticInOut* EaseElasticInOut::actionWithAction(ActionInterval *pAction)
 
 EaseElasticInOut* EaseElasticInOut::actionWithAction(ActionInterval *pAction, float fPeriod)
 {
-	EaseElasticInOut *pRet = new (GC) EaseElasticInOut();
+	EaseElasticInOut *pRet = new EaseElasticInOut();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction,fPeriod)) {
 			pRet = nullptr ;
@@ -557,7 +557,7 @@ EaseElasticInOut::EaseElasticInOut()
 //
 EaseBounce* EaseBounce::actionWithAction( ActionInterval* pAction )
 {
-	EaseBounce *pRet = new (GC) EaseBounce();
+	EaseBounce *pRet = new EaseBounce();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr ;
@@ -598,7 +598,7 @@ EaseBounce::EaseBounce()
 //
 EaseBounceIn* EaseBounceIn::actionWithAction(ActionInterval* pAction)
 {
-	EaseBounceIn *pRet = new (GC) EaseBounceIn();
+	EaseBounceIn *pRet = new EaseBounceIn();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr ;
@@ -629,7 +629,7 @@ EaseBounceIn::EaseBounceIn()
 //
 EaseBounceOut* EaseBounceOut::actionWithAction(ActionInterval* pAction)
 {
-	EaseBounceOut *pRet = new (GC) EaseBounceOut();
+	EaseBounceOut *pRet = new EaseBounceOut();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr ;
@@ -660,7 +660,7 @@ EaseBounceOut::EaseBounceOut()
 //
 EaseBounceInOut	* EaseBounceInOut::actionWithAction(ActionInterval* pAction)
 {
-	EaseBounceInOut *pRet = new (GC) EaseBounceInOut();
+	EaseBounceInOut *pRet = new EaseBounceInOut();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr ;
@@ -696,7 +696,7 @@ EaseBounceInOut::EaseBounceInOut()
 //
 EaseBackIn* EaseBackIn::actionWithAction(ActionInterval *pAction)
 {
-	EaseBackIn *pRet = new (GC) EaseBackIn();
+	EaseBackIn *pRet = new EaseBackIn();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr ;
@@ -727,7 +727,7 @@ EaseBackIn::EaseBackIn()
 //
 EaseBackOut* EaseBackOut::actionWithAction(ActionInterval* pAction)
 {
-	EaseBackOut *pRet = new (GC) EaseBackOut();
+	EaseBackOut *pRet = new EaseBackOut();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr ;
@@ -760,7 +760,7 @@ EaseBackOut::EaseBackOut()
 //
 EaseBackInOut* EaseBackInOut::actionWithAction(ActionInterval* pAction)
 {
-	EaseBackInOut *pRet = new (GC) EaseBackInOut();
+	EaseBackInOut *pRet = new EaseBackInOut();
 	if (pRet ) {
 		if( !pRet->initWithAction(pAction)) {
 			pRet = nullptr ;

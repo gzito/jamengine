@@ -37,6 +37,7 @@
 #include <jam/Texture2D.h>
 #include <jam/Shader.h>
 #include <jam/Object.h>
+#include <jam/Ref.hpp>
 
 namespace jam
 {
@@ -120,11 +121,11 @@ private:
 	BlendMode				m_blendMode ;
 
 	// texture stages
-	Texture2D*				m_diffuseTexture ;		// stage 0
-	Texture2D*				m_specularTexture ;		// stage 1
-	Texture2D*				m_normalTexture ;		// stage 2
+	Ref<Texture2D>			m_diffuseTexture ;		// stage 0
+	Ref<Texture2D>			m_specularTexture ;		// stage 1
+	Ref<Texture2D>			m_normalTexture ;		// stage 2
 
-	Shader*					m_pShader ;
+	Ref<Shader>				m_pShader ;
 };
 
 JAM_INLINE GLenum			BlendMode::getBlendFuncSrc() const { return m_blendFuncSrc; }

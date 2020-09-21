@@ -32,8 +32,7 @@
 
 #include <jam/jam.h>
 #include <jam/String.h>
-
-#include <gc_cpp.h>
+#include <jam/RefCountedObject.h>
 #include <sstream>
 
 namespace jam
@@ -46,39 +45,66 @@ class JAM_API INamedObject
 {
 public:
 							INamedObject() = default ;
-	virtual					~INamedObject() = default ;
+
 	virtual String			getName() const = 0 ;
 	virtual void			setName( const String& name ) = 0 ;
+
+protected:
+	virtual					~INamedObject() = default ;
+
+private:
+							INamedObject( const INamedObject& ) = delete ;
+	INamedObject&			operator=( const INamedObject& ) = delete ;
 };
 
 class JAM_API ITaggedObject
 {
 public:
 							ITaggedObject() = default ;
-	virtual					~ITaggedObject() = default ;
+
 	virtual String			getTag() const = 0 ;
 	virtual void			setTag( const String& tag ) = 0 ;
+
+protected:
+	virtual					~ITaggedObject() = default ;
+
+private:
+							ITaggedObject( const ITaggedObject& ) = delete ;
+	ITaggedObject&			operator=( const ITaggedObject& ) = delete ;
 };
 
-class JAM_API NamedObject : public Collectible, public INamedObject
+class JAM_API NamedObject : public RefCountedObject, public INamedObject
 {
 public:
 							NamedObject() ;
-	virtual					~NamedObject() = default ;
 
 	// Inherited via INamedObject
 	virtual String			getName() const override;
 	virtual void			setName(const String& name) override;
 
+protected:
+	virtual					~NamedObject() = default ;
+
+private:
+							NamedObject( const NamedObject& ) = delete ;
+	NamedObject&			operator=( const NamedObject& ) = delete ;
+
 private:
 	String					m_name ;
+
 };
 
-class JAM_API TaggedObject : public Collectible, public ITaggedObject
+class JAM_API TaggedObject : public RefCountedObject, public ITaggedObject
 {
 public:
-							TaggedObject() ;
+							TaggedObject() = default ;
+
+protected:
 	virtual					~TaggedObject() = default ;
+
+private:
+							TaggedObject( const TaggedObject& ) = delete ;
+	TaggedObject&			operator=( const TaggedObject& ) = delete ;
 
 private:
 	String					m_tag ;
@@ -88,16 +114,22 @@ private:
 	virtual void			setTag(const String& tag) override;
 };
 
-class JAM_API NamedTaggedObject : public Collectible, public INamedObject, public ITaggedObject
+class JAM_API NamedTaggedObject : public RefCountedObject, public INamedObject, public ITaggedObject
 {
 public:
 							NamedTaggedObject() ;
-	virtual					~NamedTaggedObject() = default ;
 
 	virtual String			getName() const override;
 	virtual void			setName(const String& name) override;
 	virtual String			getTag() const override;
 	virtual void			setTag(const String& tag) override;
+
+protected:
+	virtual					~NamedTaggedObject() = default ;
+
+private:
+							NamedTaggedObject( const NamedTaggedObject& ) = delete ;
+	NamedTaggedObject&		operator=( const NamedTaggedObject& ) = delete ;
 
 private:
 	String					m_name ;

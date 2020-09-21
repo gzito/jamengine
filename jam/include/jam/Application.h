@@ -267,12 +267,12 @@ private:
 	Timer*					m_traceActiveNodesTimer ;
 #endif
 
-	TimerManager*			m_sysTimerManager ;
+	Ref<TimerManager>		m_sysTimerManager ;
 
 	SDL_Window*				m_pWindow;
 	SDL_GLContext			m_GLContext ;
 			
-	ResourceManager*		m_resourceManager ;
+	Ref<ResourceManager>	m_resourceManager ;
 
 	bool					m_imguiEnabled ;
 };	// class Application

@@ -63,7 +63,7 @@ public:
 protected:
 	ActionEase();
 
-	ActionInterval *m_pOther;
+	Ref<ActionInterval> m_pOther;
 };
 
 /** 

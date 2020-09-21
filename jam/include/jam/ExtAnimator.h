@@ -38,39 +38,42 @@
 namespace jam
 {
 
-	class JAM_API ExtAnimator : public Collectible
-	{
-	public:
-		ExtAnimator(IDrawable2D* pIDrawable);
-		virtual ~ExtAnimator();
+class JAM_API ExtAnimator : public RefCountedObject
+{
+public:
+							ExtAnimator(IDrawable2D* pIDrawable);
+							ExtAnimator( const ExtAnimator& ) = delete ;
+	ExtAnimator&			operator=( const ExtAnimator& ) = delete ;
 
-		// animations
-		void			setAnimation( Animation2D* pAnimation, bool autoStart=false, int firstFrame=0 );
-		Animation2D*	getAnimation()	const { return m_pAnimation ; }
+	// animations
+	void					setAnimation( const Animation2D* pAnimation, bool autoStart=false, int firstFrame=0 );
+	const Animation2D*		getAnimation()	const { return m_pAnimation.get() ; }
 		
-		float			getSpeed() const { return m_speed; }
-		void			setSpeed(float val) { m_speed = val; }
+	float					getSpeed() const { return m_speed; }
+	void					setSpeed(float val) { m_speed = val; }
 
-		void			startAnimation();
-		void			stopAnimation();
-		void			resetAnimation();
-		void			completeAnimation(int frame=-1);
-		bool			isPlaying();
+	void					startAnimation();
+	void					stopAnimation();
+	void					resetAnimation();
+	void					completeAnimation(int frame=-1);
+	bool					isPlaying();
 
-		int				getLastFrameIndex() const { return m_lastFrameIndex; }
+	int						getLastFrameIndex() const { return m_lastFrameIndex; }
 
-		virtual void	update() ;
-	
+	virtual void			update() ;
 
-	private:
-		int					m_lastFrameIndex ;
-		int					m_completeFrameIndex;
-		float				m_speed ;
-		jam::Timer*		m_timer ;
-		jam::Animation2D*	m_pAnimation ;
-		jam::IDrawable2D*	m_pIDrawable ;
-		jam::Animation2D*	m_defaultAnimation ;
-	};
+protected:
+	virtual					~ExtAnimator();
+
+private:
+	int						m_lastFrameIndex ;
+	int						m_completeFrameIndex;
+	float					m_speed ;
+	Ref<Timer>				m_timer ;
+	Ref<Animation2D>		m_pAnimation ;
+	Ref<Animation2D>		m_defaultAnimation ;
+	IDrawable2D*			m_pIDrawable ;
+};
 
 }
 

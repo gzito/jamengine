@@ -19,9 +19,6 @@ PSys, BmkExtras macros, Utilities, Randomizer, TMXLoader, Achievements classes a
 Brodie Thiesfield - SimpleIni
 https://github.com/brofield/simpleini
 
-The Boehm-Demers-Weiser conservative garbage collector - A garbage collector for C and C++
-https://www.hboehm.info/gc/
-
 Ilya Polishchuk (effolkronium) - Random for modern C++
 https://github.com/effolkronium/random
 

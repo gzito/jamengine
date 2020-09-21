@@ -35,6 +35,8 @@
 #include <jam/jam.h>
 #include <jam/String.h>
 #include <jam/Object.h>
+#include <jam/Ref.hpp>
+
 
 namespace jam
 {
@@ -56,7 +58,7 @@ public:
 //	virtual void			update( jam::time deltaTime ) = 0 ;
 
 private:
-	GameObject*				m_gameObject ;
+	Ref<GameObject>			m_gameObject ;
 	String					m_tag ;
 };
 

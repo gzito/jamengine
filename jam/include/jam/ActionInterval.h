@@ -33,7 +33,9 @@
 #include <jam/jam.h>
 #include <jam/Action.h>
 #include <jam/Color.h>
+#include <jam/Ref.hpp>
 #include <jam/core/geom.h>
+#include <jam/Anim2d.h>
 
 namespace jam
 {
@@ -112,7 +114,7 @@ public:
 protected:
 							Sequence() ;
 
-	FiniteTimeAction*		m_pActions[2];
+	Ref<FiniteTimeAction>	m_pActions[2];
 	jam::time				m_split;
 	int						m_last;
 };
@@ -144,7 +146,7 @@ protected:
 
 	unsigned int m_uTimes;
 	unsigned int m_uTotal;
-	FiniteTimeAction* m_pOther;
+	Ref<FiniteTimeAction> m_pOther;
 };
 
 
@@ -171,7 +173,7 @@ public:
 protected:
 	RepeatForever();
 
-	ActionInterval *m_pOther;
+	Ref<ActionInterval> m_pOther;
 };
 
 
@@ -199,8 +201,8 @@ public:
 
 protected:
 	Spawn();
-	FiniteTimeAction *m_pOne;
-	FiniteTimeAction *m_pTwo;
+	Ref<FiniteTimeAction> m_pOne;
+	Ref<FiniteTimeAction> m_pTwo;
 };
 
 /** @brief Rotates a Node object to a certain angle by modifying it's
@@ -645,7 +647,7 @@ public:
 
 protected:
 	ReverseTime();
-	FiniteTimeAction *m_pOther;
+	Ref<FiniteTimeAction> m_pOther;
 };
 
 class Sprite ;
@@ -695,10 +697,10 @@ public:
 protected:
 	Animate();
 
-	Animation2D*	m_pAnimation;
-	DrawItem*		m_pOrigFrame;
-	Sprite*			m_pSprite ;
-    bool			m_bRestoreOriginalFrame;
+	Ref<Animation2D>	m_pAnimation;
+	Ref<DrawItem>		m_pOrigFrame;
+	Ref<Sprite>			m_pSprite ;
+    bool				m_bRestoreOriginalFrame;
 };
 
 } // namespace jam

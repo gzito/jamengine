@@ -190,7 +190,7 @@ namespace jam
 
 	Transform* Transform::getChild(size_t index) const
 	{
-		return m_children[index];
+		return const_cast<Transform*>( m_children[index].get() ) ;
 	}
 
 	/**
@@ -273,7 +273,7 @@ namespace jam
 			if( currentIdx != index ) {
 				m_parent->m_children.erase( m_children.begin()+currentIdx ) ;
 				if( index > 0 ) { index--; }
-				m_parent->m_children.insert( m_children.begin()+index, this ) ;
+				m_parent->m_children.insert( m_children.begin()+index, Ref<Transform>(this,true) ) ;
 			}
 		}
 	}

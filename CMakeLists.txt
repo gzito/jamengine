@@ -26,7 +26,6 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 	set(JAM_THIRDPARTY_LIBRARIES
 		opengl32
-		debug debug/gc optimized release/gc
 		SDL2
 		SDL2main
 		OpenAL32
@@ -41,7 +40,6 @@ else()
 
 	set(JAM_THIRDPARTY_LIBRARIES
 		opengl32
-		debug debug/gc optimized release/gc
 		SDL2
 		SDL2main
 		OpenAL32

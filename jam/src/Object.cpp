@@ -55,10 +55,6 @@ namespace jam
 		m_name = name ;
 	}
 
-	TaggedObject::TaggedObject() 
-	{
-	}
-
 	String TaggedObject::getTag() const
 	{
 		return m_tag ;

@@ -57,7 +57,7 @@ DrawItem* DrawItemManager::loadTexture( const String& filename, const String& gr
 		aName = jam::getFileNameWithoutExtension( jam::getBasename(filename) );
 	}
 
-	Texture2D* pTexture = new (GC) Texture2D() ;
+	Texture2D* pTexture = new Texture2D() ;
 	pTexture->load(filename) ;
 	pTexture->setName(aName) ;
 
@@ -76,7 +76,7 @@ DrawItem* DrawItemManager::loadTextureFromFileSystem( const String& filename,
 {
 	assert(filename.size()) ;
 
-	Texture2D* pTexture = new (GC) Texture2D() ;
+	Texture2D* pTexture = new Texture2D() ;
 	pTexture->load(filename,true,false) ;			// load and do not upload it!
 
 	String aName = name ;
@@ -107,7 +107,7 @@ int DrawItemManager::loadSheet( const String& filename, const String& groupName,
 		m_drawItemsPerSheet[filename].clear() ;
 	}
 
-	Texture2D* pTexture = new (GC) Texture2D() ;
+	Texture2D* pTexture = new Texture2D() ;
 	pTexture->load(filename);
 	
 	if( cols < 0 ) {
@@ -182,7 +182,7 @@ int DrawItemManager::loadAnimationSheet( const String& sheetFileName, const Stri
 // ************************************************************************
 int DrawItemManager::loadXmlSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName )
 {
-	Texture2D* pTexture = new (GC) Texture2D() ;
+	Texture2D* pTexture = new Texture2D() ;
 	pTexture->load(sheetFilename);
 	
 	TiXmlDocument xmlDoc;
@@ -303,7 +303,7 @@ int DrawItemManager::loadXmlAnimationSheet( const String& xmlFilePath, const Str
 // ************************************************************************
 int DrawItemManager::loadXmlPackSheet( const String& xmlFilePath, const String& sheetName, const String& grpName, float gfxScale /*= 1.0f*/ )
 {
-	Texture2D* pTexture = new (GC) Texture2D() ;
+	Texture2D* pTexture = new Texture2D() ;
 	pTexture->load(sheetName);
 	pTexture->setName(sheetName.c_str()) ;
 	printf( "> Loading file: %s\n", xmlFilePath.c_str() ) ;

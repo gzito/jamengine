@@ -127,7 +127,7 @@ namespace jam
 
 	TextNode* TextNode::create()
 	{
-		return new (GC) TextNode ;
+		return new TextNode ;
 	}
 
 	//

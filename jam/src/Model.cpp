@@ -100,7 +100,8 @@ namespace jam
 		for(unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh *mesh = scene->mMeshes[node->mMeshes[i]]; 
-			m_meshes.push_back(processMesh(mesh, scene));			
+			Ref<Mesh> rMesh( processMesh(mesh, scene), true ) ;
+			m_meshes.push_back(rMesh);			
 		}
 		// then do the same for each of its children
 		for(unsigned int i = 0; i < node->mNumChildren; i++)
@@ -216,7 +217,7 @@ namespace jam
 		if( textureCountForType > 0 ) {
 			for(unsigned int i = 0; i < textureCountForType; i++)
 			{
-				Texture2D* texture = new (GC) Texture2D() ;
+				Texture2D* texture = new Texture2D() ;
 
 				aiString str;
 				mat->GetTexture(type, i, &str);

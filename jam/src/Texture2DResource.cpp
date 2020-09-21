@@ -72,11 +72,11 @@ namespace jam
 	Texture2DResourceLoader::Texture2DResourceLoader()
 	{
 		m_patterns.clear() ;
-		m_patterns.emplace_back("*.png") ;
-		m_patterns.emplace_back("*.jpg") ;
-		m_patterns.emplace_back("*.bmp") ;
-		m_patterns.emplace_back("*.tga") ;
-		m_patterns.emplace_back("*.psd") ;
+		m_patterns.push_back("*.png") ;
+		m_patterns.push_back("*.jpg") ;
+		m_patterns.push_back("*.bmp") ;
+		m_patterns.push_back("*.tga") ;
+		m_patterns.push_back("*.psd") ;
 	}
 
 	bool Texture2DResourceLoader::loadResource(char* rawBuffer,size_t rawSize, ResHandle& handle)

@@ -38,7 +38,7 @@
 namespace jam
 {
 
-class JAM_API Texture2DResourceExtraData : public IResourceExtraData, public Collectible
+class JAM_API Texture2DResourceExtraData : public IResourceExtraData
 {
 public:
 							Texture2DResourceExtraData() ;
@@ -55,7 +55,7 @@ private:
 JAM_INLINE Texture2D* Texture2DResourceExtraData::getTexture2D() { return m_pTexture; }
 
 
-class JAM_API Texture2DResourceLoader : public IResourceLoader, public Collectible
+class JAM_API Texture2DResourceLoader : public IResourceLoader
 {
 public:
 							

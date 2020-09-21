@@ -32,6 +32,8 @@
 #include "jam/XmlResource.h"
 #include "jam/Application.h"
 
+#include <tinyxml.h>
+
 namespace jam
 {
 /***************************************************************************
@@ -48,6 +50,10 @@ void XmlResourceExtraData::parseXml(char* pRawBuffer)
 	m_pXmlDocument->Parse(pRawBuffer) ;
 }
 
+TiXmlElement* XmlResourceExtraData::getRoot()
+{
+	return m_pXmlDocument->RootElement();
+}
 
 /***************************************************************************
 * XmlResourceLoader
@@ -56,7 +62,7 @@ void XmlResourceExtraData::parseXml(char* pRawBuffer)
 XmlResourceLoader::XmlResourceLoader()
 {
 	m_patterns.clear() ;
-	m_patterns.emplace_back("*.xml") ;
+	m_patterns.push_back("*.xml") ;
 }
 
 bool XmlResourceLoader::loadResource(char* rawBuffer,size_t rawSize,ResHandle& handle)
@@ -64,7 +70,7 @@ bool XmlResourceLoader::loadResource(char* rawBuffer,size_t rawSize,ResHandle& h
 	if (rawSize <= 0)
 		return false;
 
-	XmlResourceExtraData* pExtraData = new (GC) XmlResourceExtraData();
+	XmlResourceExtraData* pExtraData = new XmlResourceExtraData();
 	pExtraData->parseXml(rawBuffer);
 
 	handle.setExtra(pExtraData);

@@ -48,7 +48,7 @@ SpriteMesh::SpriteMesh() :
 	m_vao(),
 	m_uploaded(false)
 {
-	m_pMaterial = new (GC) Material() ;
+	m_pMaterial = new Material() ;
 	m_verticesVbo.setTarget(GL_ARRAY_BUFFER) ;
 	m_texCoordsVbo.setTarget(GL_ARRAY_BUFFER) ;
 	m_elementsVbo.setTarget(GL_ELEMENT_ARRAY_BUFFER) ;

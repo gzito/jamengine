@@ -810,7 +810,7 @@ namespace jam
 
 	ISound* AudioManager::loadSound_private( const String& afilename, bool aloopFlag/*=false*/, float avolume/*=1.0f*/, float apitch/*=0.0f */ )
 	{
-		ISound* iSound = new (GC) Sound(afilename, aloopFlag) ;
+		ISound* iSound = new Sound(afilename, aloopFlag) ;
 		iSound->setVolume(avolume) ;
 		iSound->setPitch(apitch) ;
 		return iSound ;
@@ -822,7 +822,7 @@ namespace jam
 			musicOff() ;
 		}
 
-		ISound* iSound = new (GC) StreamingSound(afilename, aloopFlag) ;
+		ISound* iSound = new StreamingSound(afilename, aloopFlag) ;
 		iSound->setVolume(m_musicVolume) ;
 		if( start ) {
 			iSound->play();

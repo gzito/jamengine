@@ -210,7 +210,8 @@ void Quadtree::getAllObjects( NodesList& results )
 
 void Quadtree::add( Node* item )
 {
-	m_objects.push_back(item) ;
+	Ref<Node> rItem(item,true) ;
+	m_objects.push_back(rItem) ;
 }
 
 // void jam::Quadtree::remove( Node* item )

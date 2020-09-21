@@ -36,6 +36,7 @@
 #include <jam/Object.h>
 #include <jam/Texture2D.h> 
 #include <jam/Material.h> 
+#include <jam/Ref.hpp>
 
 namespace jam
 {
@@ -149,7 +150,10 @@ protected:
 	*/
 							DrawItem(Texture2D* pTxtr, const jam::Rect& cut, float gfxScale = 1.0f );
 
-	Material*				m_pMaterial ;
+	virtual					~DrawItem() = default ;
+
+protected:
+	Ref<Material>			m_pMaterial ;
 	jam::Rect				m_rect;
 
 	// used by Zwoptex
@@ -167,6 +171,10 @@ protected:
 
 private:
 	void					init();
+
+							DrawItem( const DrawItem& ) = delete ;
+	DrawItem&				operator=( const DrawItem& ) = delete ;
+
 };
 
 /** IDrawable2D interface */

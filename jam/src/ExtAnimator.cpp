@@ -58,10 +58,10 @@ namespace jam
 	}
 		
 	
-	void ExtAnimator::setAnimation( Animation2D* pAnimation, bool autoStart/*=false*/, int firstFrame/*=0*/ )
+	void ExtAnimator::setAnimation( const Animation2D* pAnimation, bool autoStart/*=false*/, int firstFrame/*=0*/ )
 	{
 		assert(pAnimation) ;
-		if(m_pAnimation!=pAnimation) {
+		if(m_pAnimation != pAnimation) {
 			m_pAnimation = pAnimation ;
 			if( m_timer->isRunning() ) {
 				m_timer->stop();

@@ -57,7 +57,7 @@ Mesh::Mesh() :
 	m_tangentsDisabled(true),
 	m_needsCalculateTangents(true)
 {
-	m_pMaterial = new (GC) Material() ;
+	m_pMaterial = new Material() ;
 	for( size_t i=0; i<m_vbos.length()-1; i++ ) {
 		m_vbos[i].setTarget(GL_ARRAY_BUFFER) ;
 	}

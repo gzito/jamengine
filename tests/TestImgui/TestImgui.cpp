@@ -45,17 +45,28 @@
 
 using namespace jam;
 
-struct Entity : public Collectible
+class Entity : public RefCountedObject
 {
+public:
+							Entity() = default ;
+
 	Vector2					m_position ;
 	Color					m_color ;
 	Vector2					m_velocity ;
 	float					m_direction ;
 	bool					m_directionInited = false ;
 	int						m_count = 0;
+
 	static AABB				m_bounds ;
 
 	void					moveRandomly() ;
+
+private:
+							Entity( const Entity& ) = delete ;
+	Entity&					operator=( const Entity& ) = delete ;
+
+protected:
+							~Entity() = default ;
 };
 
 AABB Entity::m_bounds ;
@@ -105,13 +116,17 @@ private:
 	Texture2D*				m_pFontTex= nullptr ;
 	SpriteBatch*			m_pSpriteBatch= nullptr ;
 
+#ifdef APP_USE_IMGUI
     bool					m_show_demo_window = true;
 	bool					m_show_another_window = true ;
+#endif
 
-	std::vector<Entity*>	m_entities ;
+	std::vector<Ref<Entity>>	m_entities ;
 
 private:
 };
+
+// #define APP_USE_IMGUI
 
 //*************************************************************************
 bool TestImguiApp::init()
@@ -121,26 +136,26 @@ bool TestImguiApp::init()
 	//m_pFontTex = GetDraw3DMgr().LoadFont3D( "media/Babylon1.png" ) ;
 
 	m_pTexture = GetDrawItemMgr().loadTexture("media/star.png","psys")->getTexture() ;
-	m_pSpriteBatch = new (GC) SpriteBatch(100) ;
+	m_pSpriteBatch = new SpriteBatch(300) ;
 
 	// set camera
-	Camera* pCamera = new (GC) Camera() ;
+	Camera* pCamera = new Camera() ;
 	pCamera->setOrthographicProjection(	-Draw3DManager::VPWidth/2, Draw3DManager::VPWidth/2,
 										-Draw3DManager::VPHeight/2, Draw3DManager::VPHeight/2,
 										1.f, 50.f ) ;
 	pCamera->lookAt( Vector3(0,0,30), Vector3(0,0,0), Vector3(0,1,0) ) ;
 	getScene()->setCamera(pCamera) ;
 	
-		Entity::m_bounds = AABB(0,0,Draw3DManager::VPWidth/2,Draw3DManager::VPHeight/2) ;
-		for( int i=0; i<200; i++ ) {
+	Entity::m_bounds = AABB(0,0,Draw3DManager::VPWidth/2,Draw3DManager::VPHeight/2) ;
+	for( int i=0; i<200; i++ ) {
 		Vector2 position( RANGERAND(-Draw3DManager::VPWidth/2, Draw3DManager::VPWidth/2) , RANGERAND(-Draw3DManager::VPHeight/2, Draw3DManager::VPHeight/2) ) ;
 		Color color( RND(256), RND(256), RND(256) ) ;
 
-		Entity* entity = new (GC) Entity() ;
-		entity->m_position = position ;
-		entity->m_color = color ;
+		Ref<Entity> rEntity( new Entity() ) ;
+		rEntity->m_position = position ;
+		rEntity->m_color = color ;
 	
-		m_entities.emplace_back(entity) ;
+		m_entities.push_back(rEntity) ;
 	}
 	
 	return true ;
@@ -149,6 +164,8 @@ bool TestImguiApp::init()
 
 void TestImguiApp::render()
 {
+#ifdef APP_USE_IMGUI
+
 	// draw imgui
 
 	ImGui_ImplOpenGL3_NewFrame();
@@ -170,13 +187,17 @@ void TestImguiApp::render()
 	ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+#endif
+
 	// draw sprites
 
 	m_pSpriteBatch->Begin() ;
 
-	for( int i=0; i<m_entities.size(); i++ ) {
+	for( int i=0; i<m_entities.size(); i++ )
+	{
 		m_entities[i]->moveRandomly() ;
-		m_pSpriteBatch->Draw( m_pTexture, m_entities[i]->m_position, nullptr, m_entities[i]->m_color, 0, Vector2(0,0), Vector2(1.0f,-1.0f), SpriteEffects::None, 0 ) ;
+		m_pSpriteBatch->Draw( m_pTexture, m_entities[i]->m_position, nullptr, m_entities[i]->m_color, 0,
+							 Vector2(0,0), Vector2(1.0f,-1.0f), SpriteEffects::None, 0 ) ;
 	}
 
 	m_pSpriteBatch->End(); 
@@ -186,6 +207,7 @@ void TestImguiApp::render()
 
 void TestImguiApp::destroy()
 {
+	JAM_RELEASE( m_pSpriteBatch ) ;
 }
 
 
@@ -195,7 +217,9 @@ int main( int argc, char* argv[])
 {
 	try {
 		TestImguiApp app  ;
+#ifdef APP_USE_IMGUI
 		app.setImguiEnabled() ;
+#endif
 		app.start();
 	}
 	catch( std::exception& ex )	{

@@ -43,7 +43,7 @@ namespace jam
 
 	TimeExpiredEventArgs* TimeExpiredEventArgs::create()
 	{
-		return new (GC) TimeExpiredEventArgs() ;
+		return new TimeExpiredEventArgs() ;
 	}
 
 
@@ -162,7 +162,7 @@ namespace jam
 	{
 		if( m_isSweep && m_repeatSweep != 0 ) 
 		{
-			TimeExpiredEventArgs* evtArgs = TimeExpiredEventArgs::create() ;
+			Ref<TimeExpiredEventArgs> evtArgs( TimeExpiredEventArgs::create() ) ;
 			m_timeExpiredEvent.fire(evtArgs,this) ;
 			if( m_repeatSweep > 0 ) { m_repeatSweep-- ; }
 			setSweep(m_repeatSweepTime != 0 ? m_repeatSweepTime : m_sweepDelay ) ;
@@ -208,7 +208,7 @@ namespace jam
 
 	Timer* Timer::create()
 	{
-		return new (GC) Timer() ;
+		return new Timer() ;
 	}
 
 

@@ -105,15 +105,15 @@ TestPrimitivesApp::TestPrimitivesApp() :
 
 void TestPrimitivesApp::loadTextures()
 {
-	pQuadTexture = new (GC) Texture2D() ;
+	pQuadTexture = new Texture2D() ;
 	pQuadTexture->load( appendPath(MEDIA_PATH,"images/nvidia.jpg") ) ;
 	pQuadTexture->setName("nvidia") ;
 
-	pCubeTextureDiffuse = new (GC) Texture2D() ;
+	pCubeTextureDiffuse = new Texture2D() ;
 	pCubeTextureDiffuse->load( appendPath(MEDIA_PATH,"images/container2.png") ) ;
 	pCubeTextureDiffuse->setName("container2") ;
 
-	pCubeTextureSpecular = new (GC) Texture2D() ;
+	pCubeTextureSpecular = new Texture2D() ;
 	pCubeTextureSpecular->load( appendPath(MEDIA_PATH,"images/container2_specular.png") ) ;
 	pCubeTextureSpecular->setName("container2_specular") ;
 //	GetTextureMgr().addObject( pCubeTextureSpecular ) ;
@@ -184,7 +184,7 @@ bool TestPrimitivesApp::init()
 	createLights() ;
 
 	pQuadMesh = Primitives::createQuadMesh() ;
-	Material* quadMat = new (GC) Material() ;
+	Material* quadMat = new Material() ;
 	pQuadMesh->disableTangents() ;
 	quadMat->setShader(pLitProgram) ;
 	quadMat->setDiffuseTexture(pQuadTexture) ;
@@ -192,7 +192,7 @@ bool TestPrimitivesApp::init()
 
 	pCubeMesh = Primitives::createCubeMesh() ;
 	pCubeMesh->disableTangents() ;
-	Material* cubeMat = new (GC) Material() ;
+	Material* cubeMat = new Material() ;
 	cubeMat->setShader(pLitProgram) ;
 	cubeMat->setDiffuseTexture(pCubeTextureDiffuse) ;
 	cubeMat->setSpecularTexture(pCubeTextureSpecular) ;

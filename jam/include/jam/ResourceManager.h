@@ -34,10 +34,10 @@
 #include <jam/jam.h>
 #include <jam/Resource.h>
 #include <jam/RefCountedObject.h>
+#include <jam/Ref.hpp>
 #include <jam/core/interfaces.hpp>
 #include <jam/thirdparty/Delegate.h>
-
-#include <gc_cpp.h>
+#include <jam/RefCountedObject.h>
 
 #include <map>
 #include <list>
@@ -47,7 +47,7 @@ namespace jam
 {
 
 //*****************************************************************************
-class JAM_API FileSystemResourceFile : public IResourceFile, public Collectible
+class JAM_API FileSystemResourceFile : public IResourceFile, public RefCountedObject
 {
 public:
 							FileSystemResourceFile(const String& resFileName);
@@ -79,7 +79,7 @@ private:
 
 class ResourceManager ;
 
-class JAM_API ResHandle : public Collectible
+class JAM_API ResHandle : public RefCountedObject
 {
 	friend class			ResourceManager ;
 
@@ -159,7 +159,7 @@ JAM_INLINE const std::vector<String>&	IResourceLoader::getPatterns() const { ret
 /**
     Manager of all game resources
 */
-class JAM_API ResourceManager : public Collectible
+class JAM_API ResourceManager : public RefCountedObject
 {
 	friend class			ResHandle;
 
@@ -170,13 +170,13 @@ public:
 	void					registerLoader( IResourceLoader* loader ) ;
 
 	ResHandle*				getHandle( Resource* r ) ;
-	int						preload( const String& pattern, SA::delegate<void(int,bool&)> progressDelegate ) ;
+//	int						preload( const String& pattern, SA::delegate<void(int,bool&)> progressDelegate ) ;
 	void					flush() ;
 
 protected:
-	using					ResHandleList = std::list<ResHandle*> ;
-	using					ResHandleMap = std::map<String,ResHandle*> ;
-	using					ResourceLoaders = std::list<IResourceLoader*> ;
+	using					ResHandleList = std::list<Ref<ResHandle>> ;
+	using					ResHandleMap = std::map<String,Ref<ResHandle>> ;
+	using					ResourceLoaders = std::list<std::unique_ptr<IResourceLoader>> ;
 
 	ResHandleList			m_lru ;
 	ResHandleMap			m_resources ;
@@ -188,8 +188,8 @@ protected:
 	size_t					m_allocated ;
 
 	ResHandle*				find( Resource* r ) ;
-	void					update( ResHandle* handle ) ;
 	ResHandle*				load( Resource* r ) ;
+	void					update( ResHandle* handle ) ;
 	void					free( ResHandle* gonner ) ;
 
 	bool					makeRoom( size_t size ) ;
@@ -200,7 +200,7 @@ protected:
 
 
 //*****************************************************************************
-class JAM_API DefaultResourceLoader : public IResourceLoader, public Collectible
+class JAM_API DefaultResourceLoader : public IResourceLoader, public RefCountedObject
 {
 public:
 							DefaultResourceLoader() ;

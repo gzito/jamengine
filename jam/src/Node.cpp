@@ -69,8 +69,7 @@ TouchEventArgs::TouchEventArgs(uint32_t touchId, float x, float y, int status) :
 
 TouchEventArgs* TouchEventArgs::create( uint32_t touchId, float x, float y, int status )
 {
-	TouchEventArgs* touchEvtArgs = new (GC) TouchEventArgs(touchId,x,y,status) ;
-	return touchEvtArgs ;
+	return new TouchEventArgs(touchId,x,y,status) ;
 }
 
 
@@ -158,9 +157,9 @@ Node::~Node()
 	Node* child = 0 ;
 	while( !m_children.empty() ) {
 		child = m_children.front() ;
-		m_children.pop_front() ;
 		child->m_parent = 0 ;
 		child->stopAllActions() ;
+		m_children.pop_front() ;
 	}
 
 	// check for no parent is done inside the called method
@@ -190,25 +189,25 @@ void Node::setColorGlobal(const Color& c )
 
 void Node::destroy()
 {
-		this->setEnabled(false) ;
-		this->stopAllActions() ;
+	this->setEnabled(false) ;
+	this->stopAllActions() ;
 
-		// destroy also children
- 		if( m_children.size() != 0 ) {
-			NodesList::iterator it = m_children.begin(); 
- 			while( !m_children.empty() ) {
- 				Node* child = *it++ ;
- 				child->destroy() ;
- 			}
+	// destroy also children
+ 	if( m_children.size() != 0 ) {
+		NodesList::iterator it = m_children.begin(); 
+ 		while( !m_children.empty() ) {
+ 			Node* child = *it++ ;
+ 			child->destroy() ;			// also remove child from m_children!
  		}
+ 	}
 
-		removeFromParentAndCleanup(true) ;
+	removeFromParentAndCleanup(true) ;
 }
 
-void Node::destroy_internal()
-{
-	this->removeFromParentAndCleanup(true) ;		// cleanup also actions
-}
+//void Node::destroy_internal()
+//{
+//	this->removeFromParentAndCleanup(true) ;		// cleanup also actions
+//}
 	
 Node* Node::addChild( Node* child, bool global /*=true*/ )
 {
@@ -266,9 +265,9 @@ Node* Node::addChild( Node* child, int zOrder, bool global /*=true*/ )
 	return child ;
 }
 
-Node* Node::getFirstChildByTag(const TagType& tag) const
+const Node* Node::getFirstChildByTag(const TagType& tag) const
 {
-	Node* n = 0 ;
+	const Node* n = 0 ;
 
 	NodesList::const_iterator it = m_children.begin() ;
 	while( it != m_children.end() ) {
@@ -282,9 +281,9 @@ Node* Node::getFirstChildByTag(const TagType& tag) const
 	return n ;
 }
 
-Node* Node::getChildByName(const String& name) const
+const Node* Node::getChildByName(const String& name) const
 {
-	Node* n = 0 ;
+	const Node* n = 0 ;
 
 	NodesList::const_iterator it = m_children.begin() ;
 	while( it != m_children.end() ) {
@@ -314,17 +313,17 @@ void Node::removeChild( Node* node, bool cleanup )
 
 void Node::removeChildByName( const String& name, bool cleanup )
 {
-	Node* node = getChildByName(name) ;
+	const Node* node = getChildByName(name) ;
 	if( node ) {
-		removeChild(node,cleanup) ;
+		removeChild(const_cast<Node*>(node),cleanup) ;
 	}
 }
 
 void Node::removeFirstChildByTag( const TagType& tag, bool cleanup )
 {
-	Node* node = getFirstChildByTag(tag) ;
+	const Node* node = getFirstChildByTag(tag) ;
 	if( node ) {
-		removeChild(node,cleanup) ;
+		removeChild(const_cast<Node*>(node),cleanup) ;
 	}
 }
 
@@ -351,6 +350,8 @@ void Node::removeAllChildrenWithCleanup( bool cleanup )
 			}
 			// set parent nil at the end
 			pNode->setParent(nullptr);
+
+			pNode->release() ;
 		}
 	}
 }
@@ -365,8 +366,9 @@ void Node::newParent(Node* newparent, bool cleanup )
 void Node::reorderChild( Node* child, int zOrder )
 {
 	JAM_ASSERT_MSG(child->m_parent==this, ("reorderChild() : not a child, only a child can be reordered"));
-
-	m_children.remove(child);
+	
+	Ref<Node> rChild(child,true) ;
+	m_children.remove( rChild );
 	insertChild(child, zOrder);
 }
 
@@ -658,7 +660,7 @@ void Node::visit()
 	if( appo.size() > 0) {
 		// draw children zOrder < 0 (the ones behind the current node)
 		for( it = appo.begin(); it != appo.end(); it++) {
-			pNode = (*it);
+			pNode = const_cast<Node*>( (*it).get() );
 
 			if ( pNode && pNode->m_ZOrder < 0 ) {
 				pNode->visit();
@@ -703,7 +705,7 @@ void Node::visit()
 	// draw children zOrder >= 0 (the ones in front of the current node)
 	if ( appo.size() > 0) {
 		for ( ; it!=appo.end(); it++ ) {
-			pNode = (*it);
+			pNode = const_cast<Node*>( (*it).get() );
 			if (pNode) {
 				pNode->visit();
 			}
@@ -793,15 +795,15 @@ void Node::updateTouches()
 				Draw3DManager::MouseDown3DEventDetected = m_down[0] ;
 
 				if( m_pressed[touchId] ) {
-					TouchEventArgs* evtArgs = TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ;
+					Ref<TouchEventArgs> evtArgs( TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ) ;
 					m_touchPressedEvent.enqueue(evtArgs,this) ;
 				}
 				else if( m_down[touchId] ) {
-					TouchEventArgs* evtArgs = TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ;
+					Ref<TouchEventArgs> evtArgs( TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ) ;
 					m_touchDownEvent.enqueue(evtArgs,this) ;
 				}
 				else if( m_released[touchId] ) {
-					TouchEventArgs* evtArgs = TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ;
+					Ref<TouchEventArgs> evtArgs( TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ) ;
 					m_touchReleasedEvent.enqueue(evtArgs,this) ;
 				}
 			}
@@ -809,7 +811,7 @@ void Node::updateTouches()
 			{
 				if ( m_wasDownLastFrame[touchId] && m_wasInsideLastFrame[touchId] )
 				{
-					TouchEventArgs* evtArgs = TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ;
+					Ref<TouchEventArgs> evtArgs( TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ) ;
 					m_touchLeaveEvent.enqueue(evtArgs,this) ;
 				}
 
@@ -1096,7 +1098,7 @@ void Node::insertChild( Node* child, int z )
 			if ( pNode && pNode->m_ZOrder > z )
 			{
 				added = true;
-				m_children.insert(it,child);
+				m_children.insert(it,Ref<Node>(child,true));
 				break;
 			}
 		}
@@ -1104,7 +1106,7 @@ void Node::insertChild( Node* child, int z )
 
 	if( !added )
 	{
-		m_children.push_back(child);
+		m_children.push_back(Ref<Node>(child,true));
 	}
 
 	child->setZOrder(z);
@@ -1134,7 +1136,8 @@ void Node::detachChild( Node *child, bool doCleanup )
 		child->stopAllActions();
 	}
 
-	m_children.remove(child);
+	Ref<Node> rChild(child,true) ;
+	m_children.remove(rChild);
 
 	// set parent nil at the end
 	child->setParent(nullptr);
@@ -1392,7 +1395,7 @@ Camera* Node::getAncestorCamera()
 	
 CollisionEventArgs* CollisionEventArgs::create( Node* src, Node* dst )
 {
-	CollisionEventArgs* collEvtArgs = new (GC) CollisionEventArgs(src,dst) ;
+	CollisionEventArgs* collEvtArgs = new CollisionEventArgs(src,dst) ;
 	return collEvtArgs ;
 }
 
@@ -1478,7 +1481,7 @@ void Node::dumpNodeHierarchy( Node* pNode, int level /*= 0*/ )
 
 		// draw children zOrder < 0 (the ones behind the current node)
 		for( it = pNode->getChildren().begin(); it != pNode->getChildren().end(); it++) {
-			pChild = (*it);
+			pChild = const_cast<Node*>( (*it).get() );
 
 			if ( pChild && pChild->m_ZOrder < 0 ) {
 				dumpNodeHierarchy(pChild, level+1);
@@ -1490,7 +1493,7 @@ void Node::dumpNodeHierarchy( Node* pNode, int level /*= 0*/ )
 
 		// draw children zOrder >= 0 (the ones in front of the current node)
 		for ( ; it!=pNode->getChildren().end(); it++ ) {
-			pChild = (*it);
+			pChild = const_cast<Node*>( (*it).get() );
 			if (pChild) {
 				dumpNodeHierarchy(pChild, level+1);
 			}
