@@ -69,8 +69,7 @@ TouchEventArgs::TouchEventArgs(uint32_t touchId, float x, float y, int status) :
 
 TouchEventArgs* TouchEventArgs::create( uint32_t touchId, float x, float y, int status )
 {
-	TouchEventArgs* touchEvtArgs = new TouchEventArgs(touchId,x,y,status) ;
-	return touchEvtArgs ;
+	return new TouchEventArgs(touchId,x,y,status) ;
 }
 
 
@@ -796,15 +795,15 @@ void Node::updateTouches()
 				Draw3DManager::MouseDown3DEventDetected = m_down[0] ;
 
 				if( m_pressed[touchId] ) {
-					TouchEventArgs* evtArgs = TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ;
+					Ref<TouchEventArgs> evtArgs( TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ) ;
 					m_touchPressedEvent.enqueue(evtArgs,this) ;
 				}
 				else if( m_down[touchId] ) {
-					TouchEventArgs* evtArgs = TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ;
+					Ref<TouchEventArgs> evtArgs( TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ) ;
 					m_touchDownEvent.enqueue(evtArgs,this) ;
 				}
 				else if( m_released[touchId] ) {
-					TouchEventArgs* evtArgs = TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ;
+					Ref<TouchEventArgs> evtArgs( TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ) ;
 					m_touchReleasedEvent.enqueue(evtArgs,this) ;
 				}
 			}
@@ -812,7 +811,7 @@ void Node::updateTouches()
 			{
 				if ( m_wasDownLastFrame[touchId] && m_wasInsideLastFrame[touchId] )
 				{
-					TouchEventArgs* evtArgs = TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ;
+					Ref<TouchEventArgs> evtArgs( TouchEventArgs::create(touchId,mousePos.x,mousePos.y,GetInputMgr().getTouchState(touchId)) ) ;
 					m_touchLeaveEvent.enqueue(evtArgs,this) ;
 				}
 

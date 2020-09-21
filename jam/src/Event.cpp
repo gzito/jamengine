@@ -35,8 +35,9 @@ namespace jam
 {
 
 EventDispatcher::EventEventArgsPair::EventEventArgsPair(IEvent* evt, EventArgs* args, IEventSource* evSrc) :
-	m_event(evt), m_eventArgs(args), m_eventSource(evSrc)
+	m_event(evt), m_eventArgs(nullptr), m_eventSource(evSrc)
 {
+	m_eventArgs.assign(args,true) ;
 }
 
 void EventDispatcher::enqueue( IEvent* evt, EventArgs* args, IEventSource* evSrc )

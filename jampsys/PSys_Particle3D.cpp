@@ -40,6 +40,8 @@ Particle3D::~Particle3D()
 {
 	DbgPrintf("Particle3D::~Particle3D");
 
+	JAM_RELEASE_NULL(item) ;
+
 	DbgPrintf("Particle3D::~Particle3D-end");
 }
 
@@ -87,12 +89,13 @@ void Particle3D::destroy()
 {
 	DbgPrintf("Particle3D::destroy");
 
-	/*
+/*
 	JAM_DELETE(pos);
 	JAM_DELETE(scale);
 	JAM_DELETE(alpha);
 	JAM_DELETE(angle);
 	JAM_DELETE(color);*/
+
 	DbgPrintf("Particle3D::destroy-end");
 }
 
@@ -147,6 +150,9 @@ void Particle3D::set()
 	{
 		pModel->alpha.calculateInto(alpha->alpha, alpha->endAlpha, alpha->stepAlpha, static_cast<int>(duration));
 	}
+
+	JAM_RELEASE_NULL(item) ;
+
 	if (pModel->entityItem != nullptr)
 	{
 		item = DrawItem::create(pModel->entityItem->getTexture(), pModel->entityItem->getRect());

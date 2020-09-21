@@ -150,6 +150,9 @@ protected:
 	*/
 							DrawItem(Texture2D* pTxtr, const jam::Rect& cut, float gfxScale = 1.0f );
 
+	virtual					~DrawItem() = default ;
+
+protected:
 	Ref<Material>			m_pMaterial ;
 	jam::Rect				m_rect;
 
@@ -168,6 +171,10 @@ protected:
 
 private:
 	void					init();
+
+							DrawItem( const DrawItem& ) = delete ;
+	DrawItem&				operator=( const DrawItem& ) = delete ;
+
 };
 
 /** IDrawable2D interface */

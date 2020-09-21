@@ -109,7 +109,7 @@ private:
 	public:
 		EventEventArgsPair(IEvent* evt, EventArgs* args, IEventSource* evSrc) ;
 		IEvent*				m_event ;
-		EventArgs*			m_eventArgs ;
+		Ref<EventArgs>		m_eventArgs ;
 		IEventSource*		m_eventSource ;
 	} ;
 
