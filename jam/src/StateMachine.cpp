@@ -58,10 +58,10 @@ void StateMachine::update()
 	const TransitionList& transitions = m_pCurrentState->getTransitions() ;
 	if( !transitions.empty() ) {
 
-		Transition* triggeredTransition = 0 ;
+		const Transition* triggeredTransition = 0 ;
 
 		for( TransitionList::const_iterator it = transitions.begin(); it != transitions.end(); it++ ) {
-			Transition* t = *it ;
+			const Transition* t = (*it).get() ;
 			if( t->isTriggered() ) {
 				triggeredTransition = t ;
 				break ;
@@ -69,11 +69,11 @@ void StateMachine::update()
 		}
 
 		if( triggeredTransition ) {
-			State* targetState = triggeredTransition->getTargetState() ;
+			const State* targetState = triggeredTransition->getTargetState() ;
 			bool stateChanged = targetState != m_pCurrentState;
 			m_pCurrentState->end() ;
 			if(stateChanged) m_pCurrentState->destroy() ;
-			m_pNewState = targetState ;
+			m_pNewState = const_cast<State*>(targetState) ;
 		}
 	}
 }

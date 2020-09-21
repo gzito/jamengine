@@ -95,7 +95,7 @@ NotCondition::~NotCondition()
 //
 // Transition
 //
-State* Transition::getTargetState()
+const State* Transition::getTargetState() const
 {
 	return m_pTargetState ;
 }
@@ -105,7 +105,7 @@ void Transition::setTargetState( State* targetState )
 	m_pTargetState = targetState ;
 }
 
-bool Transition::isTriggered()
+bool Transition::isTriggered() const
 {
 	return m_pCondition->test() ;
 }
@@ -139,9 +139,10 @@ void State::linkState( State* targetState, Transition* transition, ICondition* c
 	addTransition( transition ) ;
 }
 
-void State::addTransition( Transition* transition )
+void State::addTransition( Transition* pTransition )
 {
-	m_transitions.push_back(transition) ;
+	Ref<Transition> rTransition( pTransition, true ) ;
+	m_transitions.push_back(rTransition) ;
 }
 
 }

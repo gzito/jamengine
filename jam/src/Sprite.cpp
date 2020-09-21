@@ -145,7 +145,7 @@ void Sprite::render()
 		bool flipY = m_flipY ;
 
 		if( !isAnimatorNull() ) {
-			Animation2D* anim = m_pAnimator->getAnimation() ;
+			const Animation2D* anim = m_pAnimator->getAnimation() ;
 			if( anim ) {
 				int li = m_pAnimator->getLastFrameIndex() ;
 				AnimFrame2D* frame = anim->getFrame(li) ;

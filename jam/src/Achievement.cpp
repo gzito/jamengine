@@ -195,7 +195,7 @@ namespace jam
 
 	AchievementCompletedEventArgs* AchievementCompletedEventArgs::create()
 	{
-		return new (GC) AchievementCompletedEventArgs() ;
+		return new AchievementCompletedEventArgs() ;
 	}
 
 }

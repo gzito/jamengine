@@ -37,6 +37,7 @@
 #include <jam/Material.h>
 #include <jam/core/array.hpp>
 #include <jam/Draw2d.h>
+#include <jam/Ref.hpp>
 
 #include <climits>
 
@@ -59,7 +60,7 @@ enum SpriteEffects
     FlipVertically = 2
 };
 
-enum SpriteSortMode
+enum class SpriteSortMode
 {
     /// <summary>
     /// All sprites are drawing when <see cref="SpriteBatch.End"/> invokes, in order of draw call sequence. Depth is ignored.
@@ -85,69 +86,69 @@ enum SpriteSortMode
     FrontToBack
 };
 
-/*internal*/ class SpriteBatchItem : public Collectible
-{
-public:
-	Texture2D*				Texture ;
-	float					SortKey ;
-
-	V3F_C4B_T2F				vertexTL ;
-	V3F_C4B_T2F				vertexTR ;
-	V3F_C4B_T2F				vertexBL ;
-	V3F_C4B_T2F				vertexBR ;
-
-public:
-							SpriteBatchItem() = default ;
-	void					set( float x, float y, float dx, float dy, float w, float h, float sin, float cos, Color color, Vector2 texCoordTL, Vector2 texCoordBR, float depth ) ;
-	void					set( float x, float y, float w, float h, Color color, Vector2 texCoordTL, Vector2 texCoordBR, float depth ) ;
-	static bool 			comparator( SpriteBatchItem* i, SpriteBatchItem* j ) ;
-};
-
-
-/*internal*/ class SpriteBatcher : public Collectible
-{
-private:
-	const int               InitialBatchSize = 256;
-	const int               MaxBatchSize = SHRT_MAX / 6;	// 6 = 4 vertices unique and 2 shared, per quad
-	const int               InitialVertexArraySize = 256;
-	std::vector<SpriteBatchItem*> _batchItemList ;
-	int                     _batchItemCount = 0 ;
-
-	HeapArray<U16>          _index ;
-	HeapArray<V3F_C4B_T2F>  _vertexArray ;
-	VertexBufferObject      m_vbo ;
-	VertexBufferObject      m_ebo ;
-    VertexArrayObject   	m_vao ;
-    Material*               m_pMaterial ;
-	bool                    m_uploaded ;
-
-public:
-                            SpriteBatcher(Material* pMaterial, int capacity = 0 ) ;
-    SpriteBatchItem*        CreateBatchItem() ;
-    void                    uploadVertexBuffer() ;
-    void                    updateVertexBuffer() ;
-    void                    DrawBatch(SpriteSortMode sortMode) ;
-
-private:
-    void                    EnsureArrayCapacity(int numBatchItems) ;
-	void                    FlushVertexArray(int start, int end, Texture2D* texture) ;
-};
-
-
-
 /**
 	Represents a sprite vertex buffer in which each vertex attribute is tight packed in its dedicated array
 */
-class JAM_API SpriteBatch : public Collectible
+class JAM_API SpriteBatch : public RefCountedObject
 {
 private:
-    SpriteBatcher*          _batcher;
-    bool                    _beginCalled;
-    Material*               _pMaterial ;
-	SpriteSortMode          _sortMode;
-	Rect                    _tempRect ;
-	Vector2                 _texCoordTL ;
-	Vector2                 _texCoordBR ;
+
+    // internal class SpriteBatchItem
+    class SpriteBatchItem : public RefCountedObject
+    {
+    public:
+	    Ref<Texture2D>			Texture ;
+	    float					SortKey ;
+
+	    V3F_C4B_T2F				vertexTL ;
+	    V3F_C4B_T2F				vertexTR ;
+	    V3F_C4B_T2F				vertexBL ;
+	    V3F_C4B_T2F				vertexBR ;
+
+    public:
+							    SpriteBatchItem() = default ;
+	    void					set( float x, float y, float dx, float dy, float w, float h, float sin, float cos, Color color, Vector2 texCoordTL, Vector2 texCoordBR, float depth ) ;
+	    void					set( float x, float y, float w, float h, Color color, Vector2 texCoordTL, Vector2 texCoordBR, float depth ) ;
+	    static bool 			comparator( SpriteBatchItem* i, SpriteBatchItem* j ) ;
+
+    protected:
+        virtual                 ~SpriteBatchItem() = default ;
+
+    private:
+                                SpriteBatchItem( const SpriteBatchItem& ) = delete ;
+        SpriteBatchItem&        operator=( const SpriteBatchItem& ) = delete ;
+    };
+
+    //     // internal class SpriteBatcher
+    class SpriteBatcher : public RefCountedObject
+    {
+    public:
+                                SpriteBatcher(Material* pMaterial, int capacity = 0 ) ;
+        SpriteBatchItem*        CreateBatchItem() ;
+        void                    uploadVertexBuffer() ;
+        void                    updateVertexBuffer() ;
+        void                    DrawBatch(SpriteSortMode sortMode) ;
+
+    private:
+        void                    EnsureArrayCapacity(int numBatchItems) ;
+	    void                    FlushVertexArray(int start, int end, Texture2D* texture) ;
+
+    private:
+	    const int               InitialBatchSize = 256;
+	    const int               MaxBatchSize = SHRT_MAX / 6;	// 6 = 4 vertices unique and 2 shared, per quad
+	    const int               InitialVertexArraySize = 256;
+
+	    std::vector<Ref<SpriteBatchItem>> _batchItemList ;
+	    int                     _batchItemCount = 0 ;
+
+	    HeapArray<U16>          _index ;
+	    HeapArray<V3F_C4B_T2F>  _vertexArray ;
+	    VertexBufferObject      m_vbo ;
+	    VertexBufferObject      m_ebo ;
+        VertexArrayObject   	m_vao ;
+        Ref<Material>           m_pMaterial ;
+	    bool                    m_uploaded ;
+    };
 
 public:
                             SpriteBatch(int capacity) ;
@@ -177,10 +178,25 @@ public:
 
     void                    End() ;
 
+protected:
+    virtual                 ~SpriteBatch() = default ;
+
 private:
+                            SpriteBatch( const SpriteBatch& ) = delete ;
+    SpriteBatch&            operator=( const SpriteBatch& ) = delete ;
+
     void                    Setup() ;
     void                    CheckValid( Texture2D* texture ) ;
     void                    FlushIfNeeded() ;
+
+private:
+    Ref<SpriteBatcher>      _batcher;
+    bool                    _beginCalled;
+    Ref<Material>           _pMaterial ;
+	SpriteSortMode          _sortMode;
+	Rect                    _tempRect ;
+	Vector2                 _texCoordTL ;
+	Vector2                 _texCoordBR ;
 };			
 
 

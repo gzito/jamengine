@@ -258,7 +258,7 @@ void GridBase::reuse()
 
 Grid3D* Grid3D::gridWithSize(const GridSize& gridSize, DrawItem *pDrawItem, bool bFlipped)
 {
-	Grid3D *pRet= new (GC) Grid3D;
+	Grid3D *pRet= new Grid3D;
 
 	if (pRet) {
 		if (!pRet->initWithSize(gridSize, pDrawItem, bFlipped)) {
@@ -271,7 +271,7 @@ Grid3D* Grid3D::gridWithSize(const GridSize& gridSize, DrawItem *pDrawItem, bool
 
 Grid3D* Grid3D::gridWithSize(const GridSize& gridSize)
 {
-	Grid3D *pRet= new (GC) Grid3D;
+	Grid3D *pRet= new Grid3D;
 
 	if (pRet) {
 		if (!pRet->initWithSize(gridSize)) {
@@ -347,7 +347,7 @@ void Grid3D::setVertex(const GridSize& pos, const Vector3& vertex)
 
 TiledGrid3D* TiledGrid3D::gridWithSize(const GridSize& gridSize, DrawItem *pDrawItem, bool bFlipped)
 {
-	TiledGrid3D *pRet= new (GC) TiledGrid3D;
+	TiledGrid3D *pRet= new TiledGrid3D;
 
 	if (pRet) {
 		if (!pRet->initWithSize(gridSize, pDrawItem, bFlipped)) {
@@ -360,7 +360,7 @@ TiledGrid3D* TiledGrid3D::gridWithSize(const GridSize& gridSize, DrawItem *pDraw
 
 TiledGrid3D* TiledGrid3D::gridWithSize(const GridSize& gridSize)
 {
-	TiledGrid3D *pRet= new (GC) TiledGrid3D;
+	TiledGrid3D *pRet= new TiledGrid3D;
 
 	if (pRet) {
 		if (!pRet->initWithSize(gridSize)) {

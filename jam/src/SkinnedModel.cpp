@@ -261,7 +261,7 @@ namespace jam
 		if( textureCountForType > 0 ) {
 			for( size_t i = 0; i < textureCountForType; i++ )
 			{
-				Texture2D* texture = new (GC) Texture2D() ;
+				Texture2D* texture = new Texture2D() ;
 
 				aiString str;
 				mat->GetTexture(type, (unsigned int)i, &str);

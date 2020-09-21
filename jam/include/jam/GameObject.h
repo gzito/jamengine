@@ -32,6 +32,7 @@
 
 #include <jam/jam.h>
 #include <jam/Object.h>
+#include <jam/Ref.hpp>
 
 #include <list>
 
@@ -58,9 +59,9 @@ public:
 
 private:
 	// each GameObject has a Transform component
-	Transform*				m_transform ;
+	Ref<Transform>			m_transform ;
 	// and a list of components
-	std::list<Component*>	m_components ;
+	std::list<Ref<Component>>	m_components ;
 	bool					m_active ;
 };
 

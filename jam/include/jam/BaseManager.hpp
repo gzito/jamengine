@@ -40,14 +40,15 @@ namespace jam
 {
 
 template <typename T>
-class NamedObjectManager : public Collectible
+class NamedObjectManager : public RefCountedObject
 {
 public:
-	using ObjectsMap = std::unordered_map<String,T*> ;
+	using ObjectsMap = std::unordered_map<String,Ref<T>> ;
 
 public:
 	virtual void			addObject( T* object ) ;
-	T*						getObject( const String& name ) const ;
+	T*						getObject( const String& name ) ;
+	const T*				getObject( const String& name ) const ;
 	virtual void			eraseObject( const String& name ) ;
 	virtual void			clearAll() ;
 	size_t					size() const ;
@@ -73,17 +74,33 @@ NamedObjectManager<T>::NamedObjectManager()
 template<typename T>
 void NamedObjectManager<T>::addObject( T* object )
 {
-	m_objectsMap.emplace( std::make_pair(jam::makeLower(object->getName()),object) ) ;
+	String name = jam::makeLower(object->getName()) ;
+	auto v = std::make_pair(name,Ref<T>(object,true)) ;
+	m_objectsMap.insert( v ) ;
 }
 
 template<typename T>
-T* NamedObjectManager<T>::getObject( const String& name ) const
+const T* NamedObjectManager<T>::getObject( const String& name ) const
 {
 	// std::unordered_map::at
 	// Returns a reference to the mapped value of the element with key k in the unordered_map.
 	// If k does not match the key of any element in the container, the function throws an out_of_range exception.
 	try {
-		return m_objectsMap.at(jam::makeLower(name));
+		return m_objectsMap.at(jam::makeLower(name)).get();
+	}
+	catch( std::out_of_range& ex ) {
+		JAM_ERROR( "Cannot get managed object named \"%s\"", name.c_str() ) ;
+	}
+}
+
+template<typename T>
+T* NamedObjectManager<T>::getObject( const String& name )
+{
+	// std::unordered_map::at
+	// Returns a reference to the mapped value of the element with key k in the unordered_map.
+	// If k does not match the key of any element in the container, the function throws an out_of_range exception.
+	try {
+		return m_objectsMap.at(jam::makeLower(name)).get();
 	}
 	catch( std::out_of_range& ex ) {
 		JAM_ERROR( "Cannot get managed object named \"%s\"", name.c_str() ) ;
@@ -161,9 +178,9 @@ NamedTaggedObjectManager<T>::NamedTaggedObjectManager()
 template<typename T>
 void NamedTaggedObjectManager<T>::addObject( T* object )
 {
-	m_objectsMap.emplace( std::make_pair(jam::makeLower(object->getName()),object) ) ;
+	m_objectsMap.insert( std::make_pair(jam::makeLower(object->getName()),Ref<T>(object,true)) ) ;
 	if( std::is_base_of<ITaggedObject,T>::value ) {
-		m_tagsMap.emplace( std::make_pair(jam::makeLower(object->getTag()),object) ) ;
+		m_tagsMap.insert( std::make_pair(jam::makeLower(object->getTag()),Ref<T>(object,true)) ) ;
 	}
 }
 

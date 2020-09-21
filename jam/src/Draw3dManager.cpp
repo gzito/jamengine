@@ -286,7 +286,7 @@ int Draw3DManager::Text3D(
 	float FZoom, float fZoomY,
 	bool fastParse/*=true*/, float FKerningHeight/*=1.0f*/)
 {
-	DrawItem* handle = DrawItem::create(pTexture) ;
+	Ref<DrawItem> handle( DrawItem::create(pTexture) ) ;
 
 	// questo è il default, pertanto è inutile specificarlo
 	//handle->setBlendingMode(Material::ALPHA_BLEND) ;
@@ -655,9 +655,8 @@ void Draw3DManager::DrawImage3D(Texture2D* pTexture,
 	bool SwapU /*= false*/,
 	bool SwapV /*= false*/ )
 {
-	DrawItem* item = DrawItem::create( pTexture, pSrcRect ) ;
+	Ref<DrawItem> item( DrawItem::create( pTexture, pSrcRect ) ) ;
 	DrawImage3D( item, FDrawX, FDrawY, FDrawButton, FDrawAngle, FDrawScale, LHotSpotX, LHotSpotY, color, SwapU, SwapV ) ;
-	item = nullptr;
 }
 
 void Draw3DManager::DrawImage3D(DrawItem* handle,

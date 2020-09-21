@@ -40,11 +40,16 @@ using namespace std ;
 namespace jam
 {
 
-bool SpriteBatchItem::comparator( SpriteBatchItem* i, SpriteBatchItem* j ) {
+//---------------------------------------------------------------------------------------------
+// SpriteBatchItem implementation
+//
+
+bool SpriteBatch::SpriteBatchItem::comparator( SpriteBatch::SpriteBatchItem* i, SpriteBatch::SpriteBatchItem* j )
+{
     return i->SortKey < j->SortKey ;
 }
 
-void SpriteBatchItem::set(float x,float y,float dx,float dy,float w,float h,float sin,float cos,Color color,Vector2 texCoordTL,Vector2 texCoordBR,float depth)
+void SpriteBatch::SpriteBatchItem::set(float x,float y,float dx,float dy,float w,float h,float sin,float cos,Color color,Vector2 texCoordTL,Vector2 texCoordBR,float depth)
 {
 	vertexTL.vertex.x = x+dx*cos-dy*sin;
     vertexTL.vertex.y = y+dx*sin+dy*cos;
@@ -75,7 +80,7 @@ void SpriteBatchItem::set(float x,float y,float dx,float dy,float w,float h,floa
     vertexBR.texCoords.y = texCoordBR.y;
 }
 
-void SpriteBatchItem::set(float x,float y,float w,float h,Color color,Vector2 texCoordTL,Vector2 texCoordBR,float depth)
+void SpriteBatch::SpriteBatchItem::set(float x,float y,float w,float h,Color color,Vector2 texCoordTL,Vector2 texCoordBR,float depth)
 {
 	vertexTL.vertex.x = x ;
     vertexTL.vertex.y = y;
@@ -106,9 +111,16 @@ void SpriteBatchItem::set(float x,float y,float w,float h,Color color,Vector2 te
     vertexBR.texCoords.y = texCoordBR.y;
 }
 
-SpriteBatcher::SpriteBatcher(Material* pMaterial, int capacity /* = 0 */) :
-    m_vbo(GL_ARRAY_BUFFER), m_ebo(GL_ELEMENT_ARRAY_BUFFER), m_vao(), m_pMaterial(pMaterial)
+
+//---------------------------------------------------------------------------------------------
+// SpriteBatcher implementation
+//
+
+SpriteBatch::SpriteBatcher::SpriteBatcher(Material* pMaterial, int capacity /* = 0 */) :
+    m_vbo(GL_ARRAY_BUFFER), m_ebo(GL_ELEMENT_ARRAY_BUFFER), m_vao(), m_pMaterial(nullptr), m_uploaded(false)
 {
+    m_pMaterial = Ref<Material>(pMaterial,true) ;
+
     if (capacity <= 0)
         capacity = InitialBatchSize;
     else
@@ -123,8 +135,9 @@ SpriteBatcher::SpriteBatcher(Material* pMaterial, int capacity /* = 0 */) :
     EnsureArrayCapacity(capacity);
 }
 
-SpriteBatchItem* SpriteBatcher::CreateBatchItem()
+SpriteBatch::SpriteBatchItem* SpriteBatch::SpriteBatcher::CreateBatchItem()
 {
+    // resize the list of item if required
     if (_batchItemCount >= _batchItemList.size() )
     {
         size_t oldSize = _batchItemList.size();
@@ -132,7 +145,7 @@ SpriteBatchItem* SpriteBatcher::CreateBatchItem()
         newSize = (newSize + 63) & (~63); // grow in chunks of 64.
         _batchItemList.resize( newSize );
         for(int i=oldSize; i<newSize; i++)
-            _batchItemList[i]=new SpriteBatchItem();
+            _batchItemList[i] = new SpriteBatchItem();
 
         EnsureArrayCapacity(Min(newSize, MaxBatchSize));
     }
@@ -140,7 +153,7 @@ SpriteBatchItem* SpriteBatcher::CreateBatchItem()
     return item;
 }
 
-void SpriteBatcher::uploadVertexBuffer()
+void SpriteBatch::SpriteBatcher::uploadVertexBuffer()
 {
     if( m_uploaded ) {
         return ;
@@ -176,7 +189,7 @@ void SpriteBatcher::uploadVertexBuffer()
     m_uploaded = true ;
 }
 
-void SpriteBatcher::updateVertexBuffer()
+void SpriteBatch::SpriteBatcher::updateVertexBuffer()
 {
     JAM_ASSERT(m_uploaded) ;
 
@@ -185,7 +198,7 @@ void SpriteBatcher::updateVertexBuffer()
     m_vbo.unbind() ;
 }
 
-void SpriteBatcher::DrawBatch(SpriteSortMode sortMode)
+void SpriteBatch::SpriteBatcher::DrawBatch(SpriteSortMode sortMode)
 {
     // nothing to do
     if (_batchItemCount == 0)
@@ -225,9 +238,9 @@ void SpriteBatcher::DrawBatch(SpriteSortMode sortMode)
         // Draw the batches
         for (int i = 0; i < numBatchesToProcess; i++, batchIndex++, index += 4, vertexArrayPtr += 4)
         {
-            SpriteBatchItem* item = _batchItemList[batchIndex];
+            SpriteBatchItem* item = _batchItemList[batchIndex].get();
             // if the texture changed, we need to flush and bind the new texture
-            bool shouldFlush = item->Texture != tex;
+            bool shouldFlush = item->Texture.get() != tex;
             if (shouldFlush)
             {
                 FlushVertexArray(startIndex, index, tex);
@@ -244,8 +257,8 @@ void SpriteBatcher::DrawBatch(SpriteSortMode sortMode)
             *(vertexArrayPtr+2) = item->vertexBL;
             *(vertexArrayPtr+3) = item->vertexBR;
 
-            // Release the texture.
-            item->Texture = nullptr;
+            // decrement the reference count of the texture
+            item->Texture = nullptr ;
         }
         // flush the remaining vertexArray data
         FlushVertexArray(startIndex, index, tex);
@@ -257,7 +270,7 @@ void SpriteBatcher::DrawBatch(SpriteSortMode sortMode)
     _batchItemCount = 0;
 }
 
-void SpriteBatcher::EnsureArrayCapacity(int numBatchItems)
+void SpriteBatch::SpriteBatcher::EnsureArrayCapacity(int numBatchItems)
 {
     int neededCapacity = 6 * numBatchItems;
     if (_index.length()>0 && neededCapacity <= _index.length())
@@ -265,6 +278,8 @@ void SpriteBatcher::EnsureArrayCapacity(int numBatchItems)
         // Short circuit out of here because we have enough capacity.
         return;
     }
+
+    // rebuild indexes heap array
     HeapArray<U16> newIndex(6 * numBatchItems) ;
     int start = 0;
     if (_index.length() > 0)
@@ -297,10 +312,11 @@ void SpriteBatcher::EnsureArrayCapacity(int numBatchItems)
     }
     _index = newIndex;
 
+    // rebuild vertices heap array
     _vertexArray.create(4 * numBatchItems);
 }
 
-void SpriteBatcher::FlushVertexArray(int start,int end,Texture2D* texture)
+void SpriteBatch::SpriteBatcher::FlushVertexArray(int start,int end,Texture2D* texture)
 {
     if (start == end)
         return;
@@ -316,10 +332,15 @@ void SpriteBatcher::FlushVertexArray(int start,int end,Texture2D* texture)
     GetGfx().drawIndexedPrimitive( &m_vao, indexCount, m_pMaterial, start*sizeof(U16) ) ;
 }
 
+
+//---------------------------------------------------------------------------------------------
+// SpriteBatch implementation
+//
+
 SpriteBatch::SpriteBatch(int capacity) : _sortMode(SpriteSortMode::Deferred)
 {
-    _pMaterial = new (GC) Material() ;
-    _batcher = new (GC) SpriteBatcher(_pMaterial,capacity) ;
+    _pMaterial = new Material() ;
+    _batcher = new SpriteBatcher(_pMaterial,capacity) ;
     _beginCalled = false ;
 }
 
@@ -341,8 +362,10 @@ void SpriteBatch::Begin(SpriteSortMode sortMode,BlendMode blendMode)
 
 void SpriteBatch::Draw(Texture2D* texture,Vector2 position,Rect* sourceRectangle,Color color,float rotation,Vector2 origin,Vector2 scale,SpriteEffects effects,float layerDepth)
 {
+    CheckValid(texture) ;
+
     auto item = _batcher->CreateBatchItem();
-    item->Texture = texture;
+    item->Texture = Ref<Texture2D>(texture,true);
 
     // set SortKey based on SpriteSortMode.
     switch ( _sortMode )

@@ -81,6 +81,7 @@ set(JAM_MAIN_HSRS
 	include/jam/StridedVertexBuffer.h	include/jam/String.h	include/jam/StringTokenizer.h	include/jam/SysTimer.h	include/jam/TextNode.h
 	include/jam/Texture2D.h	include/jam/Texture2DResource.h	include/jam/TextureCubemap.h	include/jam/TightVertexBuffer.h	include/jam/Timer.h
 	include/jam/TMXLoader.h	include/jam/Transform.h	include/jam/VertexArrayObject.h	include/jam/VertexBufferObject.h	include/jam/XmlResource.h
+	include/jam/Ref.hpp
 )
 
 set(JAM_PRECOMP_HDRS

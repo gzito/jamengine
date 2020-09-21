@@ -32,7 +32,10 @@
 
 #include <jam/Application.h>
 #include <jam/Sprite.h>
+#include <jam/Ref.hpp>
 #include <Box2D/Box2D.h>
+#include <jam/Singleton.h>
+
 
 class FallingBoxes : public jam::Application
 {
@@ -49,13 +52,13 @@ protected:
 
 private:
 	b2World*					m_pWorld ;
-	jam::Timer*					m_pTimer ;
+	jam::Ref<jam::Timer>		m_pTimer ;
 	bool						m_gameStarted ;
 
-	jam::Timer*					m_pFpsTimer ;
+	jam::Ref<jam::Timer>		m_pFpsTimer ;
 
 	// text
-	jam::Texture2D*				m_pFontTex ;
+	jam::Ref<jam::Texture2D>	m_pFontTex ;
 };
 
 

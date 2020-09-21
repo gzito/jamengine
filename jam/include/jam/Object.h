@@ -32,8 +32,7 @@
 
 #include <jam/jam.h>
 #include <jam/String.h>
-
-#include <gc_cpp.h>
+#include <jam/RefCountedObject.h>
 #include <sstream>
 
 namespace jam
@@ -60,7 +59,7 @@ public:
 	virtual void			setTag( const String& tag ) = 0 ;
 };
 
-class JAM_API NamedObject : public Collectible, public INamedObject
+class JAM_API NamedObject : public RefCountedObject, public INamedObject
 {
 public:
 							NamedObject() ;
@@ -74,7 +73,7 @@ private:
 	String					m_name ;
 };
 
-class JAM_API TaggedObject : public Collectible, public ITaggedObject
+class JAM_API TaggedObject : public RefCountedObject, public ITaggedObject
 {
 public:
 							TaggedObject() ;
@@ -88,7 +87,7 @@ private:
 	virtual void			setTag(const String& tag) override;
 };
 
-class JAM_API NamedTaggedObject : public Collectible, public INamedObject, public ITaggedObject
+class JAM_API NamedTaggedObject : public RefCountedObject, public INamedObject, public ITaggedObject
 {
 public:
 							NamedTaggedObject() ;

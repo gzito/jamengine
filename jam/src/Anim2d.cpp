@@ -36,6 +36,9 @@
 namespace jam
 {
 
+//
+// class AnimFrame2D
+//
 AnimFrame2D::AnimFrame2D() :
 	m_handleImg(0), m_time(0), m_flipX(false), m_flipY(false), m_partialTime(0.0f)
 {
@@ -43,11 +46,16 @@ AnimFrame2D::AnimFrame2D() :
 
 AnimFrame2D* AnimFrame2D::create()
 {
-	return new (GC) AnimFrame2D() ; 
+	return new AnimFrame2D() ; 
 }
 
 AnimFrame2D::~AnimFrame2D()
 {
+}
+
+DrawItem* AnimFrame2D::getDrawItem()
+{
+	return m_handleImg;
 }
 
 void AnimFrame2D::setDrawItem( DrawItem* val )
@@ -73,7 +81,8 @@ Animation2D::~Animation2D()
 
 void Animation2D::addFrame(AnimFrame2D* frame)
 {
-	m_frames.push_back(frame) ;
+	Ref<AnimFrame2D> rFrame( frame, true ) ;
+	m_frames.push_back(rFrame) ;
 	m_totalTime += frame->getTime();
 	m_frames[m_frames.size()-1]->m_partialTime = m_totalTime ;
 }
@@ -132,7 +141,7 @@ AnimFrame2D* Animation2D::getFrame(int index) const
 	if( index < 0 || index >= (int)m_frames.size() ) {
 		index = 0;
 	}
-	pAnimFrame = m_frames[index] ;
+	pAnimFrame = const_cast<AnimFrame2D*>(m_frames[index].get()) ;
 	if( m_flipAllX != 0 ) {
 		pAnimFrame->setFlipX(*m_flipAllX) ;
 	}
@@ -159,12 +168,12 @@ bool Animation2D::isLooping()
 
 void Animation2D::setFlipAllX( bool flipX )
 {
-	m_flipAllX = new (GC) bool(flipX); 
+	m_flipAllX = new bool(flipX); 
 }
 
 void Animation2D::setFlipAllY( bool flipY )
 { 
-	m_flipAllY = new (GC) bool(flipY); 
+	m_flipAllY = new bool(flipY); 
 }
 
 bool Animation2D::getFlipAllX() const
@@ -179,7 +188,7 @@ bool Animation2D::getFlipAllY() const
 
 Animation2D* Animation2D::create()
 {
-	return new (GC) Animation2D() ;
+	return new Animation2D() ;
 }
 
 }

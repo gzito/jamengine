@@ -32,6 +32,8 @@
 
 #include <list>
 #include <jam/Object.h>
+#include <jam/Ref.hpp>
+
 
 namespace jam
 {
@@ -44,7 +46,7 @@ class State ;
 /**
 	Define the condition to be tested in order to trigger transition from the current state to a new state
 */
-class ICondition : public Collectible
+class ICondition : public RefCountedObject
 {
 public:
 	virtual					~ICondition() {}
@@ -92,14 +94,14 @@ protected:
 /**
 	Represents a Transition linking two states
 */
-class Transition : public Collectible
+class Transition : public RefCountedObject
 {
 public:
 							Transition( ICondition* pCondition = 0, State* targetState = 0 ) ;
 	virtual					~Transition() ;
 
 	/** Returns true if the condition linked to this transition is met (in this case the transition is said "triggered"). */
-	virtual bool			isTriggered() ;
+	virtual bool			isTriggered() const ;
 
 	/** Returns the Condition to be tested in order to be triggered */
 	ICondition*				getCondition() { return m_pCondition; }
@@ -108,7 +110,7 @@ public:
 	void					setCondition(ICondition* pCondition) { m_pCondition = pCondition; }
 	
 	/** Returns which state to transition to */
-	State*					getTargetState() ;
+	const State*			getTargetState() const ;
 
 	/** Sets which state to transition to */
 	void					setTargetState( State* targetState ) ;
@@ -118,7 +120,7 @@ private:
 	ICondition*				m_pCondition ;
 };
 
-typedef std::list<Transition*>		TransitionList ;
+typedef std::list<Ref<Transition>>		TransitionList ;
 
 
 /**
@@ -227,7 +229,7 @@ public:
 
 protected:
 							State() = default ;
-	void					addTransition(Transition* transition) ;
+	void					addTransition(Transition* pTransition) ;
 
 	TransitionList			m_transitions ;
 };

@@ -100,7 +100,7 @@ bool FallingBoxes::init()
 	pGroundBody->CreateFixture(&groundBoxDef);
 	
 	// Create box and add it to the layer
-	Sprite* box = new Sprite( GetDrawItemMgr().getObject("Box") );
+	Ref<Sprite> box( new Sprite( GetDrawItemMgr().getObject("Box") ) );
 	box->setPos( Vector2(0, 240) );
 	box->setColor( Color::YELLOW);
 	getScene()->addChild(box);
@@ -136,7 +136,7 @@ bool FallingBoxes::init()
 	m_pFpsTimer->start();
 
 	// set camera
-	Camera* pCamera = new (GC) Camera() ;
+	Camera* pCamera = new Camera() ;
 	pCamera->setOrthographicProjection(	-Draw3DManager::VPWidth/2, Draw3DManager::VPWidth/2,
 										-Draw3DManager::VPHeight/2, Draw3DManager::VPHeight/2,
 										1.f, 50.f ) ;
@@ -164,7 +164,7 @@ void FallingBoxes::beforeSceneUpdate()
 
 	if( m_pTimer->isSweep() ) {
 		// Create box and add it to the layer
-		Sprite* box = new (GC) Sprite( GetDrawItemMgr().getObject("Box") );
+		Ref<Sprite> box( new Sprite( GetDrawItemMgr().getObject("Box") ) );
 		float x = (float)RANGERAND(-160,160) ;
 		box->setPos( Vector2(x, 240) );
 		box->setColor( Color(RND(256), RND(256), RND(256), 255) ) ;

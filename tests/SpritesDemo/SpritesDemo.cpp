@@ -55,7 +55,6 @@ SpritesDemo::SpritesDemo() :
 	m_pSprMgr(nullptr),
 	m_angle(0),
 	m_initialSpeed(1000),
-	m_piv(nullptr),
 	m_sonicName( "sonwalk2_" ),
 	m_gemSheetName( "gemsheet_" )
 {
@@ -63,7 +62,7 @@ SpritesDemo::SpritesDemo() :
 
 bool SpritesDemo::init()
 {
-	Sprite* aSprite = 0 ;
+	Ref<Sprite> aSprite ;
 	Animation2D* pAnim = 0 ;
 
 	Draw3DManager::Origin3D(1920,1080) ;
@@ -134,7 +133,7 @@ bool SpritesDemo::init()
 	pAnim->setLoop(true);
 
 	// create the sonic sprite
-	aSprite = new (GC) Sprite() ;
+	aSprite = new Sprite() ;
 	aSprite->setTag("player") ;
 	aSprite->setScale(2) ;
 	aSprite->setX(-120);
@@ -146,7 +145,7 @@ bool SpritesDemo::init()
 	this->getScene()->addChild(aSprite);
 
 	// create the gem sprite (yellow)
-	aSprite = new (GC) Sprite() ;
+	aSprite = new Sprite() ;
 	aSprite->setCollisionType(2) ;
 	aSprite->setTag("gems") ;
 	aSprite->setPos(Vector2(0,60));
@@ -157,7 +156,7 @@ bool SpritesDemo::init()
 	this->getScene()->addChild(aSprite);
 
 	// create second gem (gray)
-	aSprite = new (GC) Sprite() ;
+	aSprite = new Sprite() ;
 	aSprite->setCollisionType(2) ;
 	aSprite->setTag("gems") ;
 	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"30") ) ;
@@ -173,7 +172,7 @@ bool SpritesDemo::init()
 	this->getScene()->addChild(aSprite);
 
 	// create third gem (orange)
-	aSprite = new (GC) Sprite() ;
+	aSprite = new Sprite() ;
 	aSprite->setCollisionType(2) ;
 	aSprite->setTag("gems") ;
 	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"150") ) ;
@@ -194,7 +193,7 @@ bool SpritesDemo::init()
 	this->getScene()->addChild(aSprite);
 
 	// create forth gem (green)
-	aSprite = new (GC) Sprite() ;
+	aSprite = new Sprite() ;
 	aSprite->setCollisionType(2) ;
 	aSprite->setTag("gems") ;
 	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"180") ) ;
@@ -210,7 +209,7 @@ bool SpritesDemo::init()
 	this->getScene()->addChild(aSprite);
 
 	// create the fifth gem (purple)
-	aSprite = new (GC) Sprite() ;
+	aSprite = new Sprite() ;
 	aSprite->setTag("gems") ;
 	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"120") ) ;
 	aSprite->setName("purple_gem") ;
@@ -219,7 +218,7 @@ bool SpritesDemo::init()
 	m_pSprMgr->getObject("sonic")->addChild(aSprite) ;
 	aSprite->setPos( Vector2(0,60) );				// position relative to the parent
 
-	aSprite = new (GC) Sprite() ;
+	aSprite = new Sprite() ;
 	aSprite->setCollisionType(2) ;
 	aSprite->setTag("gems") ;
 	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"90") ) ;
@@ -230,7 +229,7 @@ bool SpritesDemo::init()
 	aSprite->setPos( Vector2(0,60) );				// position relative to the parent
 
 	// create the sixth gem (gray)
-	aSprite = new (GC) Sprite() ;
+	aSprite = new Sprite() ;
 	aSprite->setTag("gems") ;
 	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"30") ) ;
 	aSprite->setPos( Vector2(-100,120) );
@@ -243,7 +242,7 @@ bool SpritesDemo::init()
 	this->getScene()->addChild(aSprite);
 
 	// create the sixth gem (gray)
-	aSprite = new (GC) Sprite() ;
+	aSprite = new Sprite() ;
 	aSprite->setTag("gems") ;
 	aSprite->setFrame( GetDrawItemMgr().getObject(m_gemSheetName+"30") ) ;
 	aSprite->setPos( Vector2(-100,120) );
@@ -256,7 +255,7 @@ bool SpritesDemo::init()
 	this->getScene()->addChild(aSprite);
 
 	// set camera
-	Camera* pCamera = new (GC) Camera() ;
+	Camera* pCamera = new Camera() ;
 	pCamera->setOrthographicProjection(	-Draw3DManager::VPWidth/2, Draw3DManager::VPWidth/2,
 										-Draw3DManager::VPHeight/2, Draw3DManager::VPHeight/2,
 										1.f, 50.f ) ;
@@ -315,7 +314,7 @@ void SpritesDemo::beforeSceneUpdate()
 	}
 
 	Sprite* gem = m_pSprMgr->getObject("purple_gem") ;
-	m_piv = new (GC) Pivot2D();
+	Ref<Pivot2D> m_piv( new Pivot2D() );
 	sonic->addChild(m_piv,false) ;
 	m_piv->addChild(gem) ;
  

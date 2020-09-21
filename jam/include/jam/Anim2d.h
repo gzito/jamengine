@@ -31,12 +31,9 @@
 #define __JAM_ANIM2D_H__
 
 #include <jam/jam.h>
-
-//#include <jam/BankItem.h>
 #include <jam/DrawItem.h>
-//#include <jam/Draw2d.h>
 #include <jam/Timer.h>
-//#include <jam/Texture2D.h>
+#include <jam/Ref.hpp>
 
 #include <vector>
 
@@ -53,7 +50,7 @@ class JAM_API AnimFrame2D : public NamedObject
 public:
 	virtual					~AnimFrame2D();
 
-	DrawItem*				getDrawItem() { return m_handleImg; }
+	DrawItem*				getDrawItem();
 	void					setDrawItem(DrawItem* val);
 
 	void					setTime(float fTime) { m_time = fTime; } ;
@@ -70,7 +67,7 @@ public:
 private:
 							AnimFrame2D();
 
-	DrawItem*				m_handleImg;
+	Ref<DrawItem>			m_handleImg;
 	float					m_time ;
 	bool					m_flipX ;
 	bool					m_flipY ;
@@ -113,7 +110,7 @@ public:
 private:
 							Animation2D();
 
-	std::vector<AnimFrame2D*>	m_frames ;
+	std::vector<Ref<AnimFrame2D>>	m_frames ;
 	float					m_totalTime ;
 	bool					m_bLoop ;
 	bool*					m_flipAllX;

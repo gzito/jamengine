@@ -44,7 +44,7 @@ namespace experimental {
 /**
 	Represents a sprite vertex buffer in which each vertex attribute is tight packed in its dedicated array
 */
-class JAM_API SpriteMesh : public Collectible
+class JAM_API SpriteMesh : public RefCountedObject
 {
 public:
 							SpriteMesh() ;
@@ -66,7 +66,7 @@ public:
 	void					set( float hw, float hh ) ;
 
 private:
-	Material*				m_pMaterial ;
+	Ref<Material>			m_pMaterial ;
 
 	HeapArray<Vector2>		m_vertices ;
 	HeapArray<Vector2>		m_texCoords ;

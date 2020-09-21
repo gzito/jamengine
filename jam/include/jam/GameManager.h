@@ -35,6 +35,7 @@
 #include <jam/String.h>
 #include <jam/Object.h>
 #include <jam/BaseManager.hpp>
+#include <jam/Ref.hpp>
 
 namespace jam
 {

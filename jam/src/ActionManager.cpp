@@ -78,7 +78,9 @@ void ActionManager::addAction( Action* pAction, Node* pTarget, bool paused )
 	else {
 		pElement = it->second ;
 	}
-	pElement->actions.push_back(pAction) ;
+	
+	Ref<Action> rAction( pAction, true ) ;
+	pElement->actions.push_back(rAction) ;
 
 	pAction->startWithTarget(pTarget) ;
 }
@@ -138,7 +140,7 @@ void ActionManager::removeAction( Action* pAction )
 	if( it != m_targets.end() ) {
 		ActionMgrMapElement* pElement = it->second ;
 		for( ActionsList::iterator vit=pElement->actions.begin(); vit != pElement->actions.end(); vit++ ) {
-			if( *vit == pAction ) {
+			if( (*vit).get() == pAction ) {
 				removeActionAt(vit,pElement) ;
 				break ;
 			}
@@ -162,7 +164,7 @@ Action* ActionManager::getActionByName( const String& name, Node* pTarget )
 		ActionsList::iterator vit = it->second->actions.begin() ;
 		while(  vit != it->second->actions.end() ) {
 			if( (*vit)->getName() == name ) {
-				action = *vit ;
+				action = (Action*)*vit ;
 				break ;
 			}
 			vit++ ;

@@ -128,7 +128,7 @@ void FileSystemResourceFile::readAssetsDirectory(const String& fileSpec /* = "" 
 				String lower = makeLower(relativeEntryPath);
 				DirEntryData dirEntryData = { entry.getName(), entry.getStat().st_size } ;
 				m_DirectoryContentsMap[lower] = m_AssetFileInfo.size();
-				m_AssetFileInfo.emplace_back(dirEntryData) ;
+				m_AssetFileInfo.push_back(dirEntryData) ;
 			}
 		}
 	}
@@ -150,6 +150,7 @@ ResHandle::ResHandle( Resource& resource, char* buffer, size_t size, ResourceMan
 
 ResHandle::~ResHandle()
 {
+	JAM_DELETE( m_pExtra ) ;
 	JAM_DELETE_ARRAY( m_buffer ) ;
 	m_pResManager->memoryHasBeenFreed( m_size ) ;
 }
@@ -176,7 +177,7 @@ bool ResourceManager::init()
 {
 	bool retValue = false ;
 	if( m_file->open() ) {
-		registerLoader( new (GC) DefaultResourceLoader() ) ;
+		registerLoader( new DefaultResourceLoader() ) ;
 		retValue = true ;
 	}
 	return retValue ;
@@ -184,7 +185,7 @@ bool ResourceManager::init()
 
 void ResourceManager::registerLoader(IResourceLoader* loader)
 {
-	m_resourceLoaders.emplace_front(loader);
+	m_resourceLoaders.push_front( std::unique_ptr<IResourceLoader>(loader) );
 }
 
 ResHandle* ResourceManager::getHandle(Resource* r)
@@ -201,18 +202,13 @@ ResHandle* ResourceManager::getHandle(Resource* r)
 	return handle ;
 }
 
-int ResourceManager::preload(const String& pattern,SA::delegate<void(int,bool&)> progressDelegate)
-{
-	return 0;
-}
-
 //    Frees every handle in the cache - this would be good to call if you are loading a new
 //    level, or if you wanted to force a refresh of all the data in the cache - which might be 
 //    good in a development environment.
 void ResourceManager::flush()
 {
 	while( !m_lru.empty() )	{
-		ResHandle* handle = *(m_lru.begin());
+		ResHandle* handle = m_lru.begin()->get();
 		free(handle);
 		m_lru.pop_front();
 	}
@@ -225,28 +221,22 @@ ResHandle* ResourceManager::find(Resource* r)
 		return nullptr;
 	}
 
-	return i->second;
-}
-
-void ResourceManager::update(ResHandle* handle)
-{
-	m_lru.remove(handle);
-	m_lru.emplace_front(handle);
+	return i->second.get();
 }
 
 ResHandle* ResourceManager::load(Resource* r)
 {
 	// Create a new resource and add it to the lru list and map
 
-	IResourceLoader*loader = nullptr ;
-	ResHandle* handle = nullptr;
+	IResourceLoader* loader = nullptr ;
+	Ref<ResHandle> handle ;
 
 	// find the right loader
-	for( const auto& testLoader : m_resourceLoaders )
+	for( auto& testLoader : m_resourceLoaders )
 	{
 		for( auto pattern : testLoader->getPatterns() ) {
 			if( wildcardMatch(pattern.c_str(), r->getName().c_str()) ) {
-				loader = testLoader;
+				loader = testLoader.get();
 				break;
 			}
 		}
@@ -254,11 +244,9 @@ ResHandle* ResourceManager::load(Resource* r)
 		if( loader ) break ;
 	}
 
-	if( !loader ) {
-		JAM_ASSERT_MSG( loader!=nullptr, "Default resource loader not found!" );
-		return handle;		// Resource not loaded!
+	if( loader == nullptr ) {
+		JAM_ERROR( "Resource loader not found!" );
 	}
-
 
 	size_t rawSize = m_file->getRawResourceSize(*r);
 
@@ -276,7 +264,7 @@ ResHandle* ResourceManager::load(Resource* r)
 
 	if( loader->useRawFile() ) {
 		buffer = rawBuffer;
-		handle = new (GC) ResHandle(*r, buffer, rawSize, this);
+		handle = make_ref<ResHandle>(*r, buffer, rawSize, this);
 	}
 	else {
 		size = loader->getLoadedResourceSize(rawBuffer, rawSize);
@@ -285,11 +273,11 @@ ResHandle* ResourceManager::load(Resource* r)
 			// resource cache out of memory
 			return nullptr;
 		}
-		handle = new (GC) ResHandle(*r, buffer, size, this);
+		handle = make_ref<ResHandle>(*r, buffer, size, this);
 		bool success = loader->loadResource(rawBuffer, rawSize, *handle);
 		
 		// [mrmike] - This was added after the chapter went to copy edit. It is used for those
-		//            resoruces that are converted to a useable format upon load, such as a compressed
+		//            resources that are converted to a useable format upon load, such as a compressed
 		//            file. If the raw buffer from the resource file isn't needed, it shouldn't take up
 		//            any additional memory, so we release it.
 		//
@@ -298,8 +286,7 @@ ResHandle* ResourceManager::load(Resource* r)
 		}
 
 		if( !success ) {
-			// resource cache out of memory
-			return nullptr;
+			JAM_ERROR( "ResourceManager: out of memory" );
 		}
 	}
 
@@ -308,13 +295,19 @@ ResHandle* ResourceManager::load(Resource* r)
 		m_resources[r->getName()] = handle;
 	}
 
-	JAM_ASSERT_MSG( loader != nullptr , "Default resource loader not found!" );
-	return handle;		// ResCache is out of memory!
+	return handle.get();
+}
+
+void ResourceManager::update(ResHandle* handle)
+{
+	Ref<ResHandle> refHandle(handle,true) ;
+	m_lru.remove(refHandle);
+	m_lru.push_front(refHandle);
 }
 
 void ResourceManager::free(ResHandle* gonner)
 {
-	m_lru.remove( gonner );
+	m_lru.remove( Ref<ResHandle>(gonner,true) );
 	m_resources.erase( gonner->m_resource.getName() );
 	// Note - the resource might still be in use by something,
 	// so the cache can't actually count the memory freed until the
@@ -361,9 +354,9 @@ void ResourceManager::freeOneResource()
 	ResHandleList::iterator gonner = m_lru.end();
 	gonner--;
 
-	ResHandle* handle = *gonner;
+	Ref<ResHandle> handle = *gonner;
 
-	m_lru.pop_back();							
+	m_lru.pop_back();
 	m_resources.erase( handle->m_resource.getName() );
 	// Note - you can't change the resource cache size yet - the resource bits could still actually be
 	// used by some sybsystem holding onto the ResHandle. Only when it goes out of scope can the memory
@@ -381,7 +374,7 @@ void ResourceManager::memoryHasBeenFreed(size_t size)
 DefaultResourceLoader::DefaultResourceLoader()
 {
 	m_patterns.clear() ;
-	m_patterns.emplace_back("*.*") ;
+	m_patterns.push_back("*.*") ;
 }
 
 bool DefaultResourceLoader::useRawFile() const

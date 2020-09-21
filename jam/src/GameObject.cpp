@@ -40,7 +40,7 @@ namespace jam
 		m_active(true)
 	{
 		// each GameObject has a Transform component
-		m_transform = new (GC) Transform(this) ;
+		m_transform = new Transform(this) ;
 		addComponent(*m_transform) ;
 	}
 
@@ -55,7 +55,8 @@ namespace jam
 
 	void GameObject::addComponent( Component& component )
 	{
-		m_components.push_back( &component ) ;
+		Ref<Component> rComp( &component, true ) ;
+		m_components.push_back( rComp ) ;
 	}
 
 

@@ -118,7 +118,7 @@ private:
 	mutable Matrix4			m_worldTformM ;
 
 	Transform*				m_parent ;
-	std::vector<Transform*>	m_children ;
+	std::vector<Ref<Transform>>	m_children ;
 };
 
 JAM_INLINE size_t			Transform::getChildCount() const { return m_children.size(); }

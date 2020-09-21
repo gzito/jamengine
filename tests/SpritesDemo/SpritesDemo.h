@@ -57,7 +57,6 @@ private:
 
 	float							m_angle ;
 	float							m_initialSpeed ;
-	jam::Pivot2D*					m_piv ;
 
 	jam::String						m_sonicName ;
 	jam::String						m_gemSheetName ;

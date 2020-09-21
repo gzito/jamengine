@@ -95,7 +95,7 @@ ActionInterval* ActionInterval::reverse( void )
 
 ActionInterval* ActionInterval::actionWithDuration( jam::time d )
 {
-	ActionInterval *pAction = new (GC) ActionInterval();
+	ActionInterval *pAction = new ActionInterval();
 	pAction->initWithDuration(d);
 
 	return pAction;
@@ -231,7 +231,7 @@ FiniteTimeAction* Sequence::actions( FiniteTimeAction *pAction1, ...)
 
 Sequence* Sequence::actionOneTwo( FiniteTimeAction *pActionOne, FiniteTimeAction *pActionTwo )
 {
-	Sequence *pSequence = new (GC) Sequence();
+	Sequence *pSequence = new Sequence();
 	pSequence->initOneTwo(pActionOne, pActionTwo);
 	return pSequence;
 }
@@ -241,7 +241,7 @@ Sequence* Sequence::actionOneTwo( FiniteTimeAction *pActionOne, FiniteTimeAction
 //
 Repeat* Repeat::actionWithAction(FiniteTimeAction *pAction, unsigned int times)
 {
-	Repeat* pRepeat = new (GC) Repeat();
+	Repeat* pRepeat = new Repeat();
 	pRepeat->initWithAction(pAction, times);
 	return pRepeat;
 }
@@ -345,7 +345,7 @@ RepeatForever::~RepeatForever()
 
 RepeatForever *RepeatForever::actionWithAction(ActionInterval *pAction)
 {
-	RepeatForever *pRet = new (GC) RepeatForever();
+	RepeatForever *pRet = new RepeatForever();
 	if (pRet ) {
 		if( pRet->initWithAction(pAction) ) {
 		}
@@ -486,7 +486,7 @@ FiniteTimeAction* Spawn::actions( FiniteTimeAction *pAction1, ... )
 
 Spawn* Spawn::actionOneTwo( FiniteTimeAction *pAction1, FiniteTimeAction *pAction2 )
 {
-	Spawn *pSpawn = new (GC) Spawn();
+	Spawn *pSpawn = new Spawn();
 	pSpawn->initOneTwo(pAction1, pAction2);
 	return pSpawn;
 }
@@ -530,7 +530,7 @@ void MoveTo::update( jam::time time )
 
 MoveTo* MoveTo::actionWithDuration( jam::time duration, const Vector2& position )
 {
-	MoveTo *pMoveTo = new (GC) MoveTo();
+	MoveTo *pMoveTo = new MoveTo();
 	pMoveTo->initWithDuration(duration, position);
 	return pMoveTo;
 }
@@ -568,7 +568,7 @@ ActionInterval* MoveBy::reverse()
 
 MoveBy* MoveBy::actionWithDuration( jam::time duration, const Vector2& position )
 {
-	MoveBy *pMoveBy = new (GC) MoveBy();
+	MoveBy *pMoveBy = new MoveBy();
 	pMoveBy->initWithDuration(duration, position);
 	return pMoveBy;
 }
@@ -586,7 +586,7 @@ MoveBy::~MoveBy()
 //
 JumpBy* JumpBy::actionWithDuration(jam::time duration, const Vector2& position, jam::time height, int jumps)
 {
-	JumpBy *pJumpBy = new (GC) JumpBy();
+	JumpBy *pJumpBy = new JumpBy();
 	pJumpBy->initWithDuration(duration, position, height, jumps);
 	return pJumpBy;
 }
@@ -643,7 +643,7 @@ JumpBy::JumpBy()
 //
 JumpTo* JumpTo::actionWithDuration(jam::time duration, const Vector2& position, jam::time height, int jumps)
 {
-	JumpTo *pJumpTo = new (GC) JumpTo();
+	JumpTo *pJumpTo = new JumpTo();
 	pJumpTo->initWithDuration(duration, position, height, jumps);
 	return pJumpTo;
 }
@@ -725,7 +725,7 @@ void RotateTo::update( jam::time time )
 
 RotateTo* RotateTo::actionWithDuration( jam::time duration, float fDeltaAngle )
 {
-	RotateTo* pRotateTo = new (GC) RotateTo();
+	RotateTo* pRotateTo = new RotateTo();
 	pRotateTo->initWithDuration(duration, fDeltaAngle);
 
 	return pRotateTo;
@@ -782,7 +782,7 @@ ActionInterval* RotateBy::reverse()
 
 RotateBy* RotateBy::actionWithDuration( jam::time duration, float fDeltaAngle )
 {
-	RotateBy *pRotateBy = new (GC) RotateBy();
+	RotateBy *pRotateBy = new RotateBy();
 	pRotateBy->initWithDuration(duration, fDeltaAngle);
 	return pRotateBy;
 }
@@ -808,7 +808,7 @@ static JAM_INLINE float bezierat( float a, float b, float c, float d, jam::time 
 //
 BezierBy* BezierBy::actionWithDuration(jam::time t, BezierConfig c)
 {
-	BezierBy *pBezierBy = new (GC) BezierBy();
+	BezierBy *pBezierBy = new BezierBy();
 	pBezierBy->initWithDuration(t, c);
 	return pBezierBy;
 }
@@ -883,7 +883,7 @@ BezierBy::BezierBy()
 //
 BezierTo* BezierTo::actionWithDuration(jam::time t, BezierConfig c)
 {
-	BezierTo *pBezierTo = new (GC) BezierTo();
+	BezierTo *pBezierTo = new BezierTo();
 	pBezierTo->initWithDuration(t, c);
 	return pBezierTo;
 }
@@ -909,7 +909,7 @@ BezierTo::BezierTo()
 //
 ScaleTo* ScaleTo::actionWithDuration(jam::time duration, float s)
 {
-	ScaleTo *pScaleTo = new (GC) ScaleTo();
+	ScaleTo *pScaleTo = new ScaleTo();
 	pScaleTo->initWithDuration(duration, s);
 	return pScaleTo;
 }
@@ -930,7 +930,7 @@ bool ScaleTo::initWithDuration(jam::time duration, float s)
 
 ScaleTo* ScaleTo::actionWithDuration(jam::time duration, float sx, float sy)
 {
-	ScaleTo *pScaleTo = new (GC) ScaleTo();
+	ScaleTo *pScaleTo = new ScaleTo();
 	pScaleTo->initWithDuration(duration, sx, sy);
 	return pScaleTo;
 }
@@ -982,14 +982,14 @@ ScaleTo::ScaleTo()
 //
 ScaleBy* ScaleBy::actionWithDuration(jam::time duration, float s)
 {
-	ScaleBy *pScaleBy = new (GC) ScaleBy();
+	ScaleBy *pScaleBy = new ScaleBy();
 	pScaleBy->initWithDuration(duration, s);
 	return pScaleBy;
 }
 
 ScaleBy* ScaleBy::actionWithDuration(jam::time duration, float sx, float sy)
 {
-	ScaleBy *pScaleBy = new (GC) ScaleBy();
+	ScaleBy *pScaleBy = new ScaleBy();
 	pScaleBy->initWithDuration(duration, sx, sy);
 	return pScaleBy;
 }
@@ -1019,7 +1019,7 @@ ScaleBy::ScaleBy()
 //
 Blink* Blink::actionWithDuration(jam::time duration, unsigned int uBlinks)
 {
-	Blink *pBlink = new (GC) Blink();
+	Blink *pBlink = new Blink();
 	pBlink->initWithDuration(duration, uBlinks);
 	return pBlink;
 }
@@ -1066,7 +1066,7 @@ Blink::Blink()
 //
 FadeIn* FadeIn::actionWithDuration(jam::time d)
 {
-	FadeIn* pAction = new (GC) FadeIn();
+	FadeIn* pAction = new FadeIn();
 	pAction->initWithDuration(d);
 	return pAction;
 }
@@ -1096,7 +1096,7 @@ FadeIn::FadeIn()
 //
 FadeOut* FadeOut::actionWithDuration(jam::time d)
 {
-	FadeOut* pAction = new (GC) FadeOut();
+	FadeOut* pAction = new FadeOut();
 	pAction->initWithDuration(d);
 	return pAction;
 }
@@ -1126,7 +1126,7 @@ FadeOut::FadeOut()
 //
 FadeTo* FadeTo::actionWithDuration( jam::time duration, uint8_t opacity )
 {
-	FadeTo *pFadeTo = new (GC) FadeTo();
+	FadeTo *pFadeTo = new FadeTo();
 	pFadeTo->initWithDuration(duration, opacity);
 	return pFadeTo;
 }
@@ -1170,7 +1170,7 @@ FadeTo::FadeTo()
 //
 TintTo* TintTo::actionWithDuration(jam::time duration, uint8_t red, uint8_t green, uint8_t blue)
 {
-	TintTo *pTintTo = new (GC) TintTo();
+	TintTo *pTintTo = new TintTo();
 	pTintTo->initWithDuration(duration, red, green, blue);
 	return pTintTo;
 }
@@ -1215,7 +1215,7 @@ TintTo::TintTo()
 //
 TintBy* TintBy::actionWithDuration(jam::time duration, uint16_t deltaRed, uint16_t deltaGreen, uint16_t deltaBlue)
 {
-	TintBy *pTintBy = new (GC) TintBy();
+	TintBy *pTintBy = new TintBy();
 	pTintBy->initWithDuration(duration, deltaRed, deltaGreen, deltaBlue);
 	return pTintBy;
 }
@@ -1278,7 +1278,7 @@ ActionInterval* DelayTime::reverse()
 
 DelayTime* DelayTime::actionWithDuration( jam::time d )
 {
-	DelayTime* pAction = new (GC) DelayTime();
+	DelayTime* pAction = new DelayTime();
 	pAction->initWithDuration(d);
 	return pAction;
 }
@@ -1298,7 +1298,7 @@ DelayTime::DelayTime()
 ReverseTime* ReverseTime::actionWithAction(FiniteTimeAction *pAction)
 {
 	// casting to prevent warnings
-	ReverseTime *pReverseTime = new (GC) ReverseTime();
+	ReverseTime *pReverseTime = new ReverseTime();
 	pReverseTime->initWithAction(pAction);
 	return pReverseTime;
 }
@@ -1351,21 +1351,21 @@ return (IntervalAction*)(m_pOther->copy());
 //
 Animate* Animate::actionWithAnimation(Animation2D *pAnimation)
 {
-	Animate *pAnimate = new (GC) Animate();
+	Animate *pAnimate = new Animate();
 	pAnimate->initWithAnimation(pAnimation, true);
 	return pAnimate;
 }
 
 Animate* Animate::actionWithAnimation(Animation2D *pAnimation, bool bRestoreOriginalFrame)
 {
-	Animate *pAnimate = new (GC) Animate();
+	Animate *pAnimate = new Animate();
 	pAnimate->initWithAnimation(pAnimation, bRestoreOriginalFrame);
 	return pAnimate;
 }
 
 Animate* Animate::actionWithDuration(jam::time duration, Animation2D *pAnimation, bool bRestoreOriginalFrame)
 {
-	Animate *pAnimate = new (GC) Animate();
+	Animate *pAnimate = new Animate();
 	pAnimate->initWithDuration(duration, pAnimation, bRestoreOriginalFrame);
 	return pAnimate;
 }

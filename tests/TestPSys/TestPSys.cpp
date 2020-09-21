@@ -87,7 +87,7 @@ private:
 	std::string					m_fontname;
 	std::string					m_backgroundImageName;
 
-	Texture2D*					m_pFontTexture ;
+	Ref<Texture2D>				m_pFontTexture ;
 
 	Draw3DBatch*				m_pBatch ;
 
@@ -126,7 +126,7 @@ bool PsysTestApp::init()
 	ps->Init();
 	ps->SetupPSysResources("media/psys/");
 
-	m_pFontTexture = GetDraw3DMgr().LoadFont3D(m_fontname) ;
+	m_pFontTexture = Ref<Texture2D>( GetDraw3DMgr().LoadFont3D(m_fontname), true ) ;
 
 	// GZ TODO
 	GetGfx().setRenderLevel(1) ;
@@ -205,7 +205,7 @@ bool PsysTestApp::init()
 	GetGfx().setBatch(nullptr) ;
 
 	// set camera
-	Camera* pCamera = new (GC) Camera() ;
+	Camera* pCamera = new Camera() ;
 	pCamera->setOrthographicProjection(	-Draw3DManager::VPWidth/2, Draw3DManager::VPWidth/2,
 										-Draw3DManager::VPHeight/2, Draw3DManager::VPHeight/2,
 										1.f, 50.f ) ;

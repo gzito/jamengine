@@ -90,7 +90,7 @@ public:
 							Shader() ;
 	virtual					~Shader() ;
         
-	void					setShaderFiles( const std::vector<ShaderFile*>& shaderFiles ) ;
+	void					setShaderFiles( const std::vector<Ref<ShaderFile>>& shaderFiles ) ;
 
 	void					compile() ;
 
@@ -192,7 +192,7 @@ public:
 
 private:
     GLuint					m_object;
-	std::vector<ShaderFile*>	m_shaderFiles ;
+	std::vector<Ref<ShaderFile>>	m_shaderFiles ;
 
     //copying disabled
 							Shader(const Shader&) = delete ;

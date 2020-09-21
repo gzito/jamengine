@@ -75,7 +75,7 @@ Shader::~Shader() {
 //	compile() ;
 //}
 
-void Shader::setShaderFiles( const std::vector<ShaderFile*>& shaderFiles )
+void Shader::setShaderFiles( const std::vector<Ref<ShaderFile>>& shaderFiles )
 {
 	m_shaderFiles = shaderFiles ;
 }
@@ -577,17 +577,17 @@ Shader* ShaderManager::getShader(const String& name)
 
 void ShaderManager::loadAndCreateProgram( const String& shaderName )
 {
-	std::vector<ShaderFile*> shadersFiles ;
+	std::vector<Ref<ShaderFile>> shadersFiles ;
 
 	Resource vsResource( shaderName + ".vert" ) ;
 	ResHandle* vsHandle( Application::getSingleton().getResourceManager().getHandle(&vsResource) ) ;
-	ShaderFile* vertexShader( ShaderFile::shaderFromFile(vsHandle,GL_VERTEX_SHADER) ) ;
-	shadersFiles.emplace_back(vertexShader) ;
+	Ref<ShaderFile> rVertexShader( ShaderFile::shaderFromFile(vsHandle,GL_VERTEX_SHADER), true ) ;
+	shadersFiles.push_back(rVertexShader) ;
 
 	Resource psResource( shaderName + ".frag" ) ;
 	ResHandle* psHandle( Application::getSingleton().getResourceManager().getHandle(&psResource) ) ;
-	ShaderFile* pixelShader( ShaderFile::shaderFromFile(psHandle,GL_FRAGMENT_SHADER) ) ;
-	shadersFiles.emplace_back(pixelShader) ;
+	Ref<ShaderFile> rPixelShader( ShaderFile::shaderFromFile(psHandle,GL_FRAGMENT_SHADER), true ) ;
+	shadersFiles.push_back(rPixelShader) ;
 
 	Shader* program( new Shader() ) ;
 	program->setName(shaderName) ;

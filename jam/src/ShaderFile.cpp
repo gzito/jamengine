@@ -93,7 +93,7 @@ GLuint ShaderFile::objectID() const {
 }
 
 ShaderFile* ShaderFile::shaderFromFile( ResHandle* resHandle, GLenum shaderType ) {
-    ShaderFile* sh = new (GC) ShaderFile(resHandle, shaderType) ;
+    ShaderFile* sh = new ShaderFile(resHandle, shaderType) ;
 	sh->compile() ;
     return sh;	
 }
@@ -120,8 +120,8 @@ void ShaderFile::setSource( const String& shaderCode )
 ShaderFileResourceLoader::ShaderFileResourceLoader()
 {
 	m_patterns.clear() ;
-	m_patterns.emplace_back("*.vert");
-	m_patterns.emplace_back("*.frag");
+	m_patterns.push_back("*.vert");
+	m_patterns.push_back("*.frag");
 }
 
 bool ShaderFileResourceLoader::useRawFile() const

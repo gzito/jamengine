@@ -36,6 +36,7 @@
 #include <jam/Mesh.h>
 #include <jam/Transform.h>
 #include <jam/Gameobject.h>
+#include <jam/Ref.hpp>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -62,7 +63,7 @@ private:
 	void					loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::vector<Texture2D*>& out ) ;
 
 private:
-	std::vector<Mesh*>		m_meshes ;
+	std::vector<Ref<Mesh>>	m_meshes ;
 	String					m_folder ;
 };			
 

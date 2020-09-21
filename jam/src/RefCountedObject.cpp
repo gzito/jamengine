@@ -29,10 +29,10 @@
 
 #include "stdafx.h"
 
-#ifdef JAM_EXCLUDED_BLOCK
-
+#include "jam/jam.h"
 #include "jam/RefCountedObject.h"
 #include <sstream>
+#include <climits>
 
 
 namespace jam
@@ -53,14 +53,14 @@ RefCountedObject::~RefCountedObject()
 
 void RefCountedObject::addRef()
 {
-	JAM_ASSERT_MSG(m_refCount>0, ("m_refCount should be greater than 0"));
+	JAM_ASSERT_MSG(m_refCount>0, "m_refCount should be greater than 0");
 	m_refCount++;
 }
 
 void RefCountedObject::release()
 {
-	// added a check: m_refCount<4096, because if something goes wrong with memory, m_refCount become garbagled and generally a very high value (absolute value)
-	JAM_ASSERT_MSG(m_refCount>0 && m_refCount<4096, "m_refCount=%d (should be > 0)", m_refCount );
+	// if something goes wrong with memory, m_refCount become garbagled and generally a very high value (absolute value)
+	JAM_ASSERT_MSG(m_refCount>0 && m_refCount<INT_MAX, "m_refCount=%d (should be > 0)", (int32_t)m_refCount );
 	if( --m_refCount == 0 ) {
 		delete this ;
 	}
@@ -78,11 +78,9 @@ String RefCountedObject::getDebugInfo(bool typeInfo/*=true*/)
  	if( typeInfo ) {
 		oss << "type=" << typeid(*this).name() << ", " ;
 	}
-	oss << "refCount=" << m_refCount << ", "  ;
+	oss << "refCount=" << (int32_t)m_refCount << ", "  ;
 	return oss.str().c_str() ;
 }
 #endif
 
 }
-
-#endif // JAM_EXCLUDED_BLOCK

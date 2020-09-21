@@ -124,7 +124,7 @@ Speed::~Speed()
 
 Speed* Speed::actionWithAction(ActionInterval* pAction, float fRate)
 {
-	Speed* pRet = new (GC) Speed() ;
+	Speed* pRet = new Speed() ;
 	if( pRet ) {
 		pRet->initWithAction(pAction, fRate) ;
 	}

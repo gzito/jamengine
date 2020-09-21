@@ -37,6 +37,7 @@
 #include <jam/VertexBufferObject.h>
 #include <jam/VertexArrayObject.h>
 #include <jam/Material.h>
+#include <jam/Ref.hpp>
 #include <jam/core/array.hpp>
 #include <jam/core/geom.h>
 
@@ -46,7 +47,7 @@ namespace jam
 /*!
 	\class Mesh
 */
-class JAM_API Mesh : public Collectible
+class JAM_API Mesh : public RefCountedObject
 {
 public:
 							Mesh() ;
@@ -76,7 +77,7 @@ public:
 private:
 	void					calculateTangents() ;
 
-	Material*				m_pMaterial ;
+	Ref<Material>			m_pMaterial ;
 
 	HeapArray<Vector3>		m_vertices ;
 	HeapArray<Vector3>		m_normals ;

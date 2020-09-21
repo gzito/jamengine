@@ -51,7 +51,7 @@ FiniteTimeAction* ActionInstant::reverse()
 //
 Show* Show::action()
 {
-	return new (GC) Show();
+	return new Show();
 }
 void Show::startWithTarget(Node *pTarget)
 {
@@ -77,7 +77,7 @@ Show::~Show()
 //
 Hide * Hide::action()
 {
-	return new (GC) Hide();
+	return new Hide();
 }
 void Hide::startWithTarget(Node *pTarget)
 {
@@ -103,7 +103,7 @@ Hide::Hide()
 //
 ToggleVisibility * ToggleVisibility::action()
 {
-	return new (GC) ToggleVisibility();
+	return new ToggleVisibility();
 }
 void ToggleVisibility::startWithTarget(Node *pTarget)
 {
@@ -116,7 +116,7 @@ void ToggleVisibility::startWithTarget(Node *pTarget)
 //
 Place * Place::actionWithPosition(const Vector2& pos)
 {
-	Place *pRet = new (GC) Place();
+	Place *pRet = new Place();
 	pRet->initWithPosition(pos);
 	return pRet;
 }
@@ -139,7 +139,7 @@ CallStaticFunc::CallStaticFunc() : ActionInstant(), m_pFunc(0)
 
 CallStaticFunc* CallStaticFunc::actionWithTarget( CallbackFunc staticFunc )
 {
-	CallStaticFunc* pCallFunc = new (GC) CallStaticFunc();
+	CallStaticFunc* pCallFunc = new CallStaticFunc();
 	if( pCallFunc && pCallFunc->initWithTarget(staticFunc) ) {
 		return pCallFunc ;
 	}
@@ -174,7 +174,7 @@ void DestroyTarget::startWithTarget( Node *pTarget )
 
 DestroyTarget * DestroyTarget::action( Node *pTarget )
 {
-	return new (GC) DestroyTarget() ;
+	return new DestroyTarget() ;
 }
 
 DestroyTarget::~DestroyTarget()
@@ -190,7 +190,7 @@ DestroyTarget::DestroyTarget()
 //
 Enable* Enable::action()
 {
-	return new (GC) Enable() ;
+	return new Enable() ;
 }
 void Enable::startWithTarget(Node *pTarget)
 {
@@ -216,7 +216,7 @@ Enable::Enable()
 //
 Disable * Disable::action()
 {
-	return new (GC) Disable() ;
+	return new Disable() ;
 }
 void Disable::startWithTarget(Node *pTarget)
 {

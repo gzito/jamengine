@@ -94,8 +94,7 @@ namespace jam
 	{
 		while( !m_children.empty() ) {
 			Node* n = m_children.front() ;
-			m_children.pop_front() ;
-			n->destroy() ;
+			n->destroy() ;	// destroy also remove from m_children
 		}
 	}
 
@@ -126,7 +125,8 @@ namespace jam
 
 	void Scene::addTouchableNode( Node* pNode )
 	{
-		m_touchableNodes.push_front(pNode) ;
+		Ref<Node> rNode( pNode, true ) ;
+		m_touchableNodes.push_front(rNode) ;
 	}
 
 
