@@ -150,7 +150,7 @@ protected:
 	*/
 							DrawItem(Texture2D* pTxtr, const jam::Rect& cut, float gfxScale = 1.0f );
 
-	virtual					~DrawItem() = default ;
+	virtual					~DrawItem() ;
 
 protected:
 	Ref<Material>			m_pMaterial ;

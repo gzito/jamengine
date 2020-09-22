@@ -31,7 +31,6 @@
 #include <jam/DrawItem.h>
 
 #include "PSys_Particle.hpp"
-//#include <IwMaterial.h>
 
 enum class PSysStatus;
 class PSysIParticle;

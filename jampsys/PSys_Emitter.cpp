@@ -165,7 +165,7 @@ bool PSysEmitter::updateRender()
 {
     for (auto iter = particles.begin(); iter != particles.end(); ++iter)
     {
-            (*iter)->updateRender();
+        (*iter)->updateRender();
     }
     //Draw3DManager::ColorG3D = Color::WHITE;
     return true;

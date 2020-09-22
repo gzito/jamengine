@@ -40,7 +40,7 @@ void PerformanceWindow::ShowOtherInfo(int partType,const std::vector<std::string
 {
 	static char buffer[256]={};
 	const std::string name = partname[partType];
-	sprintf(buffer,"%s %d/%d",name.c_str(),partType+1,partname.size()) ;
+	sprintf(buffer,"%s %d/%zd",name.c_str(),partType+1,partname.size()) ;
 	ImGui::Text(buffer) ;
 
 	/*if (lastOptimized < GetParticleSystem().getOptimized())

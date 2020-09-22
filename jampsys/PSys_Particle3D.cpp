@@ -155,6 +155,7 @@ void Particle3D::set()
 
 	if (pModel->entityItem != nullptr)
 	{
+		// GZ qui non ci passa mai
 		item = DrawItem::create(pModel->entityItem->getTexture(), pModel->entityItem->getRect());
 	}
 	else

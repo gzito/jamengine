@@ -212,7 +212,7 @@ bool PsysTestApp::init()
 	getScene()->addChild(uiLayer,5) ;
 
 	m_pBatch = GetGfx().getBatch() ;
-	GetGfx().setBatch(nullptr) ;
+//	GetGfx().setBatch(nullptr) ;
 
 	// set camera
 	Camera* pCamera = new Camera() ;
@@ -422,10 +422,10 @@ void PsysTestApp::render()
 	ImGui::NewFrame();
 	ImGui::Begin("PSYS Info Window",&showImguiWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 
-
 	//ImGui::ShowDemoWindow(&m_show_demo_window);
 	PerformanceWindow::DrawContent();
 	PerformanceWindow::ShowOtherInfo(m_partType,m_partname);
+
 	ImGui::End();
 
 	ImGui::Render();

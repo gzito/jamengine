@@ -1,3 +1,5 @@
+#ifdef DISABLED_CODE
+
 /**********************************************************************************
 *
 * PSys_PaticleSprite3D.h
@@ -68,3 +70,5 @@ public:
 private:
 	size_t ic;
 };
+
+#endif

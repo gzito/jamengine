@@ -28,7 +28,7 @@
 **********************************************************************************/
 #pragma once
 
-#include "jam\DrawItem.h"
+#include <jam/DrawItem.h>
 
 struct paramColor
 {
@@ -118,7 +118,7 @@ public:
 	paramSettingsColor B;
 
 	jam::Texture2D* entity;
-	jam::DrawItem* entityItem;
+	jam::DrawItem* entityItem;			// GZ questo è sempre null
 	jam::BlendMode blendMode;
 	virtual ~Particle3DConfigurator();
 
