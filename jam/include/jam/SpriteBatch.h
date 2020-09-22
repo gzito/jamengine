@@ -128,19 +128,25 @@ private:
         void                    uploadVertexBuffer() ;
         void                    updateVertexBuffer() ;
         void                    DrawBatch(SpriteSortMode sortMode) ;
-
+    
+    protected:
+                                ~SpriteBatcher() = default ;
     private:
         void                    EnsureArrayCapacity(int numBatchItems) ;
 	    void                    FlushVertexArray(int start, int end, Texture2D* texture) ;
+
+                                SpriteBatcher( const SpriteBatcher& ) = delete ;
+        SpriteBatcher&          operator=( const SpriteBatcher& ) = delete ;
 
     private:
 	    const int               InitialBatchSize = 256;
 	    const int               MaxBatchSize = SHRT_MAX / 6;	// 6 = 4 vertices unique and 2 shared, per quad
 	    const int               InitialVertexArraySize = 256;
 
-	    std::vector<Ref<SpriteBatchItem>> _batchItemList ;
-	    int                     _batchItemCount = 0 ;
+        using SpriteBatchItemArray = std::vector<Ref<SpriteBatchItem>> ;
 
+	    int                     _batchItemCount = 0 ;
+        SpriteBatchItemArray    _batchItemList ;
 	    HeapArray<U16>          _index ;
 	    HeapArray<V3F_C4B_T2F>  _vertexArray ;
 	    VertexBufferObject      m_vbo ;
@@ -149,6 +155,7 @@ private:
         Ref<Material>           m_pMaterial ;
 	    bool                    m_uploaded ;
     };
+
 
 public:
                             SpriteBatch(int capacity) ;

@@ -31,6 +31,7 @@
 #include "PSys_Emitter.h"
 #include "PSys_ParticleSprite3D.h"
 #include <jam/Singleton.h>
+#include <jam/SpriteBatch.h>
 
 struct emitterGroup
 {
@@ -49,24 +50,26 @@ class PSYS : public  jam::Singleton<PSYS>
 	friend class jam::Singleton<PSYS>;
 public:
 
-	virtual void destroy();
-	void update();
-	void updateRender();
+	virtual void			destroy();
+	void					update();
+	void					updateRender();
 
-	void RemoveEmitter(PSysEmitter* em, bool forceDelete = false);
-	void SubscribeEmitter(PSysEmitter* em);
-	int totalParticles() const { return alives; }
-	int totalRemoved() const { return zombies; }
-	int totalEmitters() const { return static_cast<int>(emitters.size()); }
-	void setAlives(int val) { alives = val; }
-	void setZombies(int val) { zombies = val; }
-	int getOptimized() const { return optimized; }
-	void setOptimized(int val) { optimized = val; }
+	void					RemoveEmitter(PSysEmitter* em, bool forceDelete = false);
+	void					SubscribeEmitter(PSysEmitter* em);
+	int						totalParticles() const { return alives; }
+	int						totalRemoved() const { return zombies; }
+	int						totalEmitters() const { return static_cast<int>(emitters.size()); }
+	void					setAlives(int val) { alives = val; }
+	void					setZombies(int val) { zombies = val; }
+	int						getOptimized() const { return optimized; }
+	void					setOptimized(int val) { optimized = val; }
 
-	int getLevel() const { return slot; }
+	int						getLevel() const { return slot; }
 
-	bool clearAll();
-	PSysEmitter* CreateEmitter(IParticleConfigurator* starterModel, std::string name = "");
+	bool					clearAll();
+	PSysEmitter*			CreateEmitter(IParticleConfigurator* starterModel, std::string name = "");
+
+	jam::SpriteBatch&		getSpriteBatch() { return *m_pSpriteBatch; }
 
 	std::queue<PSysEmitter*> emitremoved;
 	std::list<PSysEmitter*> emitters;
@@ -74,14 +77,16 @@ public:
 
 private:
 
-	PSYS();
-	virtual ~PSYS();
+							PSYS();
+	virtual					~PSYS();
 
-	size_t idEm;
-	int alives;
-	int zombies;
-	int optimized;
-	int slot;
+	size_t					idEm;
+	int						alives;
+	int						zombies;
+	int						optimized;
+	int						slot;
+
+	jam::Ref<jam::SpriteBatch>		m_pSpriteBatch ;
 };
 
 inline PSYS& GetParticleSystem() { return PSYS::getSingleton(); }

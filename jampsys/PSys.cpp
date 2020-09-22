@@ -126,7 +126,6 @@ PSysEmitter* PSYS::CreateEmitter(IParticleConfigurator* starterModel, std::strin
 	//Set values
 	if (pem)
 	{
-
 		if (name.empty())
 			pem->name = name;
 		else
@@ -138,7 +137,6 @@ PSysEmitter* PSYS::CreateEmitter(IParticleConfigurator* starterModel, std::strin
 		PSysSetOptimizationPool(pem, PSYS_NULL, PSYS_NULL);
 		PSysSetWind(pem, PSYS_NULL, PSYS_NULL, PSYS_NULL);
 		PSysSetOptimizationFrameRate(pem, "", PSYS_NULL);
-
 	}
 
 	return (pem);
@@ -172,7 +170,6 @@ void PSYS::update()
 }
 void PSYS::updateRender()
 {
-	//DbgPrintf("PSYS::update Remove");
 	for (auto emitter : emitters)
 	{
 		if (emitter->status == PSysStatus::PSYS_GO)
@@ -180,7 +177,6 @@ void PSYS::updateRender()
 			emitter->updateRender();
 		}
 	}
-	//DbgPrintf("PSYS::update END");
 
 }
 
@@ -193,6 +189,8 @@ PSYS::PSYS() :idEm(0), alives(0), zombies(0), optimized(0), slot(0)
 		emitremoved.push(new PSysEmitter());
 	}
 	groups.clear();
+
+	m_pSpriteBatch = new jam::SpriteBatch( 500 ) ;
 }
 
 // ******************************************************************************
