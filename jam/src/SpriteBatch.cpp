@@ -189,12 +189,15 @@ void SpriteBatch::SpriteBatcher::uploadVertexBuffer()
     m_uploaded = true ;
 }
 
-void SpriteBatch::SpriteBatcher::updateVertexBuffer()
+void SpriteBatch::SpriteBatcher::updateVertexBuffer(int start, int end)
 {
     JAM_ASSERT(m_uploaded) ;
 
     m_vbo.bind() ;
-	glBufferSubData( GL_ARRAY_BUFFER, (GLintptr)(0), _vertexArray.byteSize(), _vertexArray.data() ) ;
+	glBufferSubData( GL_ARRAY_BUFFER,
+                    (GLintptr)(start*sizeof(V3F_C4B_T2F)),
+                    (GLsizeiptr)((end-start)*sizeof(V3F_C4B_T2F)),
+                    _vertexArray.data()+start ) ;
     m_vbo.unbind() ;
 }
 
@@ -325,7 +328,7 @@ void SpriteBatch::SpriteBatcher::FlushVertexArray(int start,int end,Texture2D* t
         uploadVertexBuffer() ;
     }
     else {
-        updateVertexBuffer() ;
+        updateVertexBuffer(start,end) ;
     }
 
     int indexCount = (end - start) * 1.5f ;
