@@ -72,7 +72,7 @@ DrawItem::DrawItem() :
 	m_halfWidth(0), m_halfHeight(0), m_gfxScale(1.0f)
 {
 	m_pMaterial = new Material() ;
-	Texture2D* tex = new Texture2D() ;
+	Ref<Texture2D> tex( new Texture2D() ) ;
 	tex->createDefaultEmpty() ;
 	m_pMaterial->setDiffuseTexture( tex ) ;
 	m_pMaterial->setBlendEnabled(true) ;
@@ -110,6 +110,10 @@ DrawItem::DrawItem( Texture2D* pTxtr, const jam::Rect& cut, float gfxScale /*= 1
 	m_pMaterial->setBlendEnabled(true) ;
 
 	init() ;
+}
+
+DrawItem::~DrawItem()
+{
 }
 
 void DrawItem::init()

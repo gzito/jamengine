@@ -48,12 +48,18 @@
 #include <jam/Gfx.h>
 #include <jam/Event.h>
 
+#include "PerformanceWindow.h"
+
+
+#include "jam/thirdparty/imgui/imgui_impl_opengl3.h"
+#include "jam/thirdparty/imgui/imgui_impl_sdl.h"
+
 #define Iw2DGetSurfaceWidth		IwGxGetScreenWidth
 #define Iw2DGetSurfaceHeight	IwGxGetScreenHeight
 
 using namespace jam;
 
-
+#define USEIMGUI
 
 
 class PsysTestApp : public Application
@@ -96,6 +102,8 @@ private:
 	int lastOptimized;
 
 	bool  m_showtime;
+	bool showImguiWindow = true;
+	bool m_show_demo_window = true;
 
 #ifdef GZ_DISABLED_CODE
 	CIwMat s_OrientationCompensation;
@@ -119,7 +127,9 @@ PsysTestApp::PsysTestApp() :
 bool PsysTestApp::init()
 {
 	Draw3DManager::Origin3D(960,540) ;
-
+	SDL_GL_SetSwapInterval(0);
+	setAnimationIntervalMs(0);
+	
 	// loaded inside SetupPSysResources
 	//IwGetResManager()->LoadGroup("media/psys.group"); 
 	ps = new PSysHelper;
@@ -202,7 +212,7 @@ bool PsysTestApp::init()
 	getScene()->addChild(uiLayer,5) ;
 
 	m_pBatch = GetGfx().getBatch() ;
-	GetGfx().setBatch(nullptr) ;
+//	GetGfx().setBatch(nullptr) ;
 
 	// set camera
 	Camera* pCamera = new Camera() ;
@@ -230,7 +240,7 @@ void PsysTestApp::destroy()
 
 void PsysTestApp::handleInput()
 {
-	if( GetInputMgr().keyPressed(SDL_SCANCODE_SPACE) ) {
+	if( GetInputMgr().keyReleased(SDL_SCANCODE_SPACE) ) {
 		Draw3DBatch* batch = GetGfx().getBatch() ;
 		if( batch ) {
 			GetGfx().setBatch(nullptr) ;
@@ -247,11 +257,13 @@ void PsysTestApp::onButtonReleased( TouchEventArgs& args, IEventSource& src )
 	
 	if( n.getTag() == "left" )
 	{
+		ps->ClearPSys();
 		m_partType-- ; 
 		if (m_partType<0) m_partType=m_partname.size()-1 ;
 	}
 	else if( n.getTag() == "right" )
 	{
+		ps->ClearPSys();
 		m_partType++ ; 
 		if (m_partType>(m_partname.size()-1)) m_partType=0 ;	
 	}
@@ -259,6 +271,7 @@ void PsysTestApp::onButtonReleased( TouchEventArgs& args, IEventSource& src )
 
 void PsysTestApp::afterSceneUpdate()
 {
+#ifndef USEIMGUI
 	char buffer[256];
 	Draw3DManager::ColorG3D = Color::WHITE ;
 
@@ -315,7 +328,10 @@ void PsysTestApp::afterSceneUpdate()
 
 		float x1= LEFT_SCREEN(wi/2); float y1= TOP_SCREEN(he/2);
 	}
+	#endif
 
+
+	
 	if( !Draw3DManager::MouseDown3DEventDetected ) {
 		for(U32 i = 0; i < JAM_MAX_TOUCHES; i++)
 		{
@@ -395,11 +411,28 @@ void PsysTestApp::render()
 	//{
 	//	Draw3DManager::Origin3D(Draw3DManager::Original3DWidth,Draw3DManager::Original3DHeight) ;
 	//}
+	//GetGfx().setRenderLevel(5);
 
-	GetGfx().setRenderLevel( 1 ) ;
+	GetGfx().setRenderLevel( -1 ) ;
 	GetDraw3DMgr().DrawImage3D(DrawItemManager::getSingleton().getObject("background1"),0,0);
 
-	GetGfx().setRenderLevel( 0 ) ;
+#ifdef USEIMGUI
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame(GetAppMgr().getWindowPtr());
+	ImGui::NewFrame();
+	ImGui::Begin("PSYS Info Window",&showImguiWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+
+	//ImGui::ShowDemoWindow(&m_show_demo_window);
+	PerformanceWindow::DrawContent();
+	PerformanceWindow::ShowOtherInfo(m_partType,m_partname);
+
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
+
+	GetGfx().setRenderLevel( 1 ) ;
 	Draw3DBatch* pBatch = GetGfx().getBatch() ;
 	if( pBatch ) pBatch->begin() ;
 	GetParticleSystem().updateRender();
@@ -452,6 +485,23 @@ void PsysTestApp::onBatchPressed( TouchEventArgs& args, IEventSource& src )
 int main(int argc, char* argv[] ) 
 {
 	// Create application object
-	jam::runEngine<PsysTestApp>() ;
+	//jam::runEngine<PsysTestApp>() ;
+
+	try {
+		PsysTestApp app;
+#ifdef USEIMGUI
+		app.setImguiEnabled();
+#endif
+		app.start();
+	}
+	catch (std::exception& ex) {
+		JAM_TRACE("Exception thrown:\n%s\n", ex.what());
+		printf("Exception thrown:\n%s\n", ex.what());
+	}
+	catch (...) {
+		JAM_TRACE("Unknown exception thrown!\n");
+		printf("Unknown exception thrown!\n");
+	}
+	
 	return 0 ;
 }

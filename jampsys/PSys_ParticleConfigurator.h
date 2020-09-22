@@ -28,7 +28,7 @@
 **********************************************************************************/
 #pragma once
 
-#include "jam\DrawItem.h"
+#include <jam/DrawItem.h>
 
 struct paramColor
 {
@@ -86,6 +86,7 @@ public:
 	int startCounter;				// dead or alive status
 	int loops;						// Regenerations loop [0=infinite,n]
 	std::string name;
+	jam::BlendMode blendMode;
 
 	IParticleConfigurator() :duration(0), endDuration(0), durationRange(0), startCounter(0), loops(0), lastEmittedTime(0) { name = ""; }
 
@@ -118,8 +119,8 @@ public:
 	paramSettingsColor B;
 
 	jam::Texture2D* entity;
-	jam::DrawItem* entityItem;
-	jam::BlendMode blendMode;
+	jam::DrawItem* entityItem;			// GZ questo è sempre null
+
 	virtual ~Particle3DConfigurator();
 
 	void calculateInto(float& _newduration) const

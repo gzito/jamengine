@@ -37,7 +37,7 @@ void PSYS::RemoveEmitter(PSysEmitter* em, bool forceDelete)
 		emitters.erase(std::remove(emitters.begin(), emitters.end(), em), emitters.end());	//Not optimal O(n) with vector
 
 		if (forceDelete) { JAM_DELETE(em); }
-		else { eremoved.push(em); }
+		else { emitremoved.push(em); }
 	}
 
 	DbgPrintf("PSYS::RemoveEmitter-end");
@@ -74,10 +74,10 @@ bool PSYS::clearAll()
 	emitters.clear();
 
 
-	while (!eremoved.empty())
+	while (!emitremoved.empty())
 	{
-		PSysEmitter* pem = eremoved.front();
-		eremoved.pop();
+		PSysEmitter* pem = emitremoved.front();
+		emitremoved.pop();
 		pem->destroy();
 		JAM_DELETE(pem);
 	}
@@ -109,10 +109,10 @@ PSysEmitter* PSYS::CreateEmitter(IParticleConfigurator* starterModel, std::strin
 {
 
 	PSysEmitter* pem; // Recycle from the pool
-	if (!eremoved.empty())
+	if (!emitremoved.empty())
 	{
-		pem = eremoved.front();
-		eremoved.pop();
+		pem = emitremoved.front();
+		emitremoved.pop();
 		if (pem)
 		{
 			pem->SetConfigurator(starterModel);
@@ -126,7 +126,6 @@ PSysEmitter* PSYS::CreateEmitter(IParticleConfigurator* starterModel, std::strin
 	//Set values
 	if (pem)
 	{
-
 		if (name.empty())
 			pem->name = name;
 		else
@@ -138,7 +137,6 @@ PSysEmitter* PSYS::CreateEmitter(IParticleConfigurator* starterModel, std::strin
 		PSysSetOptimizationPool(pem, PSYS_NULL, PSYS_NULL);
 		PSysSetWind(pem, PSYS_NULL, PSYS_NULL, PSYS_NULL);
 		PSysSetOptimizationFrameRate(pem, "", PSYS_NULL);
-
 	}
 
 	return (pem);
@@ -154,7 +152,7 @@ void PSYS::update()
 		if (emitter->particles.empty())
 		{
 				iter = emitters.erase(iter);	//RemoveEmitter(emitter); Not optimal O(n) with vector, changed into list
-				eremoved.push(emitter);
+				emitremoved.push(emitter);
 			//emitters[idEm]->SetRemovable();	// ***GS: Newer (NON AZZERA LE PARTICELLE!!!)
 		}
 		else
@@ -172,7 +170,6 @@ void PSYS::update()
 }
 void PSYS::updateRender()
 {
-	//DbgPrintf("PSYS::update Remove");
 	for (auto emitter : emitters)
 	{
 		if (emitter->status == PSysStatus::PSYS_GO)
@@ -180,7 +177,6 @@ void PSYS::updateRender()
 			emitter->updateRender();
 		}
 	}
-	//DbgPrintf("PSYS::update END");
 
 }
 
@@ -190,9 +186,11 @@ PSYS::PSYS() :idEm(0), alives(0), zombies(0), optimized(0), slot(0)
 	//emitters.reserve(MAX_EMITTERS_POOL);
 	for (int i=0; i< EMITTERS_POOL; ++i)
 	{
-		eremoved.push(new PSysEmitter());
+		emitremoved.push(new PSysEmitter());
 	}
 	groups.clear();
+
+	m_pSpriteBatch = new jam::SpriteBatch( 500 ) ;
 }
 
 // ******************************************************************************

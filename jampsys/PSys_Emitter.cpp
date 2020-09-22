@@ -163,11 +163,14 @@ void PSysEmitter::RemoveParticle(PARTICLE* pa, bool forceDelete)
 
 bool PSysEmitter::updateRender()
 {
-    for (auto iter = particles.begin(); iter != particles.end(); ++iter)
-    {
-            (*iter)->updateRender();
+    PSysParent_ref->getSpriteBatch().Begin( SpriteSortMode::Deferred, m_ParticleTemplate->blendMode ) ;
+
+    for (auto iter = particles.begin(); iter != particles.end(); ++iter) {
+        (*iter)->updateRender();
     }
-    //Draw3DManager::ColorG3D = Color::WHITE;
+
+    PSysParent_ref->getSpriteBatch().End() ;
+
     return true;
 }
 

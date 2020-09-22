@@ -1,3 +1,5 @@
+#ifdef DISABLED_CODE
+
 /**********************************************************************************
 *
 * PSys_PaticleSprite3D.cpp
@@ -193,3 +195,5 @@ void ParticleSprite3D::updateRender()
 	Draw3DManager::ColorG3D = Color::WHITE;
 
 }
+
+#endif

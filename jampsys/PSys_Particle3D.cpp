@@ -155,6 +155,7 @@ void Particle3D::set()
 
 	if (pModel->entityItem != nullptr)
 	{
+		// GZ qui non ci passa mai
 		item = DrawItem::create(pModel->entityItem->getTexture(), pModel->entityItem->getRect());
 	}
 	else
@@ -215,6 +216,8 @@ void Particle3D::updateRender()
 					return;
 				}
 			}
+
+/*
 			item->setBlendingMode(blendMode);
 			item->getMaterial()->setBlendEnabled(true);
 			Draw3DManager::ColorG3D = Color(color->R, color->G, color->B, alpha->alpha);
@@ -223,6 +226,17 @@ void Particle3D::updateRender()
 			GetGfx().setRenderLevel(emitter->PSysParent_ref->getLevel());
 			GetDraw3DMgr().DrawImage3D(item, pos->x + emitter->GetPivotX(), pos->y + emitter->GetPivotY(), 0, angle->alfa, scale->Scale);
 			Draw3DManager::ColorG3D = Color::WHITE;
+*/
+
+			emitter->PSysParent_ref->getSpriteBatch().Draw( item->getTexture(), 
+							 Vector2( pos->x + emitter->GetPivotX(), pos->y + emitter->GetPivotY() ),
+							 nullptr,
+							 Color(color->R, color->G, color->B, alpha->alpha),
+							 ToRadian(angle->alfa),
+							 Vector2(0,0),
+							 Vector2(scale->Scale,scale->Scale),
+							 SpriteEffects::None,
+							 0 ) ;
 
 		}
 
