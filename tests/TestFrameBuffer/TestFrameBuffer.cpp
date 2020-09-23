@@ -48,7 +48,7 @@
 using namespace jam;
 
 
-#define MEDIA_PATH				"../../"
+#define MEDIA_PATH				"./"
 
 
 class TestFrameBufferApp : public jam::Application
@@ -108,11 +108,11 @@ void TestFrameBufferApp::loadTextures()
 {
 	m_pCubeTextureDiffuse = Ref<Texture2D>( new Texture2D() ) ;
 	m_pCubeTextureDiffuse->load( appendPath(MEDIA_PATH,"images/container2.png") ) ;
-	GetTextureMgr().addByName( m_pCubeTextureDiffuse.get(), "container2" ) ;
+	//GetTextureMgr().addByName( m_pCubeTextureDiffuse.get(), "container2" ) ;
 
 	m_pCubeTextureSpecular = Ref<Texture2D>( new Texture2D() ) ;
 	m_pCubeTextureSpecular->load( appendPath(MEDIA_PATH,"images/container2_specular.png") ) ;
-	GetTextureMgr().addByName( m_pCubeTextureSpecular.get(), "container2_specular" ) ;
+	//GetTextureMgr().addByName( m_pCubeTextureSpecular.get(), "container2_specular" ) ;
 }
 
 void TestFrameBufferApp::createLights()
@@ -211,31 +211,31 @@ void TestFrameBufferApp::handleInput()
 
 	Camera* pCam = getScene()->getCamera() ;
 
-	if( GetInputMgr().keyDown(GLFW_KEY_W) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_W) ) 
 	{
 		Vector3 forward = pCam->getForward() ;
 		pCam->translate( -forward * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_S) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_S) ) 
 	{
 		Vector3 forward = pCam->getForward() ;
 		pCam->translate( forward * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_A) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_A) ) 
 	{
 		Vector3 right = pCam->getRight() ;
 		pCam->translate( -right * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_D) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_D) ) 
 	{
 		Vector3 right = pCam->getRight() ;
 		pCam->translate( right * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().getPointerState(GLFW_MOUSE_BUTTON_LEFT) == InputManager::DOWN ) 
+	if( GetInputMgr().getPointerState(SDL_BUTTON_LEFT) == InputManager::DOWN ) 
 	{
 		float touchSpeedX = GetInputMgr().getTouchSpeedX(0) ;
 		if( fabs(touchSpeedX) > FLT_EPSILON ) {
@@ -267,7 +267,7 @@ void TestFrameBufferApp::render()
 	GetGfx().setClearColor( Color::GREEN ) ;
 	GetGfx().clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) ;
 
-	Ref<Shader> pShader = m_pCubeMesh->getMaterial()->getShader() ;
+	Shader* pShader = m_pCubeMesh->getMaterial()->getShader() ;
 	pShader->use() ;
 
 	m_pLight[0]->update(0) ;
@@ -316,7 +316,7 @@ void TestFrameBufferApp::destroy()
 
 //*************************************************************************
 
-int main() 
+int main(int argc, char** argv) 
 {
 	jam::runEngine<TestFrameBufferApp>() ;
 	return 0 ;

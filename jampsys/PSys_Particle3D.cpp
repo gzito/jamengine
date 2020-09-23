@@ -227,13 +227,13 @@ void Particle3D::updateRender()
 			GetDraw3DMgr().DrawImage3D(item, pos->x + emitter->GetPivotX(), pos->y + emitter->GetPivotY(), 0, angle->alfa, scale->Scale);
 			Draw3DManager::ColorG3D = Color::WHITE;
 */
-
-			emitter->PSysParent_ref->getSpriteBatch().Draw( item->getTexture(), 
+			Texture2D* tex = item->getTexture() ;
+			emitter->PSysParent_ref->getSpriteBatch().Draw( tex, 
 							 Vector2( pos->x + emitter->GetPivotX(), pos->y + emitter->GetPivotY() ),
 							 nullptr,
 							 Color(color->R, color->G, color->B, alpha->alpha),
 							 ToRadian(angle->alfa),
-							 Vector2(0,0),
+							 Vector2( tex->getWidth()/2.0f, tex->getHeight()/2.0f ),
 							 Vector2(scale->Scale,scale->Scale),
 							 SpriteEffects::None,
 							 0 ) ;

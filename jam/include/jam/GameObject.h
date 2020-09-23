@@ -58,10 +58,12 @@ public:
 	void					setActive( bool value ) ;
 
 private:
+	using					ComponentList = std::list<Ref<Component>> ;
+
 	// each GameObject has a Transform component
 	Ref<Transform>			m_transform ;
 	// and a list of components
-	std::list<Ref<Component>>	m_components ;
+	ComponentList			m_components ;
 	bool					m_active ;
 };
 

@@ -44,7 +44,7 @@
 
 using namespace jam;
 
-#define MEDIA_PATH					"../../"
+#define MEDIA_PATH					"./"
 #define SHADERS_PATH				"../../../../jam/shaders"
 
 class TestSkinnedMeshApp : public jam::Application
@@ -64,7 +64,7 @@ protected:
 private:
 
 	//
-	SkinnedModel*			m_pModel ;
+	Ref<SkinnedModel>		m_pModel ;
 
 	// light
 	Light*					m_pLight[2] ;
@@ -129,35 +129,35 @@ void TestSkinnedMeshApp::handleInput()
 
 	Camera* pCam = getScene()->getCamera() ;
 
-	if( GetInputMgr().keyDown(GLFW_KEY_LEFT_SHIFT) || GetInputMgr().keyDown(GLFW_KEY_RIGHT_SHIFT) ) {
+	if( GetInputMgr().keyDown(SDL_SCANCODE_LSHIFT) || GetInputMgr().keyDown(SDL_SCANCODE_RSHIFT) ) {
 		speed *= 4 ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_W) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_W) ) 
 	{
 		Vector3 forward = pCam->getForward() ;
 		pCam->translate( -forward * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_S) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_S) ) 
 	{
 		Vector3 forward = pCam->getForward() ;
 		pCam->translate( forward * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_A) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_A) ) 
 	{
 		Vector3 right = pCam->getRight() ;
 		pCam->translate( -right * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_D) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_D) ) 
 	{
 		Vector3 right = pCam->getRight() ;
 		pCam->translate( right * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().getPointerState(GLFW_MOUSE_BUTTON_LEFT) == InputManager::DOWN ) 
+	if( GetInputMgr().getPointerState(SDL_BUTTON_LEFT) == InputManager::DOWN ) 
 	{
 		float touchSpeedX = GetInputMgr().getTouchSpeedX(0) ;
 		if( fabs(touchSpeedX) > FLT_EPSILON ) {
@@ -195,7 +195,7 @@ void TestSkinnedMeshApp::destroy()
 
 //*************************************************************************
 
-int main() 
+int main(int argc,char** argv) 
 {
 	jam::runEngine<TestSkinnedMeshApp>() ;
 	return 0 ;
