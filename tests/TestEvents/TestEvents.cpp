@@ -54,7 +54,7 @@ void TestEvents::onGameOver(GameOverEventArgs& e, IEventSource& s)
 void TestEvents::onCollide(ShotEventArgs& e, IEventSource& s)
 {
 	ShotEventArgs& evt = dynamic_cast<ShotEventArgs&>(e) ;
-	JAM_TRACE("*** Raised ShotEvent, id of hit enemy ship: %d\n", evt.m_hitSprite->getId()) ;
+	JAM_TRACE("*** Raised ShotEvent, id of hit enemy ship: %s\n", evt.m_hitSprite->getName().c_str()) ;
 }
 
 
@@ -78,15 +78,13 @@ void TestEvents::beforeSceneUpdate()
 
 	int k = RAND(15) ;
 	if(k>0 && k<5) {
-		evtArgs = new GameOverEventArgs() ;
-		evtArgs->autorelease() ;
+		GameOverEventArgs* evtArgs = new GameOverEventArgs() ;
 		gameOverEvent.enqueue(evtArgs,this) ;
 	}
 	else if(k>=5 && k<10) {
 		Sprite s ;
 		evtArgs = new ShotEventArgs(&s) ;
 		shotEvent.fire(evtArgs,this) ;
-		evtArgs->release() ;
 	}
 
 	JAM_TRACE("Exited beforeSceneUpdate.\n") ;
@@ -95,7 +93,7 @@ void TestEvents::beforeSceneUpdate()
 
 //*************************************************************************
 
-int main() 
+int main(int argc, char** argv) 
 {
 	jam::runEngine<TestEvents>() ;
 	return 0 ;

@@ -44,7 +44,7 @@
 using namespace jam;
 
 
-#define MEDIA_PATH				"../../images/"
+#define MEDIA_PATH				"./images/"
 
 class TestCubeMapApp : public jam::Application
 {
@@ -61,8 +61,8 @@ protected:
 	virtual void		destroy() ;
 
 private:
-	TextureCubemap*		m_pQuadTexture ;
-	SkyBox*				m_pSkyBox ;
+	Ref<TextureCubemap>	m_pQuadTexture ;
+	Ref<SkyBox>			m_pSkyBox ;
 };
 
 TestCubeMapApp::TestCubeMapApp() :
@@ -83,7 +83,8 @@ void TestCubeMapApp::loadTextures()
 	filenames.push_back( appendPath(MEDIA_PATH,"arrakisday_bk.tga") ) ;
 
 	m_pQuadTexture->load( filenames, false ) ;
-	GetTextureCubemapMgr().addByName( m_pQuadTexture, "skybox" ) ;
+	m_pQuadTexture->setName("skybox") ;
+	GetTextureCubemapMgr().addObject( m_pQuadTexture ) ;
 }
 
 //*************************************************************************
@@ -116,31 +117,31 @@ void TestCubeMapApp::handleInput()
 
 	Camera* pCam = getScene()->getCamera() ;
 
-	if( GetInputMgr().keyDown(GLFW_KEY_W) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_W) ) 
 	{
 		Vector3 forward = pCam->getForward() ;
 		pCam->translate( -forward * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_S) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_S) ) 
 	{
 		Vector3 forward = pCam->getForward() ;
 		pCam->translate( forward * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_A) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_A) ) 
 	{
 		Vector3 right = pCam->getRight() ;
 		pCam->translate( -right * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_D) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_D) ) 
 	{
 		Vector3 right = pCam->getRight() ;
 		pCam->translate( right * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().getPointerState(GLFW_MOUSE_BUTTON_LEFT) == InputManager::DOWN ) 
+	if( GetInputMgr().getPointerState(SDL_BUTTON_LEFT) == InputManager::DOWN ) 
 	{
 		float touchSpeedX = GetInputMgr().getTouchSpeedX(0) ;
 		if( fabs(touchSpeedX) > FLT_EPSILON ) {
@@ -185,7 +186,7 @@ void TestCubeMapApp::destroy()
 
 //*************************************************************************
 
-int main() 
+int main( int argc, char** argv )
 {
 	jam::runEngine<TestCubeMapApp>() ;
 	return 0 ;

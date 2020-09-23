@@ -1,5 +1,3 @@
-# TestImgui example
-
 if(JAM_BUILD_SHARED)
 	link_libraries(Jam_shared)
 else()
@@ -13,7 +11,6 @@ include_directories( ${PROJECT_SOURCE_DIR}/jam/include/precomph )
 include_directories( ${PROJECT_SOURCE_DIR}/jam/include/jam/thirdparty/imgui )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include )
 include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/SDL2 )
-include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/boehmgc )
 
 add_compile_definitions(_USE_MATH_DEFINES)
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)

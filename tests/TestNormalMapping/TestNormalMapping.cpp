@@ -45,7 +45,7 @@
 using namespace jam;
 
 
-#define MEDIA_PATH				"../../"
+#define MEDIA_PATH				"./"
 
 class TestNormalMappingApp : public jam::Application
 {
@@ -85,11 +85,11 @@ void TestNormalMappingApp::createMaterials()
 {
 	m_pQuadDiffuseTexture = Ref<Texture2D>( new Texture2D() ) ;
 	m_pQuadDiffuseTexture->load( appendPath(MEDIA_PATH,"images/brickwall.jpg") ) ;
-	GetTextureMgr().addByName( m_pQuadDiffuseTexture.get(), "brickwall" ) ;
+//	GetTextureMgr().addByName( m_pQuadDiffuseTexture.get(), "brickwall" ) ;
 
 	m_pQuadNormalTexture = Ref<Texture2D>( new Texture2D() ) ;
 	m_pQuadNormalTexture->load( appendPath(MEDIA_PATH,"images/brickwall_normal.jpg") ) ;
-	GetTextureMgr().addByName( m_pQuadNormalTexture.get(), "brickwall_normal" ) ;
+//	GetTextureMgr().addByName( m_pQuadNormalTexture.get(), "brickwall_normal" ) ;
 
 	m_pQuadMaterial = Ref<Material>( new Material() ) ;
 	m_pQuadMaterial->setDiffuseTexture(m_pQuadDiffuseTexture) ;
@@ -157,7 +157,7 @@ void TestNormalMappingApp::render()
 	Matrix4 rotateMat(1.0f) ;
 
 	// draw quad without normal map
-	Ref<Shader> pShader = m_pQuadMaterial->getShader() ;
+	Shader* pShader = m_pQuadMaterial->getShader() ;
 	pShader->use() ;
 	m_pLight[0]->update(0) ;
 	m_pLight[1]->update(1) ;
@@ -196,31 +196,31 @@ void TestNormalMappingApp::handleInput()
 
 	Camera* pCam = getScene()->getCamera() ;
 
-	if( GetInputMgr().keyDown(GLFW_KEY_W) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_W) ) 
 	{
 		Vector3 forward = pCam->getForward() ;
 		pCam->translate( -forward * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_S) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_S) ) 
 	{
 		Vector3 forward = pCam->getForward() ;
 		pCam->translate( forward * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_A) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_A) ) 
 	{
 		Vector3 right = pCam->getRight() ;
 		pCam->translate( -right * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_D) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_D) ) 
 	{
 		Vector3 right = pCam->getRight() ;
 		pCam->translate( right * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().getPointerState(GLFW_MOUSE_BUTTON_LEFT) == InputManager::DOWN ) 
+	if( GetInputMgr().getPointerState(SDL_BUTTON_LEFT) == InputManager::DOWN ) 
 	{
 		float touchSpeedX = GetInputMgr().getTouchSpeedX(0) ;
 		if( fabs(touchSpeedX) > FLT_EPSILON ) {
@@ -250,7 +250,7 @@ void TestNormalMappingApp::destroy()
 
 //*************************************************************************
 
-int main() 
+int main(int argc, char** argv) 
 {
 	jam::runEngine<TestNormalMappingApp>() ;
 	return 0 ;

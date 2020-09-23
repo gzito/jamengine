@@ -70,7 +70,7 @@ Mesh::~Mesh()
 
 void Mesh::setMaterial( Material* pMaterial )
 {
-	m_pMaterial = pMaterial ;
+	m_pMaterial.assign( pMaterial, true ) ;
 }
 	
 void Mesh::create(int numOfVertices, int numOfElements)

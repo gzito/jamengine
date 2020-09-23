@@ -58,7 +58,7 @@ public:
 //	virtual void			update( jam::time deltaTime ) = 0 ;
 
 private:
-	Ref<GameObject>			m_gameObject ;
+	GameObject*				m_gameObject ;
 	String					m_tag ;
 };
 

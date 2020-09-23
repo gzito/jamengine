@@ -47,8 +47,11 @@ public:
 	virtual const Color&	getColor() const { return Color::WHITE; }
 	virtual void			setColor( const Color& c ) {}
 
+protected:
+	virtual					~Pivot2D() = default ;
+
 private:
-	// to presvent the use
+	// to present the use
 							Pivot2D( const Pivot2D& ) = delete ;
 	Pivot2D&				operator=( const Pivot2D& ) = delete ;
 };

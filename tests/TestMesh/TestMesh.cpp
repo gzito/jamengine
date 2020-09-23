@@ -44,7 +44,7 @@
 using namespace jam;
 
 
-#define MEDIA_PATH				"../../"
+#define MEDIA_PATH				"./"
 
 class TestMeshApp : public jam::Application
 {
@@ -69,7 +69,7 @@ private:
 };
 
 TestMeshApp::TestMeshApp()
-	: m_pLight(), m_pModel(0)
+	: m_pLight(), m_pModel(nullptr)
 {
 }
 
@@ -132,31 +132,31 @@ void TestMeshApp::handleInput()
 
 	Camera* pCam = getScene()->getCamera() ;
 
-	if( GetInputMgr().keyDown(GLFW_KEY_W) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_W) ) 
 	{
 		Vector3 forward = pCam->getForward() ;
 		pCam->translate( -forward * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_S) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_S) ) 
 	{
 		Vector3 forward = pCam->getForward() ;
 		pCam->translate( forward * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_A) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_A) ) 
 	{
 		Vector3 right = pCam->getRight() ;
 		pCam->translate( -right * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().keyDown(GLFW_KEY_D) ) 
+	if( GetInputMgr().keyDown(SDL_SCANCODE_D) ) 
 	{
 		Vector3 right = pCam->getRight() ;
 		pCam->translate( right * speed * GetAppMgr().getElapsed() ) ;
 	}
 
-	if( GetInputMgr().getPointerState(GLFW_MOUSE_BUTTON_LEFT) == InputManager::DOWN ) 
+	if( GetInputMgr().getPointerState(SDL_BUTTON_LEFT) == InputManager::DOWN ) 
 	{
 		float touchSpeedX = GetInputMgr().getTouchSpeedX(0) ;
 		if( fabs(touchSpeedX) > FLT_EPSILON ) {
@@ -189,12 +189,15 @@ void TestMeshApp::render()
 
 void TestMeshApp::destroy()
 {
+	JAM_RELEASE_NULL(m_pModel);
+	JAM_RELEASE_NULL(m_pLight[0]);
+	JAM_RELEASE_NULL(m_pLight[1]);
 }
 
 
 //*************************************************************************
 
-int main() 
+int main(int argc, char** argv) 
 {
 	jam::runEngine<TestMeshApp>() ;
 	return 0 ;

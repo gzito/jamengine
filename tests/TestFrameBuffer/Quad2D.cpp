@@ -31,7 +31,6 @@
 #include <windows.h>
 #endif
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 #include <jam/Gfx.h>
 
@@ -83,7 +82,7 @@ Quad2D::Quad2D() : m_pTexture(), m_pProg(), m_uploaded(false)
 	}
 	m_vboElements.setTarget(GL_ELEMENT_ARRAY_BUFFER) ;
 
-	m_pProg = ShaderManager::getSingleton().getScreen() ;
+	m_pProg.assign( ShaderManager::getSingleton().getScreen(), true ) ;
 }
 
 Quad2D::~Quad2D()

@@ -213,7 +213,7 @@ void SpriteBatch::SpriteBatcher::DrawBatch(SpriteSortMode sortMode)
     case SpriteSortMode::Texture :                
     case SpriteSortMode::FrontToBack :
     case SpriteSortMode::BackToFront :
-        std::sort( _batchItemList.begin(), _batchItemList.end(), SpriteBatchItem::comparator ) ;
+        std::sort( _batchItemList.begin(), _batchItemList.begin()+_batchItemCount, SpriteBatchItem::comparator ) ;
 	    break;
     }
 
@@ -398,9 +398,9 @@ void SpriteBatch::Draw(Texture2D* texture,Vector2 position,Rect* sourceRectangle
         float texelWidth = 1.0f / texture->getWidth() ;
         float texelHeight = 1.0f / texture->getHeight() ;
         _texCoordTL.x = srcRect.left * texelWidth;
-        _texCoordTL.y = srcRect.top * texelHeight ;
+        _texCoordTL.y = 1.0f - ((srcRect.top + srcRect.getHeight()) * texelHeight);
         _texCoordBR.x = (srcRect.left + srcRect.getWidth()) * texelWidth;
-        _texCoordBR.y = (srcRect.top + srcRect.getHeight()) * texelHeight;
+        _texCoordBR.y = 1.0f - (srcRect.top * texelHeight) ;
     }
     else
     {
