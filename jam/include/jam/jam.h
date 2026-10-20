@@ -34,12 +34,38 @@
 #include <jam/core/types.h>
 
 #include <cassert>
+#include <cstdio>
+#include <cstring>
 #include <stdexcept>
+#ifdef _WIN32
 #include <windows.h>
+#endif
+
+namespace jam { namespace diagnostics {
+inline void report(const char* message, bool warning = false)
+{
+#ifdef _WIN32
+	OutputDebugStringA(message);
+	MessageBoxA(NULL, message, "Jam Engine", MB_OK | (warning ? MB_ICONWARNING : MB_ICONERROR));
+#else
+	(void)warning;
+	std::fprintf(stderr, "%s", message);
+#endif
+}
+
+inline void trace(const char* message)
+{
+#ifdef _WIN32
+	OutputDebugStringA(message);
+#else
+	std::fprintf(stderr, "%s", message);
+#endif
+}
+} }
 
 // When building jam as dll the JAM_EXPORTS symbol is defined in the corresponding dll project
 // Applications linking jam as dll have to define symbol JAM_DLL
-#if defined(WIN32) && defined(JAM_DLL)
+#if defined(_WIN32) && defined(JAM_DLL)
 	#ifdef JAM_EXPORTS
 		#define JAM_API __declspec(dllexport)
 	#else
@@ -74,53 +100,43 @@
 //#define JAM_DESTROY(x)				if( (x) ) { (x)->destroy(); }
 //#define JAM_DESTROY_NULL(x)			if( (x) ) { (x)->destroy(); (x)=nullptr; }
 
-#ifdef _DEBUG
-#define JAM_BREAK(x)				DebugBreak() ;
+#if defined(_DEBUG) && defined(_WIN32)
+#define JAM_BREAK(x)				DebugBreak()
 #else
-#define JAM_BREAK(x)				throw std::runtime_error(x);
+#define JAM_BREAK(x)				throw std::runtime_error(x)
 #endif
 
-//
-// assertions, debugging, trace, errors
-//
 #define JAM_ASSERT(expr)			assert((expr))
 
 #ifdef _DEBUG
-#define JAM_ASSERT_MSG(expr, ... )	\
-    do { \
-		static char buff[256] ; \
-        if( !(expr) ) { \
-			sprintf( buff, "Assertion failed: " ) ; \
-			sprintf( buff+strlen(buff), ##__VA_ARGS__ ) ; \
-			sprintf( buff+strlen(buff), "\nat FILE: %s LINE: %d\n", __FILE__, __LINE__ ) ; \
-			OutputDebugStringA( buff ) ; \
-			MessageBoxA( NULL, buff, "Jam Engine", MB_OK | MB_ICONWARNING) ; \
-			JAM_BREAK( buff ) ; \
-        } \
-    } while (false)
+#define JAM_ASSERT_MSG(expr, ... ) \
+	do { \
+		if (!(expr)) { \
+			char buff[512] = "Assertion failed: "; \
+			std::snprintf(buff + std::strlen(buff), sizeof(buff) - std::strlen(buff), ##__VA_ARGS__); \
+			std::snprintf(buff + std::strlen(buff), sizeof(buff) - std::strlen(buff), "\nat FILE: %s LINE: %d\n", __FILE__, __LINE__); \
+			jam::diagnostics::report(buff, true); \
+			JAM_BREAK(buff); \
+		} \
+	} while (false)
 #else
-#define JAM_ASSERT_MSG(expr,  ... ) \
-	do { } while (false)
+#define JAM_ASSERT_MSG(expr, ... ) do { } while (false)
 #endif
 
-
-#define JAM_ERROR(args, ... )	\
+#define JAM_ERROR(args, ... ) \
 	do { \
-		static char buff[256] ; \
-		sprintf( buff, "Error issued: " ) ; \
-		sprintf( buff+strlen(buff), args, ##__VA_ARGS__ ) ; \
-		sprintf( buff+strlen(buff), "\nat FILE: %s LINE: %d\n", __FILE__, __LINE__ ) ; \
-		OutputDebugStringA( buff ) ; \
-		MessageBoxA( NULL, buff, "Jam Engine", MB_OK | MB_ICONERROR ) ; \
-		JAM_BREAK( buff ) ; \
-	} while(false)
+		char buff[512] = "Error issued: "; \
+		std::snprintf(buff + std::strlen(buff), sizeof(buff) - std::strlen(buff), args, ##__VA_ARGS__); \
+		std::snprintf(buff + std::strlen(buff), sizeof(buff) - std::strlen(buff), "\nat FILE: %s LINE: %d\n", __FILE__, __LINE__); \
+		jam::diagnostics::report(buff); \
+		JAM_BREAK(buff); \
+	} while (false)
 
-
-#define JAM_TRACE(args, ... )	\
+#define JAM_TRACE(args, ... ) \
 	do { \
-		static char buff[256] ; \
-		sprintf( buff, args, ##__VA_ARGS__ ) ; \
-		OutputDebugStringA( buff ) ; \
-	} while(false)
+		char buff[512]; \
+		std::snprintf(buff, sizeof(buff), args, ##__VA_ARGS__); \
+		jam::diagnostics::trace(buff); \
+	} while (false)
 
 #endif	// __JAM_H__

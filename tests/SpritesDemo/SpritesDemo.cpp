@@ -73,8 +73,8 @@ bool SpritesDemo::init()
  	glCullFace(GL_BACK) ;
  	glEnable(GL_CULL_FACE) ;
 
-	GetDrawItemMgr().loadSheet("./images/sonwalk2.png","spritesheets",64,64,8,1);
-	GetDrawItemMgr().loadSheet("./images/gemsheet.png","spritesheets",64,64,15,14);
+	GetDrawItemMgr().loadSheet(appendPath(JAM_TEST_RESOURCE_DIR,"images/sonwalk2.png"),"spritesheets",64,64,8,1);
+	GetDrawItemMgr().loadSheet(appendPath(JAM_TEST_RESOURCE_DIR,"images/gemsheet.png"),"spritesheets",64,64,15,14);
 
 	m_pSprMgr = new SpriteManager() ;
 

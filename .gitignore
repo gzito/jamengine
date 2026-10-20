@@ -6,3 +6,7 @@
 /.vs/jamengine/v16
 /out/build
 /.vs
+/build
+.DS_Store
+/AGENTS.md
+/imgui.ini

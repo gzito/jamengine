@@ -116,7 +116,7 @@ namespace jam
 	{
 		Matrix4 m = glm::lookAt( eye, center, up ) ;
 		m_position = eye ;
-		glm::quat orientation = quat_cast(m) ;
+		glm::quat orientation = glm::quat_cast(m) ;
 		m_eulerAngles = glm::eulerAngles( orientation ) ;
 		m_isViewDirty = true ;
 	}

@@ -32,7 +32,7 @@
 #include "jam/XmlResource.h"
 #include "jam/Application.h"
 
-#include <tinyxml.h>
+#include <tinyxml2.h>
 
 namespace jam
 {
@@ -50,7 +50,7 @@ void XmlResourceExtraData::parseXml(char* pRawBuffer)
 	m_pXmlDocument->Parse(pRawBuffer) ;
 }
 
-TiXmlElement* XmlResourceExtraData::getRoot()
+tinyxml2::XMLElement* XmlResourceExtraData::getRoot()
 {
 	return m_pXmlDocument->RootElement();
 }
@@ -78,7 +78,7 @@ bool XmlResourceLoader::loadResource(char* rawBuffer,size_t rawSize,ResHandle& h
 	return true;
 }
 
-TiXmlElement* XmlResourceLoader::loadAndReturnRootXmlElement(const char* resourceString)
+tinyxml2::XMLElement* XmlResourceLoader::loadAndReturnRootXmlElement(const char* resourceString)
 {
 	Resource resource(resourceString);
 	ResHandle* pResourceHandle = GetAppMgr().getResourceManager().getHandle(&resource);  // this actually loads the XML file from the ResourceFile

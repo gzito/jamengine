@@ -2,6 +2,7 @@
 #include <jam/Draw3dManager.h>
 #include <jam/DrawItemManager.h>
 #include <jam/core/bmkextras.hpp>
+#include <jam/core/filesystem.h>
 #include <jam/Gfx.h>
 #include <PSys.h>
 #include <PSys_ParticleConfigurator.h>
@@ -34,21 +35,21 @@ void PSysHelper::Init()
 void PSysHelper::SetupPSysResources( const String& path )
 {
 	int PSYS_ID=500;
-	if (!StarParticleImage) StarParticleImage=GetDrawItemMgr().loadTexture(path + "star3.png","psys")->getTexture();			// 500
-	if (!BubbleParticleImage) BubbleParticleImage=GetDrawItemMgr().loadTexture(path + "bubble.png","psys")->getTexture();		// 501
-	if (!IceParticleImage) IceParticleImage=GetDrawItemMgr().loadTexture(path + "ice.png","psys")->getTexture();				// 502
-	if (!SparkleParticleImage) SparkleParticleImage=GetDrawItemMgr().loadTexture(path + "Sparkle.bmp","psys")->getTexture();	// 503
-	if (!GlowParticleImage) GlowParticleImage=GetDrawItemMgr().loadTexture(path + "glow.png","psys")->getTexture();				// 504
-	if (!BlastParticleImage) BlastParticleImage=GetDrawItemMgr().loadTexture(path + "Blast.png","psys")->getTexture();			// 505
-	if (!DustParticleImage) DustParticleImage=GetDrawItemMgr().loadTexture(path + "Debris.png","psys")->getTexture();			// 506
-	if (!RippleParticleImage) RippleParticleImage=GetDrawItemMgr().loadTexture(path + "ripple2.png","psys")->getTexture();		// 507
-	if (!RainParticleImage) RainParticleImage=GetDrawItemMgr().loadTexture(path + "rain.png","psys")->getTexture();				// 508
-	if (!ThunderParticleImage) ThunderParticleImage=GetDrawItemMgr().loadTexture(path + "thunder.png","psys")->getTexture();	// 509
-	if (!StarSparkleParticleImage) StarSparkleParticleImage=GetDrawItemMgr().loadTexture(path + "star.png","psys")->getTexture();	// 510
-	if (!BigDustParticleImage) BigDustParticleImage=GetDrawItemMgr().loadTexture(path + "Smoke2.png","psys")->getTexture();		// 511
-	if (!JellySprite) JellySprite=GetDrawItemMgr().loadTexture(path + "jelly.png","psys")->getTexture();						// 512
-	if (!StainParticleImage) StainParticleImage=GetDrawItemMgr().loadTexture(path + "stain.png","psys")->getTexture();			// 513
-	if (!DragonSprite) DragonSprite=GetDrawItemMgr().loadTexture(path + "Dragon.png","psys")->getTexture();						// 514
+	if (!StarParticleImage) StarParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"star3.png"),"psys")->getTexture();			// 500
+	if (!BubbleParticleImage) BubbleParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"bubble.png"),"psys")->getTexture();		// 501
+	if (!IceParticleImage) IceParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"ice.png"),"psys")->getTexture();				// 502
+	if (!SparkleParticleImage) SparkleParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"Sparkle.bmp"),"psys")->getTexture();	// 503
+	if (!GlowParticleImage) GlowParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"glow.png"),"psys")->getTexture();				// 504
+	if (!BlastParticleImage) BlastParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"Blast.png"),"psys")->getTexture();			// 505
+	if (!DustParticleImage) DustParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"Debris.png"),"psys")->getTexture();			// 506
+	if (!RippleParticleImage) RippleParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"ripple2.png"),"psys")->getTexture();		// 507
+	if (!RainParticleImage) RainParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"rain.png"),"psys")->getTexture();				// 508
+	if (!ThunderParticleImage) ThunderParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"thunder.png"),"psys")->getTexture();	// 509
+	if (!StarSparkleParticleImage) StarSparkleParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"star.png"),"psys")->getTexture();	// 510
+	if (!BigDustParticleImage) BigDustParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"Smoke2.png"),"psys")->getTexture();		// 511
+	if (!JellySprite) JellySprite=GetDrawItemMgr().loadTexture(appendPath(path,"jelly.png"),"psys")->getTexture();						// 512
+	if (!StainParticleImage) StainParticleImage=GetDrawItemMgr().loadTexture(appendPath(path,"stain.png"),"psys")->getTexture();			// 513
+	if (!DragonSprite) DragonSprite=GetDrawItemMgr().loadTexture(appendPath(path,"Dragon.png"),"psys")->getTexture();						// 514
 
 	for (int t=0; t<=MAX_MARKED; t++)
 	{
@@ -78,11 +79,16 @@ void PSysHelper::SetupPSysResources( const String& path )
 }
 void PSysHelper::ClearPSys()
 {
+	// Destroy cached emitters before their owned configurators, then allow streams to be recreated.
 	GetParticleSystem().clearAll();
+	m_reusableEmitters.clear();
 }
 
 void PSysHelper::DestroyPSys()
 {
+	// Emitters hold pointers to their configurators; destroy the particle system first.
+	GetParticleSystem().destroySingleton();
+	m_reusableEmitters.clear();
 	for (int t=0; t<=MAX_MARKED; t++){	JAM_DELETE(StarPartEmitter[t]);	}
 	for (int t=0; t<=MAX_BUBBLES; t++){	JAM_DELETE(BubblePartEmitter[t]);}
 	for (int t=0; t<=MAX_ICES; t++){	JAM_DELETE(IcePartEmitter[t]);	}
@@ -93,20 +99,48 @@ void PSysHelper::DestroyPSys()
 	delete[]( IcePartEmitter);
 	delete[]( SparklePartEmitter);*/
 
-	//	GetParticleSystem().clearAll();
-
-	GetParticleSystem().destroySingleton();
-
 }
 
 PSysHelper::PSysHelper(): 
-	StarPoolIndex(0),BubblePoolIndex(0),SparklePoolIndex(0),
-	StarParticleImage(0),BubbleParticleImage(0),IceParticleImage(0),StarSparkleParticleImage(0),
-	SparkleParticleImage(0),GlowParticleImage(0),BlastParticleImage(0),BigDustParticleImage(0),
-	DustParticleImage(0),RippleParticleImage(0),RainParticleImage(0), ThunderParticleImage(0),
-	JellySprite(0),StainParticleImage(0),DragonSprite(0)
+	StarParticleImage(nullptr), StarSparkleParticleImage(nullptr), BubbleParticleImage(nullptr),
+	IceParticleImage(nullptr), SparkleParticleImage(nullptr), GlowParticleImage(nullptr),
+	BlastParticleImage(nullptr), DustParticleImage(nullptr), RippleParticleImage(nullptr),
+	RainParticleImage(nullptr), ThunderParticleImage(nullptr), BigDustParticleImage(nullptr),
+	JellySprite(nullptr), StainParticleImage(nullptr), DragonSprite(nullptr),
+	StarPoolIndex(0), BubblePoolIndex(0), IcePoolIndex(0), SparklePoolIndex(0)
 {
+	// Initialize every owned configurator slot so cleanup is safe even after partial setup.
+	for (auto& emitter : BubblePartEmitter) emitter = nullptr;
+	for (auto& emitter : StarPartEmitter) emitter = nullptr;
+	for (auto& emitter : IcePartEmitter) emitter = nullptr;
+	for (auto& emitter : SparklePartEmitter) emitter = nullptr;
 	Init();
+}
+
+// Copy each call's latest particle settings into a stable template owned by its stream.
+// That lets one emitter retain its particle pool without sharing a rotating pool template.
+PSysEmitter* PSysHelper::getReusableEmitter(const std::string& streamName, Particle3DConfigurator* source,
+	bool* created)
+{
+	auto& stream = m_reusableEmitters[streamName];
+	if (created)
+		*created = false;
+	if (!stream.configurator)
+		stream.configurator = std::make_unique<Particle3DConfigurator>();
+
+	*stream.configurator = *source;
+	stream.configurator->name = streamName;
+
+	if (!stream.emitter)
+	{
+		// Retain this emitter across empty periods so later samples can reuse its pool.
+		stream.emitter = GetParticleSystem().CreateEmitter(stream.configurator.get(), streamName);
+		stream.emitter->SetRemoveWhenEmpty(false);
+		if (created)
+			*created = true;
+	}
+
+	return stream.emitter;
 }
 
 PSysHelper::~PSysHelper()
@@ -128,23 +162,26 @@ void PSysHelper::Begin()
 //***********************************************************************************************
 void PSysHelper::CreateBubbleEmission(float x, float y)
 {
-	CreateJellyEmission(x,y);
-	//*** Create Bubble particle fx 
-	BubblePartEmitter[BubblePoolIndex]->duration=2000; 
-	BubblePartEmitter[BubblePoolIndex]->loops=1; BubblePartEmitter[BubblePoolIndex]->durationRange=90;
-	BubblePartEmitter[BubblePoolIndex]->setPosition(paramRange(x,0,0),paramRange(x,-50,50), paramRange(y,-10,10),paramRange(y,00,-60), paramRange(0,0,0),paramRange(0,0,0));
-	BubblePartEmitter[BubblePoolIndex]->setZoom(paramRange(1.2,0.1,0.1),paramRange(1.8,0,0));
-	BubblePartEmitter[BubblePoolIndex]->setBlend(BlendMode::AlphaBlend);
-	BubblePartEmitter[BubblePoolIndex]->setTransparency(paramRange(1,0,0),paramRange(0,0,0));
-	BubblePartEmitter[BubblePoolIndex]->setRotation(paramRange(0,-20,20),paramRange(0,-360,360));
-		
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(BubblePartEmitter[BubblePoolIndex],"CreateBubbleEmission");
-	
-	PSysSetWind(pe,PSYS_NULL,100.0f,PSYS_NULL);
-	
-	PSysSetOptimizationPool(pe,40,100);
-	pe->CreateEmission(1,1);
-	BubblePoolIndex++; if (BubblePoolIndex>MAX_BUBBLES) BubblePoolIndex=0;	
+	// Particle3D snapshots the spawn ranges in set(), so existing particles keep their
+	// birth positions while this stream configuration is moved along the pointer path.
+	auto* config = BubblePartEmitter[BubblePoolIndex];
+	config->duration = 2000;
+	config->loops = 1;
+	config->durationRange = 90;
+	config->entity = BubbleParticleImage;
+	config->setZoom(paramRange(1.2,0.1,0.1),paramRange(1.8,0,0));
+	config->setBlend(BlendMode::AlphaBlend);
+	config->setTransparency(paramRange(1,0,0),paramRange(0,0,0));
+	config->setRotation(paramRange(0,-20,20),paramRange(0,-360,360));
+	config->setPosition(paramRange(x,0,0),paramRange(x,-50,50),
+		paramRange(y,-10,10),paramRange(y,0,-60),paramRange(0,0,0),paramRange(0,0,0));
+
+	// Add one particle to the stream emitter; it and its particle pool are not recreated.
+	auto* emitter = getReusableEmitter("CreateBubbleEmission", config);
+	PSysSetWind(emitter,PSYS_NULL,100.0f,PSYS_NULL);
+	PSysSetOptimizationPool(emitter,40,100);
+	emitter->CreateEmission(1,1);
+	BubblePoolIndex++; if (BubblePoolIndex>MAX_BUBBLES) BubblePoolIndex=0;
 }
 
 //***********************************************************************************************
@@ -158,7 +195,7 @@ void PSysHelper::CreateBigBubbleEmission(float x, float y)
 	BubblePartEmitter[BubblePoolIndex]->setTransparency(paramRange(1,0,0),paramRange(0,0,0));
 	BubblePartEmitter[BubblePoolIndex]->setRotation(paramRange(0,-20,20),paramRange(0,-360,360));
 
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(BubblePartEmitter[BubblePoolIndex],"CreateBigBubbleEmission");
+	PSysEmitter * pe = getReusableEmitter("CreateBigBubbleEmission", BubblePartEmitter[BubblePoolIndex]);
 	PSysSetWind(pe,PSYS_NULL,-100.0f,PSYS_NULL);
 	PSysSetOptimizationPool(pe,240,320);
 	PSysSetOptimizationFrameRate(pe,"CreateBigBubbleEmission",10);
@@ -180,7 +217,7 @@ void PSysHelper::CreateIceEmission(float x, float y)
 	IcePartEmitter[IcePoolIndex]->setTransparency(paramRange(.4,-.4,.4),paramRange(.1,0,0));
 	IcePartEmitter[IcePoolIndex]->setRotation(paramRange(0,-60,60),paramRange(0,-360,360));
 	IcePartEmitter[IcePoolIndex]->entity=IceParticleImage;
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(IcePartEmitter[IcePoolIndex],"CreateIceEmission");
+	PSysEmitter * pe = getReusableEmitter("CreateIceEmission", IcePartEmitter[IcePoolIndex]);
 	PSysSetWind(pe,PSYS_NULL,-100.0f,PSYS_NULL);
 	//PSysSetOptimizationPool(pe,120,350);
 	PSysSetOptimizationFrameRate(pe,"CreateIceEmission",200);
@@ -223,7 +260,7 @@ void PSysHelper::CreateIceEmissionMini( float x, float y, float sz/*=2.0f*/, boo
 		IcePartEmitter[IcePoolIndex]->setColor(paramSettingsColor(1,1),paramSettingsColor(1,0), paramSettingsColor(0,0));	
 	}
 
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(IcePartEmitter[IcePoolIndex],"CreateIceEmissionMini");
+	PSysEmitter * pe = getReusableEmitter("CreateIceEmissionMini", IcePartEmitter[IcePoolIndex]);
 	PSysSetWind(pe,PSYS_NULL,-100,PSYS_NULL);
 
 
@@ -244,7 +281,7 @@ void PSysHelper::CreateDustEmission( float x, float y ,int howmany )
 	StarPartEmitter[StarPoolIndex]->setRotation(paramRange(0,-20,20),paramRange(0,-360,360));
 	StarPartEmitter[StarPoolIndex]->entity=DustParticleImage;
 
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(StarPartEmitter[StarPoolIndex],"CreateDustEmission");
+	PSysEmitter * pe = getReusableEmitter("CreateDustEmission", StarPartEmitter[StarPoolIndex]);
 	PSysSetWind(pe,PSYS_NULL,-90.0f,PSYS_NULL);
 	pe->CreateEmission(6,1);
 	StarPoolIndex++; if (StarPoolIndex>MAX_MARKED) StarPoolIndex=0;
@@ -264,7 +301,7 @@ void PSysHelper::CreateSingleDustEmission( float x, float y  )
 	StarPartEmitter[StarPoolIndex]->setRotation(paramRange(0,-360,360), PSYS_NULL);
 	StarPartEmitter[StarPoolIndex]->entity=BigDustParticleImage;
 
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(StarPartEmitter[StarPoolIndex],"CreateSingleDustEmission");
+	PSysEmitter * pe = getReusableEmitter("CreateSingleDustEmission", StarPartEmitter[StarPoolIndex]);
 	PSysSetWind(pe,PSYS_NULL,PSYS_NULL,PSYS_NULL);
 	pe->CreateEmission(1,1);
 	StarPoolIndex++; if (StarPoolIndex>MAX_MARKED) StarPoolIndex=0;
@@ -282,7 +319,7 @@ void PSysHelper::CreatePieceStarEmission( float x, float y, float zz/*=1.0f*/,in
 	StarPartEmitter[StarPoolIndex]->setRotation(paramRange(0,-20,20),paramRange(0,-360,360));
 	StarPartEmitter[StarPoolIndex]->entity=StarParticleImage;
 
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(StarPartEmitter[StarPoolIndex],"CreatePieceStarEmission");
+	PSysEmitter * pe = getReusableEmitter("CreatePieceStarEmission", StarPartEmitter[StarPoolIndex]);
 	PSysSetWind(pe,PSYS_NULL,-200.0f,PSYS_NULL);
 	PSysSetOptimizationPool(pe,200,500);
 	
@@ -303,7 +340,7 @@ void PSysHelper::CreatePieceStarEmission2( float x, float y, float zz/*=1.0f*/,i
 	StarPartEmitter[StarPoolIndex]->setRotation(paramRange(0,-20,20),paramRange(0,-360,360));
 	StarPartEmitter[StarPoolIndex]->entity=StarSparkleParticleImage;
 
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(StarPartEmitter[StarPoolIndex],"CreatePieceStarEmission2");
+	PSysEmitter * pe = getReusableEmitter("CreatePieceStarEmission2", StarPartEmitter[StarPoolIndex]);
 	PSysSetWind(pe,PSYS_NULL,-100.0f,PSYS_NULL);
 	CreateIceEmissionMini(x,y,.5,false);
 	PSysSetOptimizationPool(pe,150,500);
@@ -328,13 +365,15 @@ void PSysHelper::LineCircleSparkleEmission( float x, float y )
 		float xx=SIN(CreateCircleSparkleCounter2*2)*dd;
 		float yy=COS(CreateCircleSparkleCounter2*2)*dd;
 		x=x+xx; y=y+yy;
-		float x0=200; float y0=-200;
 		//for (int i=0; i<4; i++)
 		{
 			//*** Create star particle fx 
 			SparklePartEmitter[SparklePoolIndex]->duration=2000; 
 			//SparklePartEmitter[SparklePoolIndex]->setPosition(paramRange(x,0,0),paramRange(x,0,0), paramRange(y,0,0),paramRange(y,0,0), paramRange(0,0,0),paramRange(0,0,0));
-			SparklePartEmitter[SparklePoolIndex]->setPosition(paramRange(0,0,0),paramRange(0,0,0), paramRange(0,0,0),paramRange(0,0,0), paramRange(0,0,0),paramRange(0,0,0));
+			// Store the sampled position on each particle; moving a shared emitter pivot
+			// would otherwise drag every older particle along with the newest sample.
+			SparklePartEmitter[SparklePoolIndex]->setPosition(paramRange(x,0,0),paramRange(x,0,0),
+				paramRange(y,0,0),paramRange(y,0,0),paramRange(0,0,0),paramRange(0,0,0));
 			SparklePartEmitter[SparklePoolIndex]->setZoom(paramRange(1.8,-.01,.01),paramRange(1.2, 0,0));
 			SparklePartEmitter[SparklePoolIndex]->entity=SparkleParticleImage;
 			SparklePartEmitter[SparklePoolIndex]->setBlend(BlendMode::Additive);
@@ -349,9 +388,8 @@ void PSysHelper::LineCircleSparkleEmission( float x, float y )
 			int g1=LIMIT(RANGERAND(0,2),0,1);
 			int b1=LIMIT(RANGERAND(0,2),0,1);
 			SparklePartEmitter[SparklePoolIndex]->setColor(paramSettingsColor(r,r1),paramSettingsColor(g,g1), paramSettingsColor(b,b1));
-			PSysEmitter * pe = GetParticleSystem().CreateEmitter(SparklePartEmitter[SparklePoolIndex],"LineCircleSparkleEmission");
+			PSysEmitter * pe = getReusableEmitter("LineCircleSparkleEmission", SparklePartEmitter[SparklePoolIndex]);
 			PSysSetWind(pe,PSYS_NULL,PSYS_NULL,PSYS_NULL);
-			PSysSetPivotMovements(pe,x0,y0,x,y,100);
 			pe->CreateEmission(1,1);
 			SparklePoolIndex++; if (SparklePoolIndex>MAX_SPARKLES) SparklePoolIndex=0;
 		}
@@ -395,7 +433,7 @@ void PSysHelper::CreateCircleSparkleEmission( float x, float y )
 			else if (i==3)
 				SparklePartEmitter[SparklePoolIndex]->setColor(paramSettingsColor(1,1),paramSettingsColor(1,1), paramSettingsColor(0,1));
 
-			PSysEmitter * pe = GetParticleSystem().CreateEmitter(SparklePartEmitter[SparklePoolIndex],"CreateCircleSparkleEmission");
+			PSysEmitter * pe = getReusableEmitter("CreateCircleSparkleEmission", SparklePartEmitter[SparklePoolIndex]);
 			PSysSetWind(pe,PSYS_NULL,5.0f,PSYS_NULL);
 			pe->CreateEmission(1,1);
 			SparklePoolIndex++; if (SparklePoolIndex>MAX_SPARKLES) SparklePoolIndex=0;
@@ -426,9 +464,13 @@ void PSysHelper::CreateMultiSparkleEmission( float x, float y, float zz/*=1.0f*/
 		else if (i==3)
 			SparklePartEmitter[SparklePoolIndex]->setColor(paramSettingsColor(1,1),paramSettingsColor(1,1), paramSettingsColor(0,1));
 
-		PSysEmitter * pe = GetParticleSystem().CreateEmitter(SparklePartEmitter[SparklePoolIndex],"CreateMultiSparkleEmission");
+		// Each color lane keeps its own randomized wind, while reusing that lane's emitter.
+		const std::string streamName = "CreateMultiSparkleEmission-" + std::to_string(i);
+		bool streamCreated = false;
+		PSysEmitter * pe = getReusableEmitter(streamName, SparklePartEmitter[SparklePoolIndex], &streamCreated);
 		//PSysSetOptimizationFrameRate(pe,"CreateMultiSparkleEmission",3);
-		PSysSetWind(pe,RANGERAND(-250,250),5.0f,PSYS_NULL);
+		if (streamCreated)
+			PSysSetWind(pe,RANGERAND(-250,250),5.0f,PSYS_NULL);
 		
 
 		pe->CreateEmission(2,1);
@@ -447,7 +489,7 @@ void PSysHelper::CreateSparkleEmission( float x, float y, float zz/*=1.0f*/,int 
 	SparklePartEmitter[SparklePoolIndex]->setTransparency(paramRange(1,0,0),paramRange(0,0,0));
 	SparklePartEmitter[SparklePoolIndex]->setColor(paramSettingsColor(0,0),paramSettingsColor(0,1), paramSettingsColor(1,0));
 	SparklePartEmitter[SparklePoolIndex]->setRotation(paramRange(0,-60,60),paramRange(0,-360,360));
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(SparklePartEmitter[SparklePoolIndex],"CreateSparkleEmission");
+	PSysEmitter * pe = getReusableEmitter("CreateSparkleEmission", SparklePartEmitter[SparklePoolIndex]);
 	PSysSetWind(pe,PSYS_NULL,20.0f,PSYS_NULL);
 	//PSysSetOptimizationPool(pe,40,200);
 	pe->CreateEmission(howmany,2);
@@ -466,7 +508,7 @@ void PSysHelper::CreateGlowEmission( float x, float y, int howmanys/*=1.0f*/)
 	SparklePartEmitter[SparklePoolIndex]->setColor(paramSettingsColor(1,1),paramSettingsColor(0,1), paramSettingsColor(0,0));
 	SparklePartEmitter[SparklePoolIndex]->entity=GlowParticleImage;
 	//SparklePartEmitter[SparklePoolIndex]->se
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(SparklePartEmitter[SparklePoolIndex],"CreateGlowEmission");
+	PSysEmitter * pe = getReusableEmitter("CreateGlowEmission", SparklePartEmitter[SparklePoolIndex]);
 	PSysSetWind(pe,PSYS_NULL,PSYS_NULL,PSYS_NULL);
 	PSysSetOptimizationPool(pe,140,300);
 	PSysSetOptimizationFrameRate(pe,"CreateGlowEmission",20);
@@ -486,10 +528,11 @@ void PSysHelper::CreateBlastEmission( float x, float y)
 	SparklePartEmitter[SparklePoolIndex]->setRotation(paramRange(0,-60,60),paramRange(0,-360,360));
 	SparklePartEmitter[SparklePoolIndex]->entity=BlastParticleImage;
 	//SparklePartEmitter[SparklePoolIndex]->se
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(SparklePartEmitter[SparklePoolIndex],"CreateBlastEmission");
+	PSysEmitter * pe = getReusableEmitter("CreateBlastEmission", SparklePartEmitter[SparklePoolIndex]);
 	PSysSetWind(pe,PSYS_NULL,PSYS_NULL,PSYS_NULL);
 	PSysSetOptimizationPool(pe,20,40);
-	PSysSetOptimizationFrameRate(pe,"CreateBlastEmission",100);
+	// Keep the frame-rate group attached to this reusable stream, not the Blast preset.
+	PSysSetOptimizationFrameRate(pe,"CreateSparkleEmission",100);
 
 	pe->CreateEmission(1,1);
 	SparklePoolIndex++; if (SparklePoolIndex>MAX_SPARKLES) SparklePoolIndex=0;
@@ -512,8 +555,8 @@ void PSysHelper::CreateSparkleImplosionEmission(float x, float y)
 		SparklePartEmitter[SparklePoolIndex]->setTransparency(paramRange(0.1,0,0),paramRange(1,0,0));
 		SparklePartEmitter[SparklePoolIndex]->setRotation(paramRange(0,-20,20),paramRange(0,-360,360));
 		SparklePartEmitter[SparklePoolIndex]->setColor(paramSettingsColor(1,1),paramSettingsColor(1,0), paramSettingsColor(1,1));
-		PSysEmitter * pe = GetParticleSystem().CreateEmitter(SparklePartEmitter[SparklePoolIndex],"CreateSparkleImplosionEmission");
 		SparklePartEmitter[SparklePoolIndex]->entity=SparkleParticleImage;
+		PSysEmitter * pe = getReusableEmitter("CreateSparkleImplosionEmission", SparklePartEmitter[SparklePoolIndex]);
 		PSysSetWind(pe,PSYS_NULL,PSYS_NULL,PSYS_NULL);
 		PSysSetOptimizationPool(pe,140,200);
 		pe->CreateEmission(1,3);
@@ -538,8 +581,8 @@ void PSysHelper::CreateThunderEmission(float x, float y)
 		SparklePartEmitter[SparklePoolIndex]->setTransparency(paramRange(1,0,0),paramRange(.1,0,0));
 		SparklePartEmitter[SparklePoolIndex]->setRotation(paramRange(0,-10,10),PSYS_NULL);
 		SparklePartEmitter[SparklePoolIndex]->setColor(paramSettingsColor(1,0),paramSettingsColor(1,1), paramSettingsColor(1,1));
-		PSysEmitter * pe = GetParticleSystem().CreateEmitter(SparklePartEmitter[SparklePoolIndex],"CreateThunderEmission");
 		SparklePartEmitter[SparklePoolIndex]->entity=ThunderParticleImage;
+		PSysEmitter * pe = getReusableEmitter("CreateThunderEmission", SparklePartEmitter[SparklePoolIndex]);
 		PSysSetWind(pe,PSYS_NULL,PSYS_NULL,PSYS_NULL);
 		PSysSetOptimizationPool(pe,100,200);
 		pe->CreateEmission(1,1);
@@ -562,7 +605,7 @@ void PSysHelper::CreateRainEmission( float x, float y, float zz/*=1.0f*/,int how
 	float direction = x/16.0f;
 	StarPartEmitter[StarPoolIndex]->setRotation(paramRange(-direction/2.0f,0,0),PSYS_NULL);
 
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(StarPartEmitter[StarPoolIndex],"CreateRainEmission");
+	PSysEmitter * pe = getReusableEmitter("CreateRainEmission", StarPartEmitter[StarPoolIndex]);
 	PSysSetWind(pe,direction,-1000.0f,PSYS_NULL);
 	CreateThunderEmission(x,y);
 
@@ -633,7 +676,7 @@ void PSysHelper::CreateRainbowEmission( float x, float y, float dx, float dy)
 		SparklePartEmitter[SparklePoolIndex]->setPosition(paramRange(xx,0,0),paramRange(xx,0,0), paramRange(yy,0,0),paramRange(yy/2,0,0), paramRange(0,0,0),paramRange(0,0,0));
 		SparklePartEmitter[SparklePoolIndex]->entity=GlowParticleImage;
 		//SparklePartEmitter[SparklePoolIndex]->se
-		PSysEmitter * pe = GetParticleSystem().CreateEmitter(SparklePartEmitter[SparklePoolIndex],"CreateRainbowEmission");
+		PSysEmitter * pe = getReusableEmitter("CreateRainbowEmission", SparklePartEmitter[SparklePoolIndex]);
 		PSysSetWind(pe,PSYS_NULL,-10,PSYS_NULL);
 
 		pe->CreateEmission(1,1);
@@ -659,7 +702,7 @@ void PSysHelper::CreateJellyEmission( float x, float y )
 	float direction = x/8.0f;
 	StarPartEmitter[StarPoolIndex]->setRotation(paramRange(-direction,0,0),0);
 
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(StarPartEmitter[StarPoolIndex],"CreateJellyEmission");
+	PSysEmitter * pe = getReusableEmitter("CreateJellyEmission", StarPartEmitter[StarPoolIndex]);
 //	PSysSetWind(pe,direction,1000.0f,PSYS_NULL);
 	PSysSetOptimizationPool(pe,10,80);
 	PSysSetOptimizationFrameRate(pe,"CreateJellyEmission",2000);
@@ -682,7 +725,7 @@ void PSysHelper::CreateStainEmission( float x, float y, float size, int duration
 	SparklePartEmitter[SparklePoolIndex]->setRotation(paramRange(0,-180,180),paramRange(0,-180,180));//6paramRange(PSYS_NULL));
 	SparklePartEmitter[SparklePoolIndex]->entity=StainParticleImage;
 	//SparklePartEmitter[SparklePoolIndex]->se
-	PSysEmitter * pe = GetParticleSystem().CreateEmitter(SparklePartEmitter[SparklePoolIndex],"CreateStainEmission");
+	PSysEmitter * pe = getReusableEmitter("CreateStainEmission", SparklePartEmitter[SparklePoolIndex]);
 	PSysSetWind(pe,PSYS_NULL,PSYS_NULL,PSYS_NULL);
 	PSysSetOptimizationPool(pe,20,200);
 	//PSysSetOptimizationFrameRate(pe,"CreateStainEmission",1000);

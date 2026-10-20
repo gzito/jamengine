@@ -58,7 +58,7 @@
 
 #include "stdafx.h"
 
-#include "jam/base64.h"
+#include "jam/Base64.h"
 #include "jam/String.h"
 
 #include <iostream>

@@ -37,6 +37,7 @@
 #include <jam/Material.h>
 #include <jam/core/array.hpp>
 #include <jam/Draw2d.h>
+#include <jam/SpriteFont.h>
 #include <jam/Ref.hpp>
 
 #include <climits>
@@ -159,7 +160,14 @@ private:
 
 public:
                             SpriteBatch(int capacity) ;
-    void                    Begin( SpriteSortMode sortMode = SpriteSortMode::Deferred, BlendMode blendMode = BlendMode::AlphaBlend ) ;
+
+    /// <summary>
+    /// Begins a new sprite and text batch with the specified render state.
+    /// </summary>
+    /// <param name="sortMode">The drawing order for sprite and text drawing. <see cref="SpriteSortMode.Deferred"/> by default.</param>
+    /// <param name="blendState">State of the blending. Uses <see cref="BlendState.AlphaBlend"/> if null.</param>
+    /// <remarks>The <see cref="Begin"/> Begin should be called before drawing commands, and you cannot call it again before subsequent <see cref="End"/>.</remarks>
+    void                    Begin( SpriteSortMode sortMode = SpriteSortMode::Deferred, BlendMode blendState = BlendMode::AlphaBlend ) ;
 
     /// <summary>
     /// Submit a sprite for drawing in the current batch.
@@ -174,15 +182,96 @@ public:
     /// <param name="effects">Modificators for drawing. Can be combined.</param>
     /// <param name="layerDepth">A depth of the layer of this sprite.</param>
     void                    Draw(   Texture2D* texture,
-				                    Vector2 position,
+				                    const Vector2& position,
 				                    Rect* sourceRectangle,
-				                    Color color,
+				                    const Color& color,
 				                    float rotation,
-				                    Vector2 origin,
-				                    Vector2 scale,
+				                    const Vector2& origin,
+				                    const Vector2& scale,
 				                    SpriteEffects effects,
                                     float layerDepth) ;
 
+    /// <summary>
+    /// Submit a sprite for drawing in the current batch.
+    /// </summary>
+    /// <param name="texture">A texture.</param>
+    /// <param name="position">The drawing location on screen.</param>
+    /// <param name="sourceRectangle">An optional region on the texture which will be rendered. If null - draws full texture.</param>
+    /// <param name="color">A color mask.</param>
+    /// <param name="rotation">A rotation of this sprite.</param>
+    /// <param name="origin">Center of the rotation. 0,0 by default.</param>
+    /// <param name="scale">A scaling of this sprite.</param>
+    /// <param name="effects">Modificators for drawing. Can be combined.</param>
+    /// <param name="layerDepth">A depth of the layer of this sprite.</param>
+    void                    Draw(   Texture2D* texture,
+				                const Vector2& position,
+				                Rect* sourceRectangle,
+				                const Color& color,
+				                float rotation,
+				                const Vector2& origin,
+				                float scale,
+				                SpriteEffects effects,
+                                float layerDepth) ;
+
+    /// <summary>
+    /// Submit a sprite for drawing in the current batch.
+    /// </summary>
+    /// <param name="texture">A texture.</param>
+    /// <param name="position">The drawing location on screen.</param>
+    /// <param name="sourceRectangle">An optional region on the texture which will be rendered. If null - draws full texture.</param>
+    /// <param name="color">A color mask.</param>
+    void                    Draw(   Texture2D* texture,
+				                const Vector2& position,
+				                Rect* sourceRectangle,
+			                    const Color& color) ;
+
+    /// <summary>
+    /// Submit a sprite for drawing in the current batch.
+    /// </summary>
+    /// <param name="texture">A texture.</param>
+    /// <param name="position">The drawing location on screen.</param>
+    /// <param name="color">A color mask.</param>
+    void                    Draw(   Texture2D* texture,
+				                    const Vector2& position,
+    				                const Color& color) ;
+
+    void                    DrawString (SpriteFont* spriteFont, const String& text, const Vector2& position, const Color& color) ;
+
+    /// <summary>
+    /// Submit a text string of sprites for drawing in the current batch.
+    /// </summary>
+    /// <param name="spriteFont">A font.</param>
+    /// <param name="text">The text which will be drawn.</param>
+    /// <param name="position">The drawing location on screen.</param>
+    /// <param name="color">A color mask.</param>
+    /// <param name="rotation">A rotation of this string.</param>
+    /// <param name="origin">Center of the rotation. 0,0 by default.</param>
+    /// <param name="scale">A scaling of this string.</param>
+    /// <param name="effects">Modificators for drawing. Can be combined.</param>
+    /// <param name="layerDepth">A depth of the layer of this string.</param>
+    void                    DrawString (SpriteFont* spriteFont, const String& text, const Vector2& position, const Color& color,
+                                            float rotation, const Vector2& origin, float scale, SpriteEffects effects, float layerDepth) ;
+	
+    /// <summary>
+    /// Submit a text string of sprites for drawing in the current batch.
+    /// </summary>
+    /// <param name="spriteFont">A font.</param>
+    /// <param name="text">The text which will be drawn.</param>
+    /// <param name="position">The drawing location on screen.</param>
+    /// <param name="color">A color mask.</param>
+    /// <param name="rotation">A rotation of this string.</param>
+    /// <param name="origin">Center of the rotation. 0,0 by default.</param>
+    /// <param name="scale">A scaling of this string.</param>
+    /// <param name="effects">Modificators for drawing. Can be combined.</param>
+    /// <param name="layerDepth">A depth of the layer of this string.</param>
+    void                    DrawString (SpriteFont* spriteFont, const String& text, const Vector2& position, const Color& color,
+                                            float rotation, const Vector2& origin, const Vector2& scale, SpriteEffects effects, float layerDepth) ;
+
+
+    /// <summary>
+    /// Flushes all batched text and sprites to the screen.
+    /// </summary>
+    /// <remarks>This command should be called after <see cref="Begin"/> and drawing commands.</remarks>
     void                    End() ;
 
 protected:
@@ -194,6 +283,7 @@ private:
 
     void                    Setup() ;
     void                    CheckValid( Texture2D* texture ) ;
+    void                    CheckValid( SpriteFont* texture, const String& text ) ;
     void                    FlushIfNeeded() ;
 
 private:

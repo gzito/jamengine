@@ -33,6 +33,8 @@
 #include "jam/StringTokenizer.h"
 
 #include <cctype>
+#include <codecvt>
+#include <locale>
 #ifdef _MSC_VER 
 #include <stringapiset.h>
 #endif
@@ -55,7 +57,13 @@ String ws2s(const WString& wstr)
     }
     return convertedString;
 #else
-#error "Feature currently implemented only for Visual C compiler"
+	try {
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+		return converter.to_bytes(wstr);
+	}
+	catch( const std::range_error& ) {
+		return String();
+	}
 #endif
 }
  
@@ -73,7 +81,13 @@ WString s2ws(const String& str)
  
     return convertedString;
 #else
-#error "Feature currently implemented only for Visual C compiler"
+	try {
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+		return converter.from_bytes(str);
+	}
+	catch( const std::range_error& ) {
+		return WString();
+	}
 #endif
 }
 

@@ -254,7 +254,6 @@ CallInstanceFunc<T>* CallInstanceFunc<T>::actionWithTarget( T* pTargetObject, Ca
 {
 	CallInstanceFunc<T>* pCallFunc = new CallInstanceFunc<T>();
 	if( pCallFunc->initWithTarget(pTargetObject,method) ) {
-		pCallFunc->autorelease() ;
 		return pCallFunc;
 	}
 

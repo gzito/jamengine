@@ -1,0 +1,2 @@
+# Git decides for itself whether a file is text or binary and only normalizes textuals.
+* text=auto

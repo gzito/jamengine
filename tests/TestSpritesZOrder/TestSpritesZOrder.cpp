@@ -13,6 +13,7 @@
 #include <jam/DeviceManager.h>
 #include <jam/Gfx.h>
 #include <jam/Camera.h>
+#include <jam/core/filesystem.h>
 
 #include "TestSpritesZOrder.h"
 
@@ -37,7 +38,7 @@ bool TestSpritesZOrder::init()
 	Draw3DManager::Origin3D(JAM_WINDOWS_WIDTH,JAM_WINDOWS_HEIGHT) ;
 	GetGfx().setClearColor( Color(64,64,64,255) ) ;
 
-	GetDrawItemMgr().loadSheet("./media/gemsheet.png","spritesheets",64,64,15,14);
+	GetDrawItemMgr().loadSheet(appendPath(JAM_TEST_RESOURCE_DIR,"media/gemsheet.png"),"spritesheets",64,64,15,14);
 
 #ifndef USE_SPRITE_BATCH
 
@@ -112,7 +113,7 @@ bool TestSpritesZOrder::init()
 void TestSpritesZOrder::render()
 {
 #ifdef USE_SPRITE_BATCH
-	m_pSpriteBatch->Begin( SpriteSortMode::BackToFront) ;
+	m_pSpriteBatch->Begin( SpriteSortMode::BackToFront ) ;
 
 	DrawItem* dItem = nullptr ;
 	Texture2D* tex = nullptr ;
@@ -129,35 +130,35 @@ void TestSpritesZOrder::render()
 	tex = dItem->getTexture() ;
 	m_pSpriteBatch->Draw( tex, Vector2(-30,0), const_cast<Rect*>(&dItem->getRect()), Color::WHITE, 0.0f, 
 						 Vector2(dItem->getHalfWidth(), dItem->getHalfHeight()),
-						 Vector2(1,1), SpriteEffects::None, 0.2f ) ;
+						 1.0f, SpriteEffects::None, 0.2f ) ;
 
 	// create red gem
 	dItem = GetDrawItemMgr().getObject("gemsheet_90") ;
 	tex = dItem->getTexture() ;
 	m_pSpriteBatch->Draw( tex, Vector2(0,0), const_cast<Rect*>(&dItem->getRect()), Color::WHITE, 0.0f, 
 						 Vector2(dItem->getHalfWidth(), dItem->getHalfHeight()),
-						 Vector2(1,1), SpriteEffects::None, 0.2f ) ;
+						 1.0f, SpriteEffects::None, 0.2f ) ;
 
 	// create purple gem
 	dItem = GetDrawItemMgr().getObject("gemsheet_120") ;
 	tex = dItem->getTexture() ;
 	m_pSpriteBatch->Draw( tex, Vector2(-60,-32), const_cast<Rect*>(&dItem->getRect()), Color::WHITE, 0.0f, 
 						 Vector2(dItem->getHalfWidth(), dItem->getHalfHeight()),
-						 Vector2(1,1), SpriteEffects::None, 0.0f ) ;
+						 1.0f, SpriteEffects::None, 0.0f ) ;
 
 	// create orange gem
 	dItem = GetDrawItemMgr().getObject("gemsheet_150") ;
 	tex = dItem->getTexture() ;
 	m_pSpriteBatch->Draw( tex, Vector2(-30,-32), const_cast<Rect*>(&dItem->getRect()), Color::WHITE, 0.0f, 
 						 Vector2(dItem->getHalfWidth(), dItem->getHalfHeight()),
-						 Vector2(1,1), SpriteEffects::None, 0.1f ) ;
+						 1.0f, SpriteEffects::None, 0.1f ) ;
 
 	// create green gem
 	dItem = GetDrawItemMgr().getObject("gemsheet_180") ;
 	tex = dItem->getTexture() ;
 	m_pSpriteBatch->Draw( tex, Vector2(0,-32), const_cast<Rect*>(&dItem->getRect()), Color::WHITE, 0.0f, 
 						 Vector2(dItem->getHalfWidth(), dItem->getHalfHeight()),
-						 Vector2(1,1), SpriteEffects::None, 0.15f ) ;
+						 1.0f, SpriteEffects::None, 0.15f ) ;
 
 	m_pSpriteBatch->End() ;
 #endif

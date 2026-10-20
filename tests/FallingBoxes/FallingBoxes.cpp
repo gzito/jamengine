@@ -42,7 +42,6 @@
 
 using namespace jam;
 
-#define MEDIA_PATH				"./"
 #define PTM_RATIO				32.0f
 
 FallingBoxes::FallingBoxes() :
@@ -67,9 +66,9 @@ bool FallingBoxes::init()
  	glCullFace(GL_BACK) ;
  	glEnable(GL_CULL_FACE) ;
 	
-	DrawItemManager::getSingleton().loadTexture( appendPath(MEDIA_PATH,"images/Box.png"), "sprites", "Box" ) ;
+	DrawItemManager::getSingleton().loadTexture( appendPath(JAM_TEST_RESOURCE_DIR,"images/Box.png"), "sprites", "Box" ) ;
 
-	m_pFontTex = GetDraw3DMgr().LoadFont3D( appendPath(MEDIA_PATH,"images/Babylon1.png"),0,0 ) ;
+	m_pFontTex = GetDraw3DMgr().LoadFont3D( appendPath(JAM_TEST_RESOURCE_DIR,"images/Babylon1.png"),0,0 ) ;
 
 	b2Vec2 screenBounds[] = { 
 		b2Vec2(-Draw3DManager::HalfOriginal3DWidth/PTM_RATIO, Draw3DManager::HalfOriginal3DHeight/PTM_RATIO),

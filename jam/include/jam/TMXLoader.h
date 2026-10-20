@@ -39,7 +39,7 @@
 #include <jam/Base64.h>
 #include <jam/Texture2D.h>
 
-#include <tinyxml.h>
+#include <tinyxml2.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -151,7 +151,7 @@ struct MapItem
 
 	\sa http://www.mapeditor.org/
 */
-class TMXLoader : public TiXmlVisitor
+class TMXLoader : public tinyxml2::XMLVisitor
 {
 public:
 							TMXLoader();
@@ -203,14 +203,14 @@ public:
 
 
 protected:
-	virtual bool 			VisitEnter  (const TiXmlDocument  &);
-	virtual bool 			VisitExit (const TiXmlDocument &);
-	virtual bool 			VisitEnter (const TiXmlElement &, const TiXmlAttribute *);
-	virtual bool 			VisitExit (const TiXmlElement &);
-	virtual bool 			Visit (const TiXmlDeclaration &);
-	virtual bool 			Visit (const TiXmlText &);
-	virtual bool 			Visit (const TiXmlComment &);
-	virtual bool 			Visit (const TiXmlUnknown &);
+	virtual bool 			VisitEnter  (const tinyxml2::XMLDocument  &);
+	virtual bool 			VisitExit (const tinyxml2::XMLDocument &);
+	virtual bool 			VisitEnter (const tinyxml2::XMLElement &, const tinyxml2::XMLAttribute *);
+	virtual bool 			VisitExit (const tinyxml2::XMLElement &);
+	virtual bool 			Visit (const tinyxml2::XMLDeclaration &);
+	virtual bool 			Visit (const tinyxml2::XMLText &);
+	virtual bool 			Visit (const tinyxml2::XMLComment &);
+	virtual bool 			Visit (const tinyxml2::XMLUnknown &);
 
 private:
 	tiledmap::MapItem		m_map;
@@ -241,7 +241,7 @@ private:
 	int						m_nextIdPosition;
 	String					m_lastParent;
 	void					buildMapImage();
-//	TiXmlDocument			*doc;
+//	tinyxml2::XMLDocument			*doc;
 
 };
 

@@ -34,6 +34,8 @@
 
 #include "PSysUtilities.h"
 
+#include <cmath>
+
 #include <jam/core/bmkextras.hpp>
 #include <jam/Application.h>
 #include <jam/Draw3dManager.h>
@@ -47,6 +49,7 @@
 #include <jam/Camera.h>
 #include <jam/Gfx.h>
 #include <jam/Event.h>
+#include <jam/core/filesystem.h>
 
 #include "PerformanceWindow.h"
 
@@ -80,6 +83,11 @@ protected:
 
 private:
 	float getFps( float rate = 1.0f ) ;
+	// These helpers sample mouse movement and keep the selected effect emitting during pauses.
+	void emitSelectedEmission(float x, float y, U32 touchId);
+	void beginEmissionTrail(float x, float y, U32 touchId);
+	void updateEmissionTrail(float x, float y, U32 touchId, float elapsedSeconds);
+	void endEmissionTrail();
 
 	//	long UpdateScreenOrientation(void*);
 	bool UpdateScreenOrientation();
@@ -100,6 +108,13 @@ private:
 	int							m_partType;
 	std::vector<std::string>	m_partname;
 	int lastOptimized;
+	// Shared sampling state: previous input position plus distance carried between frames.
+	bool m_emissionTrailActive = false;
+	float m_emissionTrailLastX = 0.0f;
+	float m_emissionTrailLastY = 0.0f;
+	float m_emissionTrailDistance = 0.0f;
+	// Time since the last particle, used to keep emitting while the pointer is still.
+	float m_emissionTrailElapsed = 0.0f;
 
 	bool  m_showtime;
 	bool showImguiWindow = true;
@@ -116,7 +131,8 @@ private:
 
 PsysTestApp::PsysTestApp() :
 	m_pFontTexture(0),
-	m_fontname("media/ui/Standard.png"),m_backgroundImageName("media/psys/Background1.png"),
+	m_fontname(appendPath(JAM_TEST_RESOURCE_DIR,"media/ui/Standard.png")),
+	m_backgroundImageName(appendPath(JAM_TEST_RESOURCE_DIR,"media/psys/Background1.png")),
 	//m_backgroundImageName("LionDoor"),
 	m_partType(0),
 	ps(0),
@@ -134,7 +150,7 @@ bool PsysTestApp::init()
 	//IwGetResManager()->LoadGroup("media/psys.group"); 
 	ps = new PSysHelper;
 	ps->Init();
-	ps->SetupPSysResources("media/psys/");
+	ps->SetupPSysResources(appendPath(JAM_TEST_RESOURCE_DIR,"media/psys"));
 
 	m_pFontTexture = Ref<Texture2D>( GetDraw3DMgr().LoadFont3D(m_fontname), true ) ;
 
@@ -144,9 +160,9 @@ bool PsysTestApp::init()
 	GetDrawItemMgr().loadTexture(m_backgroundImageName,"psys") ;		// 50
 	//DrawItemManager::getSingleton().LoadTexture(m_backgroundImageName,"psys",60) ;
 
-	GetDrawItemMgr().loadTexture("media/ui/previous-track.png","psys") ;		// 51
-	GetDrawItemMgr().loadTexture("media/ui/next-track.png","psys") ;			// 52
-	GetDrawItemMgr().loadTexture("media/ui/mouse2.png","psys") ;				// 53
+	GetDrawItemMgr().loadTexture(appendPath(JAM_TEST_RESOURCE_DIR,"media/ui/previous-track.png"),"psys") ;		// 51
+	GetDrawItemMgr().loadTexture(appendPath(JAM_TEST_RESOURCE_DIR,"media/ui/next-track.png"),"psys") ;			// 52
+	GetDrawItemMgr().loadTexture(appendPath(JAM_TEST_RESOURCE_DIR,"media/ui/mouse2.png"),"psys") ;				// 53
 
 
 	m_partname.clear();
@@ -332,77 +348,120 @@ void PsysTestApp::afterSceneUpdate()
 
 
 	
+	bool touchDown = false;
 	if( !Draw3DManager::MouseDown3DEventDetected ) {
 		for(U32 i = 0; i < JAM_MAX_TOUCHES; i++)
 		{
 			// For each active touch
 			int touchState = GetInputMgr().getTouchState(i) ;
 
-			if( touchState == InputManager::KeyStatus::DOWN )
+			if (touchState == InputManager::KeyStatus::PRESSED || touchState == InputManager::KeyStatus::DOWN)
 			{
+				touchDown = true;
 				float mx = GetInputMgr().getTouchX(i);
 				float my = GetInputMgr().getTouchY(i);
-				switch (m_partType)
-				{
-				case 0:
-					ps->CreateBubbleEmission(mx,my) ;
-					break;
-				case 1:
-					ps->CreateBigBubbleEmission(mx,my) ;
-					break;
-				case 2:
-					ps->CreateIceEmission(mx,my) ;
-					break;
-				case 3:
-					ps->CreateIceEmissionMini(mx,my) ;
-					break;
-				case 4:
-					ps->CreatePieceStarEmission( mx,my) ;
-					break;
-				case 5:
-					ps->CreatePieceStarEmission2( mx,my) ;
-					break;
-				case 6:
-					ps->CreateSparkleEmission( mx,my) ;
-					break;
-				case 7:
-					ps->CreateGlowEmission( mx,my) ;
-					break;
-				case 8:
-					ps->CreateBlastEmission( mx,my) ;
-					break;
-				case 9:
-					ps->CreateDustEmission( mx,my) ;
-					break;
-				case 10:
-					ps->CreateMultiSparkleEmission( mx,my) ;
-					break;
-				case 11:
-					ps->CreateCircleSparkleEmission( mx,my) ;
-					break;
-				case 12:
-					ps->LineCircleSparkleEmission( mx,my) ;
-					break;
-				case 13:
-					ps->CreateSparkleImplosionEmission( mx,my) ;
-					break;
-				case 14:
-					ps->CreateRainEmission( mx,my) ;
-					break;	
-				case 15:
-					ps->CreateRainbowEmission( mx,my,GetInputMgr().getTouchSpeedY(i), GetInputMgr().getTouchSpeedX(i)) ;
-					break;
-				case 16:
-					ps->CreateStainEmission( mx,my, 1,2000) ;
-					break;
-				}
+				// All presets now share distance and time sampling while the pointer is held.
+				if (touchState == InputManager::KeyStatus::PRESSED || !m_emissionTrailActive)
+					beginEmissionTrail(mx, my, i);
+				else
+					updateEmissionTrail(mx, my, i, GetAppMgr().getElapsed());
 			} // if( g_Touches[i].active )
 		}  // for MAX_TOUCHES
 	}
+	// Clear the sampler on release or UI capture; cached emitters remain ready for reuse.
+	if (!touchDown || Draw3DManager::MouseDown3DEventDetected)
+		endEmissionTrail();
 
 	// TODO setSlot for psys
 	GetParticleSystem().update();
 	
+}
+
+// Route a sampled input point to the selected preset; this is shared by press, motion, and timer ticks.
+void PsysTestApp::emitSelectedEmission(float x, float y, U32 touchId)
+{
+	switch (m_partType)
+	{
+	case 0: ps->CreateBubbleEmission(x, y); break;
+	case 1: ps->CreateBigBubbleEmission(x, y); break;
+	case 2: ps->CreateIceEmission(x, y); break;
+	case 3: ps->CreateIceEmissionMini(x, y); break;
+	case 4: ps->CreatePieceStarEmission(x, y); break;
+	case 5: ps->CreatePieceStarEmission2(x, y); break;
+	case 6: ps->CreateSparkleEmission(x, y); break;
+	case 7: ps->CreateGlowEmission(x, y); break;
+	case 8: ps->CreateBlastEmission(x, y); break;
+	case 9: ps->CreateDustEmission(x, y); break;
+	case 10: ps->CreateMultiSparkleEmission(x, y); break;
+	case 11: ps->CreateCircleSparkleEmission(x, y); break;
+	case 12: ps->LineCircleSparkleEmission(x, y); break;
+	case 13: ps->CreateSparkleImplosionEmission(x, y); break;
+	case 14: ps->CreateRainEmission(x, y); break;
+	case 15:
+		ps->CreateRainbowEmission(x, y, GetInputMgr().getTouchSpeedY(touchId),
+			GetInputMgr().getTouchSpeedX(touchId));
+		break;
+	case 16: ps->CreateStainEmission(x, y, 1, 2000); break;
+	}
+}
+
+// Emit at the press point and initialize the sampler for this pointer stroke.
+void PsysTestApp::beginEmissionTrail(float x, float y, U32 touchId)
+{
+	m_emissionTrailActive = true;
+	m_emissionTrailLastX = x;
+	m_emissionTrailLastY = y;
+	m_emissionTrailDistance = 0.0f;
+	m_emissionTrailElapsed = 0.0f;
+	emitSelectedEmission(x, y, touchId);
+}
+
+// Interpolate movement for a smooth trail and use a timer to keep emitting while still.
+void PsysTestApp::updateEmissionTrail(float x, float y, U32 touchId, float elapsedSeconds)
+{
+	// Burst presets emit several particles per sample, so space them farther apart than Bubble.
+	const float emissionSpacing = m_partType == 0 ? 8.0f : 24.0f;
+	constexpr float emissionInterval = 0.1f; // 10 particles per second while the pointer is still.
+	const float dx = x - m_emissionTrailLastX;
+	const float dy = y - m_emissionTrailLastY;
+	const float segmentLength = std::sqrt(dx * dx + dy * dy);
+	bool emittedAlongSegment = false;
+	m_emissionTrailElapsed += elapsedSeconds;
+
+	if (segmentLength > 0.0f)
+	{
+		float segmentPosition = 0.0f;
+		while (m_emissionTrailDistance + (segmentLength - segmentPosition) >= emissionSpacing)
+		{
+			const float distanceToNextParticle = emissionSpacing - m_emissionTrailDistance;
+			segmentPosition += distanceToNextParticle;
+			const float t = segmentPosition / segmentLength;
+			emitSelectedEmission(m_emissionTrailLastX + dx * t, m_emissionTrailLastY + dy * t, touchId);
+			m_emissionTrailDistance = 0.0f;
+			m_emissionTrailElapsed = 0.0f;
+			emittedAlongSegment = true;
+		}
+		m_emissionTrailDistance += segmentLength - segmentPosition;
+	}
+
+	// A spatial emission satisfies this frame's interval too, preventing duplicate bursts.
+	if (!emittedAlongSegment && m_emissionTrailElapsed >= emissionInterval)
+	{
+		emitSelectedEmission(x, y, touchId);
+		m_emissionTrailDistance = 0.0f;
+		m_emissionTrailElapsed = 0.0f;
+	}
+
+	m_emissionTrailLastX = x;
+	m_emissionTrailLastY = y;
+}
+
+// Reset only the sampler; PSysHelper keeps each reusable emitter and its particle pool.
+void PsysTestApp::endEmissionTrail()
+{
+	m_emissionTrailActive = false;
+	m_emissionTrailDistance = 0.0f;
+	m_emissionTrailElapsed = 0.0f;
 }
 
 void PsysTestApp::render()

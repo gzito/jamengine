@@ -31,6 +31,7 @@
 
 #include <jam/Dir.h>
 #include <jam/core/filesystem.h>
+#include <cerrno>
 
 namespace jam {
 
@@ -224,9 +225,12 @@ namespace jam {
 
 	bool Dir::next () {
 
-		int	return_code = readdir_r ( dirp_, &rEntry_.d, &rResult_ );
-
-		bool	retval = ( return_code == 0 ) && ( rResult_ != 0 );
+		errno = 0;
+		rResult_ = readdir( dirp_ );
+		bool retval = rResult_ != 0;
+		if( !retval && errno != 0 ) {
+			JAM_ERROR( "Cannot read directory \"%s\"", path_.c_str() );
+		}
 
 		if ( retval ) {
 			entry_.name_ = rResult_->d_name;

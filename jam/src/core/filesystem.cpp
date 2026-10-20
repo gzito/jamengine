@@ -31,6 +31,15 @@
 
 #include "jam/core/filesystem.h"
 
+#include <vector>
+#include <sys/stat.h>
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <limits.h>
+#include <unistd.h>
+#endif
+
 namespace jam
 {
 
@@ -183,8 +192,13 @@ String appendPath(const String & path,const String & more)
 
 int64_t getFileSize(const char* filename)
 {
+#ifdef _WIN32
 	struct _stat64 stat_buf;
 	int rc = _stat64(filename,&stat_buf);
+#else
+	struct stat stat_buf;
+	int rc = stat(filename, &stat_buf);
+#endif
 	return rc == 0 ? stat_buf.st_size : -1;
 }
 
@@ -202,10 +216,8 @@ String getCurrentDirectory()
 		retValue = ws2s( wRetValue ) ;
 	}
 #else
-	static char buffer[MAX_PATH] = { 0 } ;
-
-	memset( buffer, 0, MAX_PATH ) ;
-	char* b = getcwd( buffer, MAX_PATH ) ;
+	char buffer[PATH_MAX] = { 0 } ;
+	char* b = getcwd( buffer, sizeof(buffer) ) ;
 	if( b != NULL ) {
 		retValue = buffer ;
 	}
@@ -216,8 +228,13 @@ String getCurrentDirectory()
 
 bool exists( const String& filename )
 {
+#ifdef _WIN32
 	struct _stat64 s ;
 	int r = _wstat64( s2ws(filename).c_str(), &s ) ;
+#else
+	struct stat s ;
+	int r = stat( filename.c_str(), &s ) ;
+#endif
 	if( r == -1 ) {
 		return false ;
 	}
@@ -226,8 +243,13 @@ bool exists( const String& filename )
 
 bool isDirectory( const String& filename )
 {
+#ifdef _WIN32
 	struct _stat64 s ;
 	int r = _wstat64( s2ws(filename).c_str(), &s ) ;
+#else
+	struct stat s ;
+	int r = stat( filename.c_str(), &s ) ;
+#endif
 	if( r == -1 ) {
 		return false ;
 	}
@@ -236,8 +258,13 @@ bool isDirectory( const String& filename )
 
 bool isRegularFile( const String& filename )
 {
+#ifdef _WIN32
 	struct _stat64 s ;
 	int r = _wstat64( s2ws(filename).c_str(), &s ) ;
+#else
+	struct stat s ;
+	int r = stat( filename.c_str(), &s ) ;
+#endif
 	if( r == -1 ) {
 		return false ;
 	}

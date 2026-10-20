@@ -97,8 +97,8 @@ private:
 
 // to prevent the use
 private:
-							Texture2D( const Texture2D& ) = default ;
-	Texture2D&				operator=( const Texture2D& ) = default ;
+							Texture2D( const Texture2D& ) = delete ;
+	Texture2D&				operator=( const Texture2D& ) = delete ;
 };
 
 }	// end namespace

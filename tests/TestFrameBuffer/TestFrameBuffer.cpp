@@ -48,9 +48,6 @@
 using namespace jam;
 
 
-#define MEDIA_PATH				"./"
-
-
 class TestFrameBufferApp : public jam::Application
 {
 public:
@@ -107,11 +104,11 @@ TestFrameBufferApp::TestFrameBufferApp() :
 void TestFrameBufferApp::loadTextures()
 {
 	m_pCubeTextureDiffuse = Ref<Texture2D>( new Texture2D() ) ;
-	m_pCubeTextureDiffuse->load( appendPath(MEDIA_PATH,"images/container2.png") ) ;
+	m_pCubeTextureDiffuse->load( appendPath(JAM_TEST_RESOURCE_DIR,"images/container2.png") ) ;
 	//GetTextureMgr().addByName( m_pCubeTextureDiffuse.get(), "container2" ) ;
 
 	m_pCubeTextureSpecular = Ref<Texture2D>( new Texture2D() ) ;
-	m_pCubeTextureSpecular->load( appendPath(MEDIA_PATH,"images/container2_specular.png") ) ;
+	m_pCubeTextureSpecular->load( appendPath(JAM_TEST_RESOURCE_DIR,"images/container2_specular.png") ) ;
 	//GetTextureMgr().addByName( m_pCubeTextureSpecular.get(), "container2_specular" ) ;
 }
 

@@ -1,4 +1,5 @@
 #ifndef __JAM_RANDOM_H__
+#define __JAM_RANDOM_H__
 
 #include <jam/jam-config.h>
 
@@ -18,7 +19,7 @@ namespace jam {
 #ifndef JAM_MULTITHREADING_ENABLED
     using Random = effolkronium::random_static ;
 #else
-    using Random = effolkronium::random_thread_local6 ;
+    using Random = effolkronium::random_thread_local ;
 #endif
 }
 

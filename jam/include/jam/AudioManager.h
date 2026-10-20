@@ -38,7 +38,7 @@
 #include <jam/String.h>
 
 #include <map>
-#include <al.h>
+#include <AL/al.h>
 
 namespace jam
 {

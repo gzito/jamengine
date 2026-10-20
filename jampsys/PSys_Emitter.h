@@ -69,6 +69,8 @@ public:
 	void Init();
 	bool updateRender();
 	void updateMovements();
+	// Persistent streams may keep this emitter subscribed while its particle list is empty.
+	void SetRemoveWhenEmpty(bool removeWhenEmpty) { m_removeWhenEmpty = removeWhenEmpty; }
 	
 	// Attribs
 	int	distance;
@@ -94,6 +96,8 @@ public:
 	float m_optimize_min_alpha_threshold;
 	float m_optimize_min_size_threshold;
 	float m_optimize_min_framerate;
+	// Ordinary emitters return to PSYS's pool when empty; reusable streams can opt out.
+	bool m_removeWhenEmpty;
 
 private:
 	void RemoveParticleFast(PARTICLE* pa);

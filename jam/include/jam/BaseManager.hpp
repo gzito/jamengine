@@ -32,6 +32,7 @@
 
 #include <jam/jam.h>
 #include <jam/Object.h>
+#include <jam/Ref.hpp>
 
 #include <unordered_map>
 #include <vector>
@@ -90,6 +91,7 @@ const T* NamedObjectManager<T>::getObject( const String& name ) const
 	}
 	catch( std::out_of_range& ex ) {
 		JAM_ERROR( "Cannot get managed object named \"%s\"", name.c_str() ) ;
+		return nullptr;
 	}
 }
 
@@ -104,6 +106,7 @@ T* NamedObjectManager<T>::getObject( const String& name )
 	}
 	catch( std::out_of_range& ex ) {
 		JAM_ERROR( "Cannot get managed object named \"%s\"", name.c_str() ) ;
+		return nullptr;
 	}
 }
 
@@ -135,7 +138,7 @@ typename NamedObjectManager<T>::ObjectsMap& NamedObjectManager<T>::getManagerMap
 }
 
 template<typename T>
-typename const NamedObjectManager<T>::ObjectsMap& NamedObjectManager<T>::getManagerMap() const
+const typename NamedObjectManager<T>::ObjectsMap& NamedObjectManager<T>::getManagerMap() const
 {
 	return m_objectsMap ;
 }
@@ -178,9 +181,9 @@ NamedTaggedObjectManager<T>::NamedTaggedObjectManager()
 template<typename T>
 void NamedTaggedObjectManager<T>::addObject( T* object )
 {
-	m_objectsMap.insert( std::make_pair(jam::makeLower(object->getName()),Ref<T>(object,true)) ) ;
+	NamedObjectManager<T>::addObject(object);
 	if( std::is_base_of<ITaggedObject,T>::value ) {
-		m_tagsMap.insert( std::make_pair(jam::makeLower(object->getTag()),Ref<T>(object,true)) ) ;
+		m_tagsMap.insert( std::make_pair(jam::makeLower(object->getTag()), object) ) ;
 	}
 }
 
@@ -209,8 +212,8 @@ size_t NamedTaggedObjectManager<T>::countObjectsByTag(const String& tag)
 template<typename T>
 void NamedTaggedObjectManager<T>::eraseObject( const String& name )
 {
-	auto it = m_objectsMap.find(jam::makeLower(name)) ;
-	if( it != m_objectsMap.end() ) {
+	auto it = this->m_objectsMap.find(jam::makeLower(name)) ;
+	if( it != this->m_objectsMap.end() ) {
 		ITaggedObject* tObj = (*it).second ;
 		if (std::is_base_of<ITaggedObject,T>::value && !tObj->getTag().empty() ) {
 			auto range = m_tagsMap.equal_range( jam::makeLower(tObj->getTag()) ) ;
@@ -222,14 +225,14 @@ void NamedTaggedObjectManager<T>::eraseObject( const String& name )
 			}
 		}
 
-		m_objectsMap.erase(it) ;
+		this->m_objectsMap.erase(it) ;
 	}
 }
 
 template<typename T>
 void NamedTaggedObjectManager<T>::clearAll()
 {
-	m_objectsMap.clear();
+	this->m_objectsMap.clear();
 	m_tagsMap.clear() ;
 }
 

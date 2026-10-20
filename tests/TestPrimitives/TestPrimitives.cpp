@@ -49,9 +49,6 @@
 using namespace jam;
 
 
-#define MEDIA_PATH				"./"
-
-
 class TestPrimitivesApp : public jam::Application
 {
 public:
@@ -106,19 +103,19 @@ TestPrimitivesApp::TestPrimitivesApp() :
 void TestPrimitivesApp::loadTextures()
 {
 	pQuadTexture = new Texture2D() ;
-	pQuadTexture->load( appendPath(MEDIA_PATH,"images/nvidia.jpg") ) ;
+	pQuadTexture->load( appendPath(JAM_TEST_RESOURCE_DIR,"images/nvidia.jpg") ) ;
 	pQuadTexture->setName("nvidia") ;
 
 	pCubeTextureDiffuse = new Texture2D() ;
-	pCubeTextureDiffuse->load( appendPath(MEDIA_PATH,"images/container2.png") ) ;
+	pCubeTextureDiffuse->load( appendPath(JAM_TEST_RESOURCE_DIR,"images/container2.png") ) ;
 	pCubeTextureDiffuse->setName("container2") ;
 
 	pCubeTextureSpecular = new Texture2D() ;
-	pCubeTextureSpecular->load( appendPath(MEDIA_PATH,"images/container2_specular.png") ) ;
+	pCubeTextureSpecular->load( appendPath(JAM_TEST_RESOURCE_DIR,"images/container2_specular.png") ) ;
 	pCubeTextureSpecular->setName("container2_specular") ;
 //	GetTextureMgr().addObject( pCubeTextureSpecular ) ;
 
-	pFontTex = GetDraw3DMgr().LoadFont3D( appendPath(MEDIA_PATH,"images/Babylon1.png"),0,0 ) ;
+	pFontTex = GetDraw3DMgr().LoadFont3D( appendPath(JAM_TEST_RESOURCE_DIR,"images/Babylon1.png"),0,0 ) ;
 }
 
 void TestPrimitivesApp::createLights()
@@ -162,7 +159,7 @@ bool TestPrimitivesApp::init()
 	pNormalMapProgram = GetShaderMgr().getNormalMapping() ;
 
 
-	GetDrawItemMgr().loadSheet("images/TerDjjW.png","spritesheets",60,95,7,1,0,0,"mariowalk");
+	GetDrawItemMgr().loadSheet(appendPath(JAM_TEST_RESOURCE_DIR,"images/TerDjjW.png"),"spritesheets",60,95,7,1,0,0,"mariowalk");
 	Animation2D* pAnim = Animation2D::create();
 	pAnim->setName("mariowalk");
 	GetAnim2DMgr().addObject(pAnim);

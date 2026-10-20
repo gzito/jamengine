@@ -1,6 +1,9 @@
 #pragma once
 
 #include <PSys.h>
+#include <memory>
+#include <string>
+#include <unordered_map>
 
 #define MAX_MARKED	128
 #define MAX_BUBBLES	264
@@ -47,6 +50,15 @@ public:
 	//PSYS psysMgr;
 
 protected:
+	// Each TestPSys effect owns a stable configurator and one emitter reused across samples.
+	struct ReusableEmitterStream
+	{
+		std::unique_ptr<Particle3DConfigurator> configurator;
+		PSysEmitter* emitter = nullptr;
+	};
+	PSysEmitter* getReusableEmitter(const std::string& streamName, Particle3DConfigurator* source,
+		bool* created = nullptr);
+	std::unordered_map<std::string, ReusableEmitterStream> m_reusableEmitters;
 
 	jam::Texture2D*			StarParticleImage;
 	jam::Texture2D*			StarSparkleParticleImage;

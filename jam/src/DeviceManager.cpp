@@ -84,7 +84,11 @@ bool DeviceManager::isSimulator()
 }
 bool DeviceManager::isWindows()
 {
+#ifdef _WIN32
 	return true ;
+#else
+	return false ;
+#endif
 }
 
 bool DeviceManager::isiPhone()
@@ -122,7 +126,15 @@ const char* DeviceManager::getDeviceIdName() const
 
 const char* DeviceManager::getDeviceOsName() const
 {
+#ifdef _WIN32
 	return "Windows" ;
+#elif defined(__APPLE__)
+	return "macOS" ;
+#elif defined(__linux__)
+	return "Linux" ;
+#else
+	return "Unknown" ;
+#endif
 }
 
 int32_t DeviceManager::getDeviceId() const

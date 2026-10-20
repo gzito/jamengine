@@ -322,7 +322,7 @@ void Application::gameLoop()
 		while( true ) {
  			yieldMs = (int64_t)getRemainingFrameMs() ;
 			if (yieldMs<=0) break ;
-			SDL_Delay((DWORD)yieldMs) ;
+			SDL_Delay((Uint32)yieldMs) ;
 		}
 
 		if( getTotalElapsed() > 1.0f ) {
@@ -734,7 +734,7 @@ void Application::setImguiEnabled(bool enabled)
 
 
 #ifdef JAM_DEBUG
-void APIENTRY glDebugOutput(GLenum source, 
+void GLAPIENTRY glDebugOutput(GLenum source, 
 							GLenum type, 
 							GLuint id, 
 							GLenum severity, 
@@ -792,24 +792,21 @@ void Application::engineInitialize()
 
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 ) ;
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 ) ;
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, 0 ) ;	// leaves the choice of profile up to SDL
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE ) ;
+	int glContextFlags = 0;
+#if defined(__APPLE__)
+	glContextFlags |= SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
+#endif
 	SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 4) ;
 	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 ) ;	// depth buffer is 24-bit by default
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 ) ;	// enable double buffer
 
 #ifdef JAM_DEBUG
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG ) ;
-	GLint flags;
-	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-	{
-		// initialize debug output 
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); 
-		glDebugMessageCallback(glDebugOutput, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-	}
+	glContextFlags |= SDL_GL_CONTEXT_DEBUG_FLAG;
 #endif
+	if( glContextFlags != 0 ) {
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, glContextFlags ) ;
+	}
 
 	// Open a window and create its OpenGL context
 	m_pWindow = SDL_CreateWindow( "Jam Engine", 
@@ -838,8 +835,20 @@ void Application::engineInitialize()
 		JAM_ERROR("Failed to initialize GLEW") ;
 	}
 
-	// is it really needed with only a window?
 	SDL_GL_MakeCurrent(m_pWindow, m_GLContext);
+
+#ifdef JAM_DEBUG
+	GLint flags;
+	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	if ((flags & GL_CONTEXT_FLAG_DEBUG_BIT) && GLEW_KHR_debug)
+	{
+		// initialize debug output
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(glDebugOutput, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+	}
+#endif
 
 	// Enable Vsync
 	if( SDL_GL_SetSwapInterval( 1 ) < 0 ) {

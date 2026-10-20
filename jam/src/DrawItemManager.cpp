@@ -34,7 +34,7 @@
 #include "jam/Animation2dManager.h"
 #include "jam/core/filesystem.h"
 
-#include <tinyxml.h>
+#include <tinyxml2.h>
 #include <assert.h>
 #include <stdexcept>
 
@@ -139,7 +139,7 @@ int DrawItemManager::loadSheet( const String& filename, const String& groupName,
 			cutted->setName(cutName) ;
 			addObject(cutted);
 			listOfIds.push_back(aName) ;
-			JAM_TRACE( "Create cut %s", cutName.c_str() );
+			//JAM_TRACE( "Create cut %s", cutName.c_str() );
 		}
 	}
 
@@ -185,16 +185,16 @@ int DrawItemManager::loadXmlSheet( const String& xmlFilePath, const String& shee
 	Texture2D* pTexture = new Texture2D() ;
 	pTexture->load(sheetFilename);
 	
-	TiXmlDocument xmlDoc;
-	if( !xmlDoc.LoadFile(xmlFilePath.c_str()) ) {
+	tinyxml2::XMLDocument xmlDoc;
+	if( xmlDoc.LoadFile(xmlFilePath.c_str()) != tinyxml2::XML_SUCCESS ) {
 		JAM_ERROR( "Error loading file: %s", xmlFilePath.c_str() ) ;
 	}
-	TiXmlElement* xmlRoot = xmlDoc.RootElement() ;
-	TiXmlElement* topDictElem = xmlRoot->FirstChildElement("dict") ;
-	TiXmlElement* topFramesDict = topDictElem->FirstChildElement("dict")->NextSiblingElement("dict") ;
+	tinyxml2::XMLElement* xmlRoot = xmlDoc.RootElement() ;
+	tinyxml2::XMLElement* topDictElem = xmlRoot->FirstChildElement("dict") ;
+	tinyxml2::XMLElement* topFramesDict = topDictElem->FirstChildElement("dict")->NextSiblingElement("dict") ;
 
-	TiXmlElement* nel = topFramesDict->FirstChildElement("key") ;	
-	TiXmlElement* node = topFramesDict->FirstChildElement("dict") ;
+	tinyxml2::XMLElement* nel = topFramesDict->FirstChildElement("key") ;	
+	tinyxml2::XMLElement* node = topFramesDict->FirstChildElement("dict") ;
 	String prefix="";
 	String number="";
 
@@ -206,7 +206,7 @@ int DrawItemManager::loadXmlSheet( const String& xmlFilePath, const String& shee
 
 		String name = nel->GetText() ;
 		// skip key, handle dict
-		TiXmlElement* el = node->FirstChildElement("integer");
+		tinyxml2::XMLElement* el = node->FirstChildElement("integer");
 		String x = el->GetText() ;
 		el = el->NextSiblingElement("integer") ;
 		String y = el->GetText() ;
@@ -241,16 +241,16 @@ int DrawItemManager::loadXmlSheet( const String& xmlFilePath, const String& shee
 int DrawItemManager::loadXmlAnimationSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName, float timing )
 {
 
-	TiXmlDocument xmlDoc;
-	if( !xmlDoc.LoadFile(xmlFilePath.c_str()) ) {
+	tinyxml2::XMLDocument xmlDoc;
+	if( xmlDoc.LoadFile(xmlFilePath.c_str()) != tinyxml2::XML_SUCCESS ) {
 		JAM_ERROR( "Error loading file: %s", xmlFilePath.c_str() ) ;
 	}
-	TiXmlElement* xmlRoot = xmlDoc.RootElement() ;
-	TiXmlElement* topDictElem = xmlRoot->FirstChildElement("dict") ;
-	TiXmlElement* topFramesDict = topDictElem->FirstChildElement("dict")->NextSiblingElement("dict") ;
+	tinyxml2::XMLElement* xmlRoot = xmlDoc.RootElement() ;
+	tinyxml2::XMLElement* topDictElem = xmlRoot->FirstChildElement("dict") ;
+	tinyxml2::XMLElement* topFramesDict = topDictElem->FirstChildElement("dict")->NextSiblingElement("dict") ;
 
-	TiXmlElement* nel = topFramesDict->FirstChildElement("key") ;	
-	TiXmlElement* node = topFramesDict->FirstChildElement("dict") ;
+	tinyxml2::XMLElement* nel = topFramesDict->FirstChildElement("key") ;	
+	tinyxml2::XMLElement* node = topFramesDict->FirstChildElement("dict") ;
 
 	std::map<String,int> animMap;
 	std::list<String> listOfIds ;
@@ -307,15 +307,15 @@ int DrawItemManager::loadXmlPackSheet( const String& xmlFilePath, const String& 
 	pTexture->load(sheetName);
 	pTexture->setName(sheetName.c_str()) ;
 	printf( "> Loading file: %s\n", xmlFilePath.c_str() ) ;
-	TiXmlDocument xmlDoc;
-	if( !xmlDoc.LoadFile(xmlFilePath.c_str()) ) {
+	tinyxml2::XMLDocument xmlDoc;
+	if( xmlDoc.LoadFile(xmlFilePath.c_str()) != tinyxml2::XML_SUCCESS ) {
 		JAM_ERROR( "Error loading file: %s", xmlFilePath.c_str() ) ;
 	}
-	TiXmlElement* xmlRoot = xmlDoc.RootElement() ;
-	TiXmlElement* topDictElem = xmlRoot->FirstChildElement("dict") ;
+	tinyxml2::XMLElement* xmlRoot = xmlDoc.RootElement() ;
+	tinyxml2::XMLElement* topDictElem = xmlRoot->FirstChildElement("dict") ;
 		
-	TiXmlElement* node = topDictElem->FirstChildElement("dict")->FirstChildElement("dict") ;
-	TiXmlElement* nel = topDictElem->FirstChildElement("dict")->FirstChildElement("key") ;	
+	tinyxml2::XMLElement* node = topDictElem->FirstChildElement("dict")->FirstChildElement("dict") ;
+	tinyxml2::XMLElement* nel = topDictElem->FirstChildElement("dict")->FirstChildElement("key") ;	
 
 	std::list<String> listOfIds ;
 	int x=0,y=0,w=0,h=0;
@@ -328,7 +328,7 @@ int DrawItemManager::loadXmlPackSheet( const String& xmlFilePath, const String& 
 
 		String name = nel->GetText() ;
 		// skip key, handle dict
-		TiXmlElement* nextkey=node->FirstChildElement("key");	
+		tinyxml2::XMLElement* nextkey=node->FirstChildElement("key");	
 		if( strcmp(node->FirstChildElement("key")->GetText(),"frame")==0 ) 
 		{
 			std::string rect = node->FirstChildElement("string")->GetText() ;
@@ -373,16 +373,16 @@ int DrawItemManager::loadXmlPackSheet( const String& xmlFilePath, const String& 
 // ************************************************************************
 int DrawItemManager::importXmlPackAnimationSheet( const String& xmlFilePath, const String& sheetFilename, const String& grpName, float timing )
 {
-	TiXmlDocument xmlDoc;
-	if( !xmlDoc.LoadFile(xmlFilePath.c_str()) ) {
+	tinyxml2::XMLDocument xmlDoc;
+	if( xmlDoc.LoadFile(xmlFilePath.c_str()) != tinyxml2::XML_SUCCESS ) {
 		JAM_ERROR( "Error loading file: %s", xmlFilePath.c_str() ) ;
 	}
-	TiXmlElement* xmlRoot = xmlDoc.RootElement() ;
-	TiXmlElement* topDictElem = xmlRoot->FirstChildElement("dict") ;
-	TiXmlElement* topFramesDict = topDictElem->FirstChildElement("dict")->NextSiblingElement("dict") ;
+	tinyxml2::XMLElement* xmlRoot = xmlDoc.RootElement() ;
+	tinyxml2::XMLElement* topDictElem = xmlRoot->FirstChildElement("dict") ;
+	tinyxml2::XMLElement* topFramesDict = topDictElem->FirstChildElement("dict")->NextSiblingElement("dict") ;
 
-	TiXmlElement* node = topDictElem->FirstChildElement("dict")->FirstChildElement("dict") ;
-	TiXmlElement* nel = topDictElem->FirstChildElement("dict")->FirstChildElement("key") ;	
+	tinyxml2::XMLElement* node = topDictElem->FirstChildElement("dict")->FirstChildElement("dict") ;
+	tinyxml2::XMLElement* nel = topDictElem->FirstChildElement("dict")->FirstChildElement("key") ;	
 
 	std::map<String,int> animMap;	animMap.clear();
 	std::list<String> listOfIds ;

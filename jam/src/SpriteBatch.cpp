@@ -347,11 +347,11 @@ SpriteBatch::SpriteBatch(int capacity) : _sortMode(SpriteSortMode::Deferred)
     _beginCalled = false ;
 }
 
-void SpriteBatch::Begin(SpriteSortMode sortMode,BlendMode blendMode)
+void SpriteBatch::Begin(SpriteSortMode sortMode,BlendMode blendState)
 {
     _sortMode = sortMode;
     _pMaterial->setBlendEnabled(true) ;
-    _pMaterial->setBlendMode(blendMode) ;
+    _pMaterial->setBlendMode(blendState) ;
 
     // Setup things now so a user can change them.
     if (sortMode == SpriteSortMode::Immediate)
@@ -363,7 +363,7 @@ void SpriteBatch::Begin(SpriteSortMode sortMode,BlendMode blendMode)
 
 }
 
-void SpriteBatch::Draw(Texture2D* texture,Vector2 position,Rect* sourceRectangle,Color color,float rotation,Vector2 origin,Vector2 scale,SpriteEffects effects,float layerDepth)
+void SpriteBatch::Draw(Texture2D* texture,const Vector2& position,Rect* sourceRectangle,const Color& color,float rotation,const Vector2& origin,const Vector2& scale,SpriteEffects effects,float layerDepth)
 {
     CheckValid(texture) ;
 
@@ -387,7 +387,7 @@ void SpriteBatch::Draw(Texture2D* texture,Vector2 position,Rect* sourceRectangle
         break;
     }
                         
-    origin = origin * scale;
+    Vector2 scaledOrigin = origin * scale;
             
     float w, h;
     if (sourceRectangle!=nullptr)
@@ -425,8 +425,8 @@ void SpriteBatch::Draw(Texture2D* texture,Vector2 position,Rect* sourceRectangle
             
     if (rotation == 0.0f)
     {
-        item->set(position.x - origin.x,
-                position.y - origin.y,
+        item->set(position.x - scaledOrigin.x,
+                position.y - scaledOrigin.y,
                 w,
                 h,
                 color,
@@ -438,8 +438,8 @@ void SpriteBatch::Draw(Texture2D* texture,Vector2 position,Rect* sourceRectangle
     {
         item->set(position.x,
                 position.y,
-                -origin.x,
-                -origin.y,
+                -scaledOrigin.x,
+                -scaledOrigin.y,
                 w,
                 h,
                 (float)sinf(rotation),
@@ -453,7 +453,339 @@ void SpriteBatch::Draw(Texture2D* texture,Vector2 position,Rect* sourceRectangle
     FlushIfNeeded();
 }
 
+void SpriteBatch::Draw(Texture2D* texture,const Vector2& position,Rect* sourceRectangle,const Color& color,float rotation,const Vector2& origin,float scale,SpriteEffects effects,float layerDepth)
+{
+    Vector2 scaleVec(scale,scale) ;
+    Draw(texture,position,sourceRectangle,color,rotation,origin,scaleVec,effects,layerDepth);
+}
 
+void SpriteBatch::Draw(Texture2D* texture,const Vector2& position,Rect* sourceRectangle,const Color& color)
+{
+    CheckValid(texture) ;
+
+    auto item = _batcher->CreateBatchItem();
+    item->Texture = Ref<Texture2D>(texture,true);
+
+    // set SortKey based on SpriteSortMode.
+    item->SortKey = _sortMode == SpriteSortMode::Texture ? texture->getSortingKey() : 0 ;
+                        
+    Vector2 size ;
+            
+    if (sourceRectangle!=nullptr)
+    {
+        Rect srcRect = *sourceRectangle ;
+        size = Vector2(srcRect.getWidth(),srcRect.getHeight()) ;
+        float texelWidth = 1.0f / texture->getWidth() ;
+        float texelHeight = 1.0f / texture->getHeight() ;
+        _texCoordTL.x = srcRect.left * texelWidth;
+        _texCoordTL.y = 1.0f - ((srcRect.top + srcRect.getHeight()) * texelHeight);
+        _texCoordBR.x = (srcRect.left + srcRect.getWidth()) * texelWidth;
+        _texCoordBR.y = 1.0f - (srcRect.top * texelHeight) ;
+    }
+    else
+    {
+        size = Vector2(texture->getWidth(),texture->getHeight()) ;
+        _texCoordTL = Vector2(0,0);
+        _texCoordBR = Vector2(1,1);
+    }
+            
+    item->set(position.x,
+            position.y,
+            size.x,
+            size.y,
+            color,
+            _texCoordTL,
+            _texCoordBR,
+            0);
+            
+    FlushIfNeeded();
+}
+
+void SpriteBatch::Draw(Texture2D* texture,const Vector2& position,const Color& color)
+{
+    CheckValid(texture) ;
+
+    auto item = _batcher->CreateBatchItem();
+    item->Texture = Ref<Texture2D>(texture,true);
+
+    // set SortKey based on SpriteSortMode.
+    item->SortKey = _sortMode == SpriteSortMode::Texture ? texture->getSortingKey() : 0 ;
+                        
+    item->set(position.x,
+            position.y,
+            texture->getWidth(),
+            texture->getHeight(),
+            color,
+            Vector2(0,0),
+            Vector2(1,1),
+            0);
+            
+    FlushIfNeeded();
+}
+
+void SpriteBatch::DrawString (SpriteFont* spriteFont, const String& text, const Vector2& position, const Color& color)
+{
+    CheckValid(spriteFont, text);
+            
+    auto offset = Vector2(0,0);
+    bool firstGlyphOfLine = true;
+    float sortKey = 0 ;
+
+    for (auto i = 0; i < text.size(); ++i)
+    {
+        auto c = text[i];
+
+        if (c == '\r')
+            continue;
+
+        if (c == '\n')
+        {
+            offset.x = 0;
+            offset.y += spriteFont->getLineHeight();
+            firstGlyphOfLine = true;
+            continue;
+        }
+ 
+        auto glyphs = spriteFont->getGlyphs() ;
+        const auto& pCurrentGlyph = glyphs[c] ;
+
+        // The first character on a line might have a negative left side bearing.
+        // In this scenario, SpriteBatch/SpriteFont normally offset the text to the right,
+        //  so that text does not hang off the left side of its rectangle.
+        if (firstGlyphOfLine)
+        {
+            offset.x = Max(pCurrentGlyph.xoffset, 0);
+            firstGlyphOfLine = false;
+        }
+        else
+        {
+            offset.x += spriteFont->getSpacing() + pCurrentGlyph.xoffset;
+        }
+
+        Texture2D* tex = spriteFont->getTexture(pCurrentGlyph.page) ;
+        sortKey = (_sortMode == SpriteSortMode::Texture) ? tex->getSortingKey() : 0;
+        auto item = _batcher->CreateBatchItem();
+        item->Texture.assign(tex,true);
+        item->SortKey = sortKey;
+            
+        float texelWidth = 1.0f / tex->getWidth() ;
+        float texelHeight = 1.0f / tex->getHeight() ;
+
+        _texCoordTL.x = pCurrentGlyph.x * texelWidth;
+        _texCoordTL.y = 1.0f - ((pCurrentGlyph.y + pCurrentGlyph.height) * texelHeight);
+        _texCoordBR.x = (pCurrentGlyph.x + pCurrentGlyph.width) * texelWidth;
+        _texCoordBR.y = 1.0f - (pCurrentGlyph.y * texelHeight);
+
+        Vector2 p = offset;                
+        p.x += pCurrentGlyph.xoffset;
+        p.y -= pCurrentGlyph.height + pCurrentGlyph.yoffset ;
+        p += position;
+
+        item->set(  p.x,
+                    p.y,
+                    pCurrentGlyph.width,
+                    pCurrentGlyph.height,
+                    color,
+                    _texCoordTL,
+                    _texCoordBR,
+                    0 );
+                
+        offset.x += pCurrentGlyph.xadvance;
+    }
+
+	// We need to flush if we're using Immediate sort mode.
+	FlushIfNeeded();
+}
+
+void SpriteBatch::DrawString(SpriteFont* spriteFont,const String& text,const Vector2& position,const Color& color,float rotation,
+                             const Vector2& origin,float scale,SpriteEffects effects,float layerDepth)
+{
+    Vector2 scaleVec = Vector2(scale,scale) ;
+    DrawString( spriteFont, text, position, color, rotation, origin, scaleVec, effects, layerDepth ) ;
+}
+
+void SpriteBatch::DrawString(SpriteFont* spriteFont,const String& text,const Vector2& position,const Color& color,float rotation,
+                             const Vector2& origin,const Vector2& scale,SpriteEffects effects,float layerDepth)
+{
+    CheckValid(spriteFont, text);
+            
+    Vector2 flipAdjustment = Vector2(0,0);
+
+    bool flippedVert = (effects & SpriteEffects::FlipVertically) == SpriteEffects::FlipVertically;
+    bool flippedHorz = (effects & SpriteEffects::FlipHorizontally) == SpriteEffects::FlipHorizontally;
+
+    Vector2 l_origin = origin ;
+
+    if (flippedVert || flippedHorz)
+    {
+        Vector2 size;
+                
+        spriteFont->MeasureString(text, size);
+
+        if (flippedHorz)
+        {
+            l_origin.x *= -1;
+            flipAdjustment.x = -size.x;
+        }
+
+        if (flippedVert)
+        {
+            l_origin.y *= -1;
+            flipAdjustment.y = spriteFont->getLineHeight() - size.y;
+        }
+    }
+            
+    glm::mat4 transformation(1.0f) ;
+    if (rotation == 0)
+    {
+        glm::vec3 scaleVec( (flippedHorz ? -scale.x : scale.x), (flippedVert ? -scale.y : scale.y), 1.0f ) ;
+        glm::mat4 scaleMat = glm::scale( transformation, scaleVec );
+
+        glm::vec3 transVec( ((flipAdjustment.x - l_origin.x) * scaleVec.x) + position.x, ((flipAdjustment.y - l_origin.y) * scaleVec.y) + position.y, 0.0f ) ;
+        glm::mat4 transMat = glm::translate( transformation, transVec ) ;
+
+        transformation = transMat * scaleMat ;
+    }
+    else
+    {
+        glm::vec3 scaleVec( (flippedHorz ? -scale.x : scale.x), (flippedVert ? -scale.y : scale.y), 1.0f ) ;
+        glm::mat4 scaleMat = glm::scale( transformation, scaleVec );
+
+        glm::mat4 scaleRot = glm::rotate( transformation, rotation, glm::vec3(0,0,1) );
+
+        glm::vec3 transVec( ((flipAdjustment.x - l_origin.x) * scaleVec.x) + position.x, ((flipAdjustment.y - l_origin.y) * scaleVec.y) + position.y, 0.0f ) ;
+        glm::mat4 transMat = glm::translate( transformation, transVec ) ;
+
+        transformation = transMat * scaleMat * scaleRot ;
+    }
+
+    Vector2 offset = Vector2(0,0);
+    bool firstGlyphOfLine = true;
+
+    float sortKey = 0;
+
+    for (auto i = 0; i < text.size(); ++i)
+    {
+        auto c = text[i];
+
+        auto glyphs = spriteFont->getGlyphs() ;
+        const auto& pCurrentGlyph = glyphs[c] ;
+
+        Texture2D* tex = spriteFont->getTexture(pCurrentGlyph.page) ;
+
+        // set SortKey based on SpriteSortMode.
+        switch (_sortMode)
+        {
+        // Comparison of Texture objects.
+        case SpriteSortMode::Texture:
+            sortKey = tex->getSortingKey();
+            break;
+        // Comparison of Depth
+        case SpriteSortMode::FrontToBack:
+            sortKey = layerDepth;
+            break;
+        // Comparison of Depth in reverse
+        case SpriteSortMode::BackToFront:
+            sortKey = -layerDepth;
+            break;
+        }
+
+        if (c == '\r')
+            continue;
+
+        if (c == '\n')
+        {
+            offset.x = 0;
+            offset.y += spriteFont->getLineHeight();
+            firstGlyphOfLine = true;
+            continue;
+        }
+
+        // The first character on a line might have a negative left side bearing.
+        // In this scenario, SpriteBatch/SpriteFont normally offset the text to the right,
+        //  so that text does not hang off the left side of its rectangle.
+        if (firstGlyphOfLine)
+        {
+            offset.x = Max(pCurrentGlyph.xoffset, 0);
+            firstGlyphOfLine = false;
+        }
+        else
+        {
+            offset.x += spriteFont->getSpacing() + pCurrentGlyph.xoffset;
+        }
+
+        Vector2 p = offset;
+
+        if (flippedHorz)
+            p.x += pCurrentGlyph.width;
+        else
+            p.x += pCurrentGlyph.xoffset;
+
+        if (flippedVert)
+            p.y += pCurrentGlyph.height - spriteFont->getLineHeight();
+        else 
+            p.y -= pCurrentGlyph.height + pCurrentGlyph.yoffset;
+
+        p = transformation * glm::vec4(p.x,p.y,0.0,1.0f) ;
+
+        auto item = _batcher->CreateBatchItem();
+        item->Texture.assign(tex,true);
+        item->SortKey = sortKey;
+                
+        float texelWidth = 1.0f / tex->getWidth() ;
+        float texelHeight = 1.0f / tex->getHeight() ;
+
+        _texCoordTL.x = pCurrentGlyph.x * texelWidth;
+        _texCoordTL.y = 1.0f - ((pCurrentGlyph.y + pCurrentGlyph.height) * texelHeight);
+        _texCoordBR.x = (pCurrentGlyph.x + pCurrentGlyph.width) * texelWidth;
+        _texCoordBR.y = 1.0f - (pCurrentGlyph.y * texelHeight);
+
+        if ((effects & SpriteEffects::FlipVertically) != 0)
+        {
+            auto temp = _texCoordBR.y;
+		    _texCoordBR.y = _texCoordTL.y;
+		    _texCoordTL.y = temp;
+	    }
+        if ((effects & SpriteEffects::FlipHorizontally) != 0)
+        {
+            auto temp = _texCoordBR.x;
+		    _texCoordBR.x = _texCoordTL.x;
+		    _texCoordTL.x = temp;
+	    }
+
+        if (rotation == 0.0f)
+        {
+            item->set(p.x,
+                    p.y,
+                    pCurrentGlyph.width * scale.x,
+                    pCurrentGlyph.height * scale.y,
+                    color,
+                    _texCoordTL,
+                    _texCoordBR,
+                    layerDepth);
+        }
+        else
+        {
+            item->set(p.x,
+                    p.y,
+                    0,
+                    0,
+                    pCurrentGlyph.width * scale.x,
+                    pCurrentGlyph.height * scale.y,
+                    sinf(rotation),
+                    cosf(rotation),
+                    color,
+                    _texCoordTL,
+                    _texCoordBR,
+                    layerDepth);
+        }
+                
+        offset.x += pCurrentGlyph.xadvance;
+    }
+
+    // We need to flush if we're using Immediate sort mode.
+    FlushIfNeeded();
+}
 
 void SpriteBatch::End()
 {
@@ -475,9 +807,19 @@ void SpriteBatch::Setup()
 void SpriteBatch::CheckValid(Texture2D* texture)
 {
     if (texture == nullptr)
-        JAM_ERROR("texture");
+        JAM_ERROR("ArgumentNull: texture");
     if (!_beginCalled)
         JAM_ERROR("Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+}
+
+void SpriteBatch::CheckValid(SpriteFont* spriteFont,const String& text)
+{
+    if (spriteFont == nullptr)
+        JAM_ERROR("ArgumentNull: spriteFont");
+    if (text.size() == 0)
+        JAM_ERROR("Empty text");
+    if (!_beginCalled)
+        JAM_ERROR("DrawString was called, but Begin has not yet been called. Begin must be called successfully before you can call DrawString.");
 }
 
 void SpriteBatch::FlushIfNeeded()

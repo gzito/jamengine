@@ -27,7 +27,7 @@
 * 
 **********************************************************************************/
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "jam/AudioManager.h"
 #include "jam/core/filesystem.h"
@@ -38,9 +38,9 @@
 // #include <IwRuntime.h>
 // #include <IwPath.h>
 
-#include <al.h>
-#include <alc.h>
-#include <vorbisfile.h>
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <vorbis/vorbisfile.h>
 
 using namespace std ;
 

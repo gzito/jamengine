@@ -37,7 +37,7 @@
 
 namespace jam
 {
-	std::atomic_int Texture2D::_lastSortingKey = 0 ;
+	std::atomic_int Texture2D::_lastSortingKey{0};
 
 	/*!
 		\brief Create a Texture object
@@ -135,13 +135,14 @@ namespace jam
 
 		stbi_set_flip_vertically_on_load(flipV);
 		int w, h, channels ;
-		m_data = stbi_load( filename.c_str(), &w, &h, &channels, STBI_default ) ;
+		int desired_channels = STBI_rgb_alpha ;
+		m_data = stbi_load( filename.c_str(), &w, &h, &channels, desired_channels ) ;
 		if( !m_data ) {
 			JAM_ERROR( "Failed to load %s", filename.c_str() ) ;
 		}
 		m_width = w ;
 		m_height = h ;
-		m_bitCount = channels * 8 ;
+		m_bitCount = ((desired_channels == STBI_default) ? channels : desired_channels) * 8 ;
 
 		if( fUpload ) {
 			initGL() ;

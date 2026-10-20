@@ -496,9 +496,10 @@ const String ShaderManager::SKINNIG_PROGRAM_LIT_NAME = "skinning_shader_lit" ;
 const String ShaderManager::SKYBOX_PROGRAM_NAME = "skybox_shader" ;
 const String ShaderManager::NORMAL_MAPPING_PROGRAM_NAME = "normal_mapping_shader" ;
 const String ShaderManager::SCREEN_PROGRAM_NAME = "screen_shader" ;
-// TODO: FIXIT !!!
-//const String ShaderManager::DEFAULT_SHADERS_PATH	= "../../../../jam/shaders" ;
-const String ShaderManager::DEFAULT_SHADERS_PATH	= "../../jam/shaders" ;
+#ifndef JAM_DEFAULT_SHADERS_PATH
+#define JAM_DEFAULT_SHADERS_PATH "resources/shaders"
+#endif
+const String ShaderManager::DEFAULT_SHADERS_PATH = JAM_DEFAULT_SHADERS_PATH;
 
 ShaderManager::ShaderManager() : 
 	m_pCurrentShader(nullptr)
@@ -572,6 +573,7 @@ Shader* ShaderManager::getShader(const String& name)
 	}
 	catch( std::out_of_range& e ) {
 		JAM_ERROR("Shader \"%s\" not found", name.c_str()) ;
+		return nullptr;
 	}
 }
 

@@ -33,8 +33,11 @@
 #include <jam/jam.h>
 #include <jam/ResourceManager.h>
 
-class TiXmlElement ;
-class TiXmlDocument ;
+namespace tinyxml2
+{
+	class XMLElement ;
+	class XMLDocument ;
+}
 
 namespace jam
 {
@@ -47,10 +50,10 @@ class JAM_API XmlResourceExtraData : public IResourceExtraData
 public:
 	virtual String			toString() override ;
 	void					parseXml( char* pRawBuffer ) ;
-	TiXmlElement*			getRoot() ;
+	tinyxml2::XMLElement*	getRoot() ;
 
 private:
-	TiXmlDocument*			m_pXmlDocument ;
+	tinyxml2::XMLDocument*	m_pXmlDocument ;
 };
 
 
@@ -70,7 +73,7 @@ public:
 	virtual bool			addNullZero() const override;
 
 	// convenience function
-    static TiXmlElement*	loadAndReturnRootXmlElement(const char* resourceString);
+    static tinyxml2::XMLElement*	loadAndReturnRootXmlElement(const char* resourceString);
 };
 
 JAM_INLINE	bool XmlResourceLoader::useRawFile() const { return false; }

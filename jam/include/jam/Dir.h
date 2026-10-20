@@ -31,7 +31,12 @@
 #define __JAM_DIR_H__
 
 #include <jam/jam.h>
+#ifdef _WIN32
 #include <jam/thirdparty/dirent.hpp>
+#else
+#include <dirent.h>
+#endif
+#include <sys/stat.h>
 #include <jam/String.h>
 
 namespace jam {

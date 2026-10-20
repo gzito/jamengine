@@ -4,6 +4,7 @@ set(JAMPSYS_MAIN_SRCS
 	PSys_Particle3D.cpp
 	PSys_ParticleConfigurator.cpp
 	PSys_ParticleSprite3D.cpp
+	ParticleSystem.cpp
 )
 set(JAMPSYS_MAIN_HDRS
 	PSys.h
@@ -13,16 +14,18 @@ set(JAMPSYS_MAIN_HDRS
 	PSys_Particle3D.h
 	PSys_ParticleConfigurator.h
 	PSys_ParticleSprite3D.h
+	PSys_Status.h
 )
+
+if(WIN32)
+	set(JAMPSYS_PLATFORM_SRCS dllmain.cpp)
+endif()
 set(JAMPSYS_PRECOMP_HDRS
 	stdafx.h
 )
 
 include_directories( . )
 include_directories( ../jam/include )
-include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include )
-include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/SDL2 )
-include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/boehmgc )
 
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 
@@ -30,6 +33,7 @@ if(JAM_BUILD_SHARED)
 	add_library(JamPSys_shared SHARED
 		${JAMPSYS_MAIN_SRCS}
 		${JAMPSYS_MAIN_HDRS}
+		${JAMPSYS_PLATFORM_SRCS}
 	)
 
 	set_target_properties(JamPSys_shared PROPERTIES
@@ -44,7 +48,7 @@ if(JAM_BUILD_SHARED)
 	target_compile_definitions(JamPSys_shared PRIVATE JAMPSYS_EXPORTS)
 
 	target_precompile_headers(JamPSys_shared PRIVATE ${JAMPSYS_PRECOMP_HDRS})
-	target_link_directories(JamPSys_shared PUBLIC ${JAM_THIRDPARTY_LIBRARY_PATH})
+	target_link_libraries(JamPSys_shared PUBLIC ${JAM_CONSUMER_TARGET})
 
 endif()
 
@@ -60,7 +64,7 @@ if(JAM_BUILD_STATIC)
 	)
 
 	target_precompile_headers(JamPSys PRIVATE ${JAMPSYS_PRECOMP_HDRS})
-	target_link_directories(JamPSys PUBLIC ${JAM_THIRDPARTY_LIBRARY_PATH})
+	target_link_libraries(JamPSys PUBLIC ${JAM_CONSUMER_TARGET})
 endif()
 
 # These are used to create visual studio folders.

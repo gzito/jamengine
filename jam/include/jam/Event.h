@@ -153,7 +153,7 @@ public:
 	void					removeAllHandlers() ;
 
 private:
-	template <class T=EventArgs> using EventHandlers = SA::multicast_delegate<void(T&, IEventSource&)> ;
+	template <class EventArgsType=EventArgs> using EventHandlers = SA::multicast_delegate<void(EventArgsType&, IEventSource&)> ;
 
 	EventHandlers<T>		m_eventHandlers ;
 };

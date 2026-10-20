@@ -36,6 +36,7 @@
 #include <jam/SpriteBatch.h>
 #include <jam/DrawItemManager.h>
 #include <jam/core/geom.h>
+#include <jam/core/filesystem.h>
 
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
@@ -133,9 +134,9 @@ bool TestImguiApp::init()
 {
 	Draw3DManager::Origin3D(960,540);
 
-	//m_pFontTex = GetDraw3DMgr().LoadFont3D( "media/Babylon1.png" ) ;
+	//m_pFontTex = GetDraw3DMgr().LoadFont3D( appendPath(JAM_TEST_RESOURCE_DIR,"media/Babylon1.png") ) ;
 
-	m_pTexture = GetDrawItemMgr().loadTexture("media/star.png","psys")->getTexture() ;
+	m_pTexture = GetDrawItemMgr().loadTexture(appendPath(JAM_TEST_RESOURCE_DIR,"media/star.png"),"psys")->getTexture() ;
 	m_pSpriteBatch = new SpriteBatch(300) ;
 
 	// set camera

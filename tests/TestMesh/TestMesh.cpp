@@ -44,8 +44,6 @@
 using namespace jam;
 
 
-#define MEDIA_PATH				"./"
-
 class TestMeshApp : public jam::Application
 {
 public:
@@ -117,8 +115,8 @@ bool TestMeshApp::init()
 	createLights() ;
 
 	m_pModel = new Model() ;
-	m_pModel->load( appendPath(MEDIA_PATH,"models/nanosuit/nanosuit.obj") ) ;
-//	m_pModel->load( appendPath(MEDIA_PATH,"models/Cyborg/Cyborg.obj") ) ;
+	m_pModel->load( appendPath(JAM_TEST_RESOURCE_DIR,"models/nanosuit/nanosuit.obj") ) ;
+	//	m_pModel->load( appendPath(JAM_TEST_RESOURCE_DIR,"models/Cyborg/Cyborg.obj") ) ;
 
 	m_pModel->getTransform().setWorldPosition( Vector3(0,-5,0) ) ;
 	m_pModel->getTransform().setWorldScale( Vector3(0.5f,0.5f,0.5f) ) ;

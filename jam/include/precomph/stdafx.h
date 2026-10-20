@@ -5,14 +5,13 @@
 
 #pragma once
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include "targetver.h"
+#endif
 #include <GL/glew.h>
 
 #include <math.h>	// avoid M_PI to be defined in SDL.h
 #include <SDL.h>
-
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-
-
 
 // TODO: reference additional headers your program requires here

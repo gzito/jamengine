@@ -72,12 +72,12 @@ void TMXLoader::cleanup()
 	//m_file.close();
 }
 
-bool TMXLoader::VisitEnter  (const TiXmlDocument  &doc)
+bool TMXLoader::VisitEnter  (const tinyxml2::XMLDocument  &doc)
 {
 	return true; //TODO: for performance, we may not want to return true for each of these callbacks for the visitor pattern.
 }
 
-bool TMXLoader::VisitExit (const TiXmlDocument &doc)
+bool TMXLoader::VisitExit (const tinyxml2::XMLDocument &doc)
 {
 	return true;
 }
@@ -111,17 +111,17 @@ H4sIAAAAAAAAA+3WOwqAMBBAQQu1Uq9i4a8QO+9/JrcwF5BADMzAI92y6bZp/mUvvUAm/vEvtf5jjpa3
 </tileset>
 */
 
-bool TMXLoader::VisitEnter (const TiXmlElement &elem, const TiXmlAttribute *attrib)
+bool TMXLoader::VisitEnter (const tinyxml2::XMLElement &elem, const tinyxml2::XMLAttribute *attrib)
 {
 	tiledmap::TileLayer lev;
 	tiledmap::TileSet tset;
 	tiledmap::ObjectGroup objGroup;
 	tiledmap::object	obj;
 	if ( strcmp("map", elem.Value()) == 0 ) {
-		elem.Attribute("width", &m_map.width);
-		elem.Attribute("height", &m_map.height);
-		elem.Attribute("tilewidth", &m_map.tileWidth);
-		elem.Attribute("tileheight", &m_map.tileHeight);
+		m_map.width = elem.IntAttribute("width");
+		m_map.height = elem.IntAttribute("height");
+		m_map.tileWidth = elem.IntAttribute("tilewidth");
+		m_map.tileHeight = elem.IntAttribute("tileheight");
 		const char* attrib = elem.Attribute("orientation");
 		m_map.orientation=attrib;
 		m_lastParent="map";
@@ -162,11 +162,11 @@ bool TMXLoader::VisitEnter (const TiXmlElement &elem, const TiXmlAttribute *attr
 		const char* attrib = elem.Attribute("name");
 		tset.name=attrib;
 
-		elem.Attribute("tilewidth", &tset.tilewidth);
-		elem.Attribute("tileheight", &tset.tileheight);
-		elem.Attribute("spacing", &tset.spacing);
-		elem.Attribute("margin", &tset.margin);
-		elem.Attribute("firstgid", &tset.firstgid);
+		tset.tilewidth = elem.IntAttribute("tilewidth");
+		tset.tileheight = elem.IntAttribute("tileheight");
+		tset.spacing = elem.IntAttribute("spacing");
+		tset.margin= elem.IntAttribute("margin");
+		tset.firstgid = elem.IntAttribute("firstgid");
 
 		// Need a new class called Tileset
 		/*elem.Attribute("tilewidth", &m_map.tileSet.tilewidth);
@@ -199,8 +199,8 @@ bool TMXLoader::VisitEnter (const TiXmlElement &elem, const TiXmlAttribute *attr
 		lev=tiledmap::TileLayer();
 		const char* attrib = elem.Attribute("name");
 		lev.name=attrib;
-		elem.Attribute("width", &lev.width);
-		elem.Attribute("height", &lev.height);
+		lev.width = elem.IntAttribute("width");
+		lev.height = elem.IntAttribute("height");
 		m_map.layers.push_back(lev);
 	}
 	else if (strcmp("data",elem.Value())==0)
@@ -241,9 +241,9 @@ bool TMXLoader::VisitEnter (const TiXmlElement &elem, const TiXmlAttribute *attr
 		const char* attrib2 = elem.Attribute("type");
 		if (attrib2) obj.type=attrib2;
 
-		elem.Attribute("gid", &obj.gid);
-		elem.Attribute("x", &obj.x);
-		elem.Attribute("y", &obj.y);
+		obj.gid = elem.IntAttribute("gid");
+		obj.x = elem.IntAttribute("x");
+		obj.y = elem.IntAttribute("y");
 // 			elem.Attribute("width", &obj.width);
 // 			elem.Attribute("height", &obj.height);
 
@@ -265,27 +265,27 @@ bool TMXLoader::VisitEnter (const TiXmlElement &elem, const TiXmlAttribute *attr
 	return true;
 }
 
-bool TMXLoader::VisitExit (const TiXmlElement &elem)
+bool TMXLoader::VisitExit (const tinyxml2::XMLElement &elem)
 {
 	return true;
 }
 
-bool TMXLoader::Visit (const TiXmlDeclaration &dec)
+bool TMXLoader::Visit (const tinyxml2::XMLDeclaration &dec)
 {
 	return true;
 }
 
-bool TMXLoader::Visit (const TiXmlText &text)
+bool TMXLoader::Visit (const tinyxml2::XMLText &text)
 {
 	return true;
 }
 
-bool TMXLoader::Visit (const TiXmlComment &comment)
+bool TMXLoader::Visit (const tinyxml2::XMLComment &comment)
 {
 	return true;
 }
 
-bool TMXLoader::Visit (const TiXmlUnknown &unknown)
+bool TMXLoader::Visit (const tinyxml2::XMLUnknown &unknown)
 {
 	return true;
 }
@@ -300,12 +300,12 @@ bool TMXLoader::loadDocument( const String& filename, const String& group, int i
 	m_IdPosition=idPosition;
 	m_filename=jam::getFileNameWithoutExtension( jam::getBasename(filename) );
 	m_completeName=filename;
-	TiXmlDocument doc((char*)m_completeName.c_str());
-	if ( ! doc.LoadFile() ) {
+	tinyxml2::XMLDocument doc;
+	if ( doc.LoadFile((char*)m_completeName.c_str()) != tinyxml2::XML_SUCCESS) {
 		return false;
 	}
 
-	//TiXmlElement* elem = doc.RootElement();
+	//tinyxml2::XMLElement* elem = doc.RootElement();
 
 	JAM_TRACE( "Loading map data [%s]",filename.c_str() );
 	doc.Accept(this);

@@ -41,7 +41,7 @@ namespace jam
 
 class Draw3DManager ;
 
-class Draw3DBatch
+class JAM_API Draw3DBatch
 {
 public:
 							Draw3DBatch( uint16_t maxVertex = StridedVertexBuffer::DefaultMaxVertexCount, uint16_t maxIndex = 0 ) ;

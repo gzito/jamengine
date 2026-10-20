@@ -45,8 +45,6 @@
 using namespace jam;
 
 
-#define MEDIA_PATH				"./"
-
 class TestNormalMappingApp : public jam::Application
 {
 public:
@@ -84,11 +82,11 @@ TestNormalMappingApp::TestNormalMappingApp() :
 void TestNormalMappingApp::createMaterials()
 {
 	m_pQuadDiffuseTexture = Ref<Texture2D>( new Texture2D() ) ;
-	m_pQuadDiffuseTexture->load( appendPath(MEDIA_PATH,"images/brickwall.jpg") ) ;
+	m_pQuadDiffuseTexture->load( appendPath(JAM_TEST_RESOURCE_DIR,"images/brickwall.jpg") ) ;
 //	GetTextureMgr().addByName( m_pQuadDiffuseTexture.get(), "brickwall" ) ;
 
 	m_pQuadNormalTexture = Ref<Texture2D>( new Texture2D() ) ;
-	m_pQuadNormalTexture->load( appendPath(MEDIA_PATH,"images/brickwall_normal.jpg") ) ;
+	m_pQuadNormalTexture->load( appendPath(JAM_TEST_RESOURCE_DIR,"images/brickwall_normal.jpg") ) ;
 //	GetTextureMgr().addByName( m_pQuadNormalTexture.get(), "brickwall_normal" ) ;
 
 	m_pQuadMaterial = Ref<Material>( new Material() ) ;

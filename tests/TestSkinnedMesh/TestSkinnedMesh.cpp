@@ -44,9 +44,6 @@
 
 using namespace jam;
 
-#define MEDIA_PATH					"./"
-#define SHADERS_PATH				"../../../../jam/shaders"
-
 class TestSkinnedMeshApp : public jam::Application
 {
 public:
@@ -113,9 +110,9 @@ bool TestSkinnedMeshApp::init()
 	createLights() ;
 
 	m_pModel = new SkinnedModel() ;
-//	m_pModel->load( appendPath(MEDIA_PATH,"models/ninja/ninja.mesh") ) ;
-	m_pModel->load( appendPath(MEDIA_PATH,"models/jaiqua/jaiqua.mesh.xml") ) ;
-//	m_pModel->load( appendPath(MEDIA_PATH,"models/boblampclean/boblampclean.md5mesh") ) ;
+	//	m_pModel->load( appendPath(JAM_TEST_RESOURCE_DIR,"models/ninja/ninja.mesh") ) ;
+	m_pModel->load( appendPath(JAM_TEST_RESOURCE_DIR,"models/jaiqua/jaiqua.mesh.xml") ) ;
+	//	m_pModel->load( appendPath(JAM_TEST_RESOURCE_DIR,"models/boblampclean/boblampclean.md5mesh") ) ;
 
 	m_pModel->getTransform().setWorldPosition( Vector3(0,-5,0) ) ;
 	m_pModel->getTransform().setWorldScale( Vector3(0.5f,0.5f,0.5f) ) ;

@@ -107,9 +107,9 @@ private:
 template< typename T >
 inline bool HandleManager::GetAs(Handle handle, T& out) const
 {
-	void* outAsVoid;
+	void* outAsVoid = nullptr;
 	const bool rv = Get(handle, outAsVoid);
-	out = union_cast< T >(outAsVoid);
+	out = reinterpret_cast<T>(outAsVoid);
 
 	return rv;
 }

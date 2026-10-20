@@ -28,6 +28,13 @@
 **********************************************************************************/
 #include "stdafx.h"
 
+namespace
+{
+// SpriteBatch draws at most SHRT_MAX / 6 quads per GPU batch. Reserving that
+// capacity up front avoids growing CPU arrays after its OpenGL buffers upload.
+constexpr int PSYS_SPRITE_BATCH_CAPACITY = 5461;
+}
+
 void PSYS::RemoveEmitter(PSysEmitter* em, bool forceDelete)
 {
 	DbgPrintf("PSYS::RemoveEmitter");
@@ -132,6 +139,8 @@ PSysEmitter* PSYS::CreateEmitter(IParticleConfigurator* starterModel, std::strin
 			pem->name = starterModel->name;
 
 		pem->status = PSysStatus::PSYS_GO;
+		// Recycled emitters use the usual one-shot lifecycle unless their owner opts out.
+		pem->SetRemoveWhenEmpty(true);
 		SubscribeEmitter(pem);
 		PSysSetPivotMovements(pem, 0, 0, 0, 0, 0);
 		PSysSetOptimizationPool(pem, PSYS_NULL, PSYS_NULL);
@@ -149,7 +158,8 @@ void PSYS::update()
 	for (auto iter = emitters.begin(); iter != emitters.end(); )
 	{
 		auto* emitter = *iter;
-		if (emitter->particles.empty())
+		// Reusable streams stay subscribed through pauses and preserve their particle pool.
+		if (emitter->particles.empty() && emitter->m_removeWhenEmpty)
 		{
 				iter = emitters.erase(iter);	//RemoveEmitter(emitter); Not optimal O(n) with vector, changed into list
 				emitremoved.push(emitter);
@@ -172,7 +182,8 @@ void PSYS::updateRender()
 {
 	for (auto emitter : emitters)
 	{
-		if (emitter->status == PSysStatus::PSYS_GO)
+		// Empty persistent emitters have no sprites, so skip SpriteBatch setup and draw calls.
+		if (emitter->status == PSysStatus::PSYS_GO && !emitter->particles.empty())
 		{
 			emitter->updateRender();
 		}
@@ -190,7 +201,7 @@ PSYS::PSYS() :idEm(0), alives(0), zombies(0), optimized(0), slot(0)
 	}
 	groups.clear();
 
-	m_pSpriteBatch = new jam::SpriteBatch( 500 ) ;
+	m_pSpriteBatch = new jam::SpriteBatch( PSYS_SPRITE_BATCH_CAPACITY ) ;
 }
 
 // ******************************************************************************

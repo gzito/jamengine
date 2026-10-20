@@ -42,6 +42,7 @@
 #include <map>
 #include <list>
 #include <vector>
+#include <cstdint>
 
 namespace jam
 {
@@ -69,7 +70,7 @@ private:
 	struct DirEntryData
 	{
 		String				m_fileName ;
-		_off_t				m_fileSize ;
+		std::int64_t		m_fileSize ;
 	};
 
 	String					m_AssetsDir;

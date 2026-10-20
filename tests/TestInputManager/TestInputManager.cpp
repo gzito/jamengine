@@ -35,6 +35,7 @@
 #include <jam/Scene.h>
 #include <jam/SpriteBatch.h>
 #include <jam/DrawItemManager.h>
+#include <jam/core/filesystem.h>
 
 #include <SDL_ttf.h>
 
@@ -83,9 +84,9 @@ bool TestInputManagerApp::init()
 {
 	Draw3DManager::Origin3D(960,540);
 
-	m_pFontTex = GetDraw3DMgr().LoadFont3D( "media/Babylon1.png" ) ;
+	m_pFontTex = GetDraw3DMgr().LoadFont3D( appendPath(JAM_TEST_RESOURCE_DIR,"media/Babylon1.png") ) ;
 
-	m_pTexture = GetDrawItemMgr().loadTexture("media/star.bmp","psys")->getTexture() ;
+	m_pTexture = GetDrawItemMgr().loadTexture(appendPath(JAM_TEST_RESOURCE_DIR,"media/star.bmp"),"psys")->getTexture() ;
 	m_pSpriteBatch = new SpriteBatch(10) ;
 
 	// set camera

@@ -49,6 +49,7 @@ PSysEmitter::PSysEmitter()
     , m_optimize_min_alpha_threshold(MIN_ALPHA_THRESHOLD)
     , m_optimize_min_size_threshold(MIN_SIZE_THRESHOLD)
     , m_optimize_min_framerate(0)
+    , m_removeWhenEmpty(true)
 {
     //modelParticle = new Particle3D();
     m_ParticleTemplate = nullptr;
@@ -82,6 +83,7 @@ void PSysEmitter::Init()
 PSysEmitter::PSysEmitter(IParticleConfigurator* starterModel)
     : pivot_ref(nullptr)
     , m_ParticleTemplate(nullptr)
+    , m_removeWhenEmpty(true)
 {
     pivot_ref = nullptr;
     m_ParticleTemplate = nullptr;

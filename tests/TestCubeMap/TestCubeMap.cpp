@@ -44,8 +44,6 @@
 using namespace jam;
 
 
-#define MEDIA_PATH				"./images/"
-
 class TestCubeMapApp : public jam::Application
 {
 public:
@@ -75,12 +73,12 @@ void TestCubeMapApp::loadTextures()
 {
 	m_pQuadTexture = new TextureCubemap() ;
 	std::vector<String> filenames ;
-	filenames.push_back( appendPath(MEDIA_PATH,"arrakisday_rt.tga") ) ; 
-	filenames.push_back( appendPath(MEDIA_PATH,"arrakisday_lf.tga") ) ; 
-	filenames.push_back( appendPath(MEDIA_PATH,"arrakisday_up.tga") ) ; 
-	filenames.push_back( appendPath(MEDIA_PATH,"arrakisday_dn.tga") ) ; 
-	filenames.push_back( appendPath(MEDIA_PATH,"arrakisday_ft.tga") ) ; 
-	filenames.push_back( appendPath(MEDIA_PATH,"arrakisday_bk.tga") ) ;
+	filenames.push_back( appendPath(JAM_TEST_RESOURCE_DIR,"images/arrakisday_rt.tga") ) ; 
+	filenames.push_back( appendPath(JAM_TEST_RESOURCE_DIR,"images/arrakisday_lf.tga") ) ; 
+	filenames.push_back( appendPath(JAM_TEST_RESOURCE_DIR,"images/arrakisday_up.tga") ) ; 
+	filenames.push_back( appendPath(JAM_TEST_RESOURCE_DIR,"images/arrakisday_dn.tga") ) ; 
+	filenames.push_back( appendPath(JAM_TEST_RESOURCE_DIR,"images/arrakisday_ft.tga") ) ; 
+	filenames.push_back( appendPath(JAM_TEST_RESOURCE_DIR,"images/arrakisday_bk.tga") ) ;
 
 	m_pQuadTexture->load( filenames, false ) ;
 	m_pQuadTexture->setName("skybox") ;

@@ -62,7 +62,7 @@ set(JAM_MAIN_SRCS
 	src/SpriteMesh.cpp	src/SpritePoolManager.cpp	src/SpriteRenderer.cpp	src/State.cpp	src/StateMachine.cpp	src/StridedVertexBuffer.cpp
 	src/String.cpp	src/StringTokenizer.cpp	src/SysTimer.cpp	src/TextNode.cpp	src/Texture2D.cpp	src/Texture2DResource.cpp
 	src/TextureCubemap.cpp	src/TightVertexBuffer.cpp	src/Timer.cpp	src/TMXLoader.cpp	src/Transform.cpp	src/VertexArrayObject.cpp
-	src/VertexBufferObject.cpp	src/XmlResource.cpp
+	src/VertexBufferObject.cpp	src/XmlResource.cpp	src/SpriteFont.cpp
 )
 set(JAM_MAIN_HSRS
 	include/jam/Achievement.h	include/jam/Action.h	include/jam/ActionEase.h	include/jam/ActionInstant.h	include/jam/ActionInterval.h
@@ -81,22 +81,17 @@ set(JAM_MAIN_HSRS
 	include/jam/StridedVertexBuffer.h	include/jam/String.h	include/jam/StringTokenizer.h	include/jam/SysTimer.h	include/jam/TextNode.h
 	include/jam/Texture2D.h	include/jam/Texture2DResource.h	include/jam/TextureCubemap.h	include/jam/TightVertexBuffer.h	include/jam/Timer.h
 	include/jam/TMXLoader.h	include/jam/Transform.h	include/jam/VertexArrayObject.h	include/jam/VertexBufferObject.h	include/jam/XmlResource.h
-	include/jam/Ref.hpp
+	include/jam/Ref.hpp	include/jam/SpriteFont.h
+	include/precomph/targetver.h
 )
 
 set(JAM_PRECOMP_HDRS
 	include/precomph/stdafx.h
-	include/precomph/targetver.h
 )
 
 include_directories( include )
 include_directories( include/precomph )
 include_directories( include/jam/thirdparty/imgui )
-include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include )
-include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/AL )
-include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/vorbis )
-include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/SDL2 )
-include_directories( ${PROJECT_SOURCE_DIR}/dependencies/include/boehmgc )
 
 add_compile_definitions(_USE_MATH_DEFINES)
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
@@ -118,12 +113,13 @@ if(JAM_BUILD_SHARED)
 	# has to be defined also for test projects, so public
 	target_compile_definitions(Jam_shared PUBLIC JAM_DLL)
 	# has to be defined only to library, so private
-	target_compile_definitions(Jam_shared PRIVATE JAM_EXPORTS)
-
+	target_compile_definitions(Jam_shared PRIVATE JAM_EXPORTS DECLSPEC=)
+	target_compile_definitions(Jam_shared PRIVATE
+		"JAM_DEFAULT_SHADERS_PATH=\"${PROJECT_BINARY_DIR}/resources/shaders\"")
+	add_dependencies(Jam_shared JamShaderResources)
+	target_include_directories(Jam_shared PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 	target_precompile_headers(Jam_shared PRIVATE ${JAM_PRECOMP_HDRS})
-	target_link_directories(Jam_shared PUBLIC ${JAM_THIRDPARTY_LIBRARY_PATH})
-	target_link_libraries(Jam_shared ${JAM_THIRDPARTY_LIBRARIES})
-
+	target_link_libraries(Jam_shared PUBLIC ${JAM_THIRDPARTY_LIBRARIES})
 endif()
 
 if(JAM_BUILD_STATIC)
@@ -139,9 +135,12 @@ if(JAM_BUILD_STATIC)
 		VERSION ${JAM_VERSION}
 	)
 
+	target_compile_definitions(Jam PRIVATE
+		"JAM_DEFAULT_SHADERS_PATH=\"${PROJECT_BINARY_DIR}/resources/shaders\"")
+	add_dependencies(Jam JamShaderResources)
+	target_include_directories(Jam PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 	target_precompile_headers(Jam PRIVATE ${JAM_PRECOMP_HDRS})
-	target_link_directories(Jam PUBLIC ${JAM_THIRDPARTY_LIBRARY_PATH})
-	target_link_libraries(Jam ${JAM_THIRDPARTY_LIBRARIES})
+	target_link_libraries(Jam PUBLIC ${JAM_THIRDPARTY_LIBRARIES})
 endif()
 
 # These are used to create visual studio folders.

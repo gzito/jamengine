@@ -31,7 +31,7 @@
 #define __JAM_BMKEXTRAS_H__
 
 #include <jam/thirdparty/random.h>
-#include <jam/core/Math.h>
+#include <jam/core/math.h>
 
 
 //
@@ -155,4 +155,4 @@
 // Passing amount a value of 0 will cause value1 to be returned, a value of 1 will cause value2 to be returned.
 #define LERP(value1,value2,amount)		(value1 + (value2 - value1) * amount)
 
-#endif	__JAM_BMKEXTRAS_H__
+#endif // __JAM_BMKEXTRAS_H__

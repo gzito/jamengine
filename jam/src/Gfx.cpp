@@ -35,6 +35,7 @@
 #include "jam/VertexArrayObject.h"
 #include "jam/Draw3DBatch.h"
 
+#include <cstdint>
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace std ;
@@ -157,7 +158,8 @@ void Gfx::drawIndexedPrimitive( VertexArrayObject* pVao, size_t numOfElements, M
 {
 	pVao->bind() ;
 	pMaterial->bind() ;
-	glDrawElements( pType, (GLsizei)numOfElements, GL_UNSIGNED_SHORT, (const void*)offset );
+	glDrawElements( pType, (GLsizei)numOfElements, GL_UNSIGNED_SHORT,
+		reinterpret_cast<const void*>(static_cast<std::uintptr_t>(offset)) );
 	pMaterial->unbind() ;
 	pVao->unbind() ;
 }
@@ -166,7 +168,8 @@ void Gfx::drawIndexedPrimitive( IVertexBuffer* pVBuff, Material* pMaterial, U16 
 {
 	pVBuff->bindVao() ;
 	pMaterial->bind() ;
-	glDrawElements( pType, pVBuff->getNumOfIndices(), GL_UNSIGNED_SHORT, (const void*)offset );
+	glDrawElements( pType, pVBuff->getNumOfIndices(), GL_UNSIGNED_SHORT,
+		reinterpret_cast<const void*>(static_cast<std::uintptr_t>(offset)) );
 	pMaterial->unbind() ;
 	pVBuff->unbindVao() ;
 }
