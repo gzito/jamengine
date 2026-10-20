@@ -14,7 +14,7 @@ A simple-to-use C++ game engine built upon OpenGL 3.2 and SDL 2
  - Audio support via openal-soft
 
 ## Dependencies
-You have to download dependencies yourself and build them from sources.
+Dependencies will automatically be downloaded and built from their sources.
 
  -  glm 0.9.9.6
  -  Box2D 2.3.0
@@ -25,29 +25,16 @@ You have to download dependencies yourself and build them from sources.
  -  openal-soft 1.20.1
  -  SDL2 2.0.12
  -  SDL_ttf 2.0.15
- -  tinyxml 2.6.2
+ -  tinyxml2 10.0.0
 
-Prebuilt win32 and win64 binaries dependencies are provided for your convenience at https://github.com/gzito/jamengine-dependencies
 
 ## How to build
 
-You need CMake (at least version 3.16) and Visual Studio 2019
-
-Unpack _jam-dependencies.zip_ file into project root folder.
-
-Run **cmake-gui**: 
-
-- _Where is the sorce code_: select project root folder ;
-- _Where to build the binaries_: select a folder of your choice ;
-
-
-Leave default settings as they are and click **Configure**.
-
-Choose your Visual Studio toolchain and select Win32 or x64 as platform. Then click **Generate**. Lastly open Visual Studio Project and you are done.
+See [BUILDING.md](./BUILDING.md)
 
 
 ## Tests
-The project has been tested as static library on Windows 10.
+The project has been tested as static library on Windows and macos.
 
 Also library wasn't tested on other platforms, but should work on Linux.
 
