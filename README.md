@@ -1,7 +1,7 @@
 # jamengine
 
 ## What is jamengine
-A simple-to-use C++ game engine built upon OpenGL 3.2 and SDL 2
+A simple-to-use C++ game engine built upon OpenGL 3.2 and SDL 2.0
 
 ## Features
 
@@ -22,8 +22,7 @@ See [BUILDING.md](./BUILDING.md)
 
 ## Tests
 The project has been tested as static library on Windows and macos.
-
-Also library wasn't tested on other platforms, but should work on Linux.
+It wasn't tested on other platforms, but should work on Linux.
 
 ## Acknoledgements
 See [ACKNOLEDGEMENTS.txt](./ACKNOLEDGEMENTS.txt)
